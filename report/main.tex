@@ -1,23 +1,206 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[oneside,a4paper,14pt]{extreport}
 
-\usepackage[margin=2.5cm]{geometry}
-\usepackage{fontspec}
+% Vietnamese typesetting
+\usepackage[T5]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\SetProtrusion{encoding=T5,family=lmtt}{}
+
+% Page layout
+\usepackage[
+  top=25mm,
+  bottom=25mm,
+  left=30mm,
+  right=20mm,
+  includefoot
+]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{indentfirst}
+\setlength{\parindent}{1.2cm}
+\setlength{\parskip}{0.25em}
+\setlength{\emergencystretch}{3em}
+
+% Math packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Tables, figures, diagrams and source listings
 \usepackage{graphicx}
-\usepackage[hidelinks]{hyperref}
-\setmainfont{Latin Modern Roman}
-\graphicspath{{figures/}}
+\graphicspath{{images/}{Title/}{figures/}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,fit,positioning,shapes.geometric}
 
-\title{Báo cáo cuối kỳ\\Project 03: Multimodal XAI}
-\author{Nhóm thực hiện: [Tên nhóm]}
-\date{}
+\definecolor{HCMUSBlue}{HTML}{165A9F}
+\definecolor{SoftBlue}{HTML}{EAF3FA}
+\definecolor{SoftGray}{HTML}{F4F5F6}
+\definecolor{CodeGreen}{HTML}{287D3C}
+\definecolor{CodePurple}{HTML}{7A3E9D}
+\definecolor{CodeGray}{HTML}{6A737D}
+\definecolor{StatusVerified}{HTML}{287D3C}
+\definecolor{StatusPartial}{HTML}{D97706}
+\definecolor{StatusNotVerified}{HTML}{DC2626}
+\definecolor{StatusNotAccessible}{HTML}{4B5563}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\DeclareRobustCommand{\code}[1]{\texttt{\detokenize{#1}}}
+\DeclareRobustCommand{\evidencefile}[1]{\path{#1}}
+
+% Callout & Evidence Tags for Skeleton & Draft Audit
+\newcommand{\evidencetag}[2]{%
+  \par\vspace{0.4em}\noindent%
+  \colorbox{SoftGray}{\small\textbf{\color{HCMUSBlue}[EVIDENCE]} \texttt{\detokenize{#1}} \textbf{|} \textbf{#2}}%
+  \par\vspace{0.4em}%
+}
+
+\newcommand{\placeholdertag}[2]{%
+  \par\vspace{0.4em}\noindent%
+  \colorbox{SoftBlue}{\small\textbf{\color{HCMUSBlue}[CẦN ĐIỀN: #1]} \textit{#2}}%
+  \par\vspace{0.4em}%
+}
+
+\newcommand{\tableplaceholder}[1]{%
+  \textit{\color{HCMUSBlue}[CẦN ĐIỀN: #1]}%
+}
+
+\newcommand{\figurecallout}[2]{%
+  \begin{figure}[H]
+    \centering
+    \fbox{\parbox[c][3.2cm][c]{0.88\textwidth}{\centering\bfseries\color{HCMUSBlue} [HÌNH DỰ KIẾN: #1]\\[1.5mm]\small\color{black} \textit{Nguồn/Minh chứng: \texttt{\detokenize{#2}}}}}
+    \caption{#1}\label{fig:#2}
+  \end{figure}
+}
+
+\lstdefinestyle{codeblock}{
+  backgroundcolor=\color{SoftGray},
+  basicstyle=\ttfamily\small,
+  commentstyle=\color{CodeGreen},
+  keywordstyle=\color{HCMUSBlue}\bfseries,
+  stringstyle=\color{CodePurple},
+  numbers=left,
+  numberstyle=\tiny\color{CodeGray},
+  numbersep=8pt,
+  breaklines=true,
+  keepspaces=true,
+  showstringspaces=false,
+  frame=single,
+  rulecolor=\color{black!20},
+  columns=fullflexible
+}
+\lstset{style=codeblock}
+
+% Captions, headings and links
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\bfseries\Large}
+  {\filright\MakeUppercase{\chaptername}\ \thechapter}
+  {0.6ex}
+  {\titlerule\vspace{1ex}\filright\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{24pt}
+
+\usepackage[unicode,colorlinks=true,linkcolor=HCMUSBlue,citecolor=HCMUSBlue,urlcolor=HCMUSBlue]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\crefname{chapter}{chương}{các chương}
+\Crefname{chapter}{Chương}{Các chương}
+\crefname{section}{mục}{các mục}
+\Crefname{section}{Mục}{Các mục}
+\crefname{subsection}{tiểu mục}{các tiểu mục}
+\Crefname{subsection}{Tiểu mục}{Các tiểu mục}
+\crefname{subsubsection}{tiểu mục}{các tiểu mục}
+\Crefname{subsubsection}{Tiểu mục}{Các tiểu mục}
+\crefname{table}{bảng}{các bảng}
+\Crefname{table}{Bảng}{Các bảng}
+\crefname{figure}{hình}{các hình}
+\Crefname{figure}{Hình}{Các hình}
+\crefname{equation}{phương trình}{các phương trình}
+\Crefname{equation}{Phương trình}{Các phương trình}
+\crefname{page}{trang}{các trang}
+\Crefname{page}{Trang}{Các trang}
+\crefname{appendix}{phụ lục}{các phụ lục}
+\Crefname{appendix}{Phụ lục}{Các phụ lục}
+
+\newcommand{\crefpairconjunction}{ và }
+\newcommand{\crefmiddleconjunction}{, }
+\newcommand{\creflastconjunction}{ và }
+\newcommand{\crefrangeconjunction}{ đến }
+
+% Bibliography configuration with dual-mode fallback (biblatex / bibtex)
+\IfFileExists{biblatex.sty}{
+  \usepackage[backend=biber,style=ieee,sorting=none]{biblatex}
+  \addbibresource{References/references.bib}
+  \newcommand{\renderbibliography}{\printbibliography[heading=bibintoc,title={Tài liệu tham khảo}]}
+}{
+  \usepackage{cite}
+  \newcommand{\renderbibliography}{%
+    \clearpage
+    \addcontentsline{toc}{chapter}{Tài liệu tham khảo}%
+    \bibliographystyle{unsrt}%
+    \bibliography{References/references}%
+  }
+}
+
+% Vietnamese labels
+\renewcommand{\chaptername}{Chương}
+\renewcommand{\contentsname}{Mục lục}
+\renewcommand{\listfigurename}{Danh mục hình}
+\renewcommand{\listtablename}{Danh mục bảng}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\tablename}{Bảng}
+\renewcommand{\bibname}{Tài liệu tham khảo}
+\renewcommand{\appendixname}{Phụ lục}
+
+% Report metadata
+\newcommand{\studentname}{Nhóm thực hiện Project 03}
+\newcommand{\studentid}{23120282 -- Chung Gia Khánh \textit{(và các thành viên nhóm)}}
+\newcommand{\lecturer}{Bộ môn Khoa học Máy tính / Giảng viên môn học}
+\newcommand{\coursename}{Học máy với dữ liệu đồ thị (Machine Learning with Graphs)}
+\newcommand{\reporttitle}{PROJECT 03: TRUY VẤN ĐA PHƯƠNG THỨC CÓ GIẢI THÍCH BẰNG ĐỒ THỊ}
+\newcommand{\reportsubtitle}{Multimodal Retrieval with Graph-based Explainability}
+\newcommand{\reportdate}{Tháng 11 năm 2026}
 
 \begin{document}
-\maketitle
-\tableofcontents
 
-\input{sections/introduction}
-\input{sections/methodology}
-\input{sections/experiments}
-\input{sections/conclusion}
+\hypersetup{pageanchor=false}
+\pagenumbering{gobble}
+\input{Title/title}
+
+\hypersetup{pageanchor=true}
+\pagenumbering{roman}
+\input{Appendix/summary}
+\clearpage
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+
+\pagenumbering{arabic}
+\input{Chapter1/chapter1}
+\input{Chapter2/chapter2}
+\input{Chapter3/chapter3}
+\input{Chapter4/chapter4}
+\input{Chapter5/chapter5}
+\input{Chapter6/chapter6}
+\input{Chapter7/chapter7}
+
+\clearpage
+\renderbibliography
+
+\appendix
+\input{Appendix/appendix1}
 
 \end{document}

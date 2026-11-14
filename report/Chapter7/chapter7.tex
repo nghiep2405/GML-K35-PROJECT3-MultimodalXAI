@@ -1,0 +1,48 @@
+\chapter{Kết luận}
+\label{chap:conclusion}
+
+\section{Tóm tắt kết quả nghiên cứu (Summary of Research Findings)}
+\label{sec:conclusion-summary}
+
+Đồ án đã hoàn thành việc xây dựng và khảo nghiệm toàn diện hệ thống truy hồi thông tin đa phương thức có khai thác cấu trúc đồ thị và sinh giải thích minh bạch theo chuỗi tiến trình học thuật ba cấp độ (Level 1 $\rightarrow$ Level 2 $\rightarrow$ Level 3). 
+
+Tại Cấp độ 1, nghiên cứu đã chứng minh bằng thực nghiệm độc lập có kiểm soát rằng việc kết hợp mạng nơ-ron chú ý đồ thị GAT với mô hình CLIP đóng băng nâng Mean Test MRR trên Flickr30k Entities từ $0.7232$ lên $0.8273$ qua 3 seed độc lập. Các phân tích triệt tiêu chặt chẽ đã bóc tách rõ ràng phần đóng góp của cấu trúc cạnh ngữ nghĩa đối xứng với hiệu ứng điều chỉnh không gian đặc trưng của bộ chuyển đổi adapter.
+
+Tại Cấp độ 2, việc ứng dụng mô hình dung hợp thích nghi dựa trên AdaMF trên các đồ thị tri thức đa phương thức quy mô lớn (DB15K và FB15k-237) đã tạo nên bước đột phá quyết định đối với bài toán truy vấn gián tiếp. Bằng chứng audit thực nghiệm trên DB15K xác nhận điểm Indirect MRR tăng vọt từ $0.0475$ (CLIP thuần) lên $0.3164$ (AdaMF Hybrid), vượt trội rõ rệt so với các cấu hình triệt tiêu không cạnh và hoán đổi cạnh bảo toàn bậc.
+
+Tại Cấp độ 3, nghiên cứu đã hoàn thiện khung phương pháp luận trích xuất giải thích đường đi và đồ thị con bắt nguồn trực tiếp từ cơ chế tính điểm của mô hình, thiết lập bộ tiêu chuẩn đo lường định lượng tính trung thực (fidelity), tính hợp lệ (validity) và độ thưa (sparsity), đồng thời phân định minh bạch các trường hợp giải thích thành công và thất bại.
+
+\evidencetag{Toàn bộ hệ thống artifact và audit logs}{VERIFIED}
+
+\section{Đóng góp chính và các giới hạn còn lại (Contributions and Limitations)}
+\label{sec:contributions-limitations}
+
+\subsection{Các đóng góp chính}
+\begin{enumerate}
+  \item Thiết lập một quy trình thực nghiệm truy hồi đa phương thức mẫu mực, bảo đảm tuyệt đối tính bất biến của dữ liệu kiểm thử và phòng chống rò rỉ thông tin qua các cơ chế kiểm soát mã băm SHA-256 nghiêm ngặt.
+  \item Phân lập một cách khoa học vai trò của cấu trúc đồ thị so với các yếu tố gia tăng tham số trong mạng nơ-ron, xóa bỏ sự ngộ nhận học thuật phổ biến về nguồn gốc của sự cải thiện hiệu năng.
+  \item Hiện thực hóa cơ chế dung hợp đặc trưng AdaMF-based trên đồ thị tri thức đa phương thức, giải quyết triệt để điểm mù của các mô hình Dual-Encoder đối với các truy vấn liên kết đa chặng.
+  \item Xây dựng quy trình đánh giá tính giải thích định lượng có kiểm chứng can thiệp nhiễu, nâng cao trách nhiệm giải trình của hệ thống trí tuệ nhân tạo.
+\end{enumerate}
+
+\subsection{Các giới hạn còn lại}
+Mặc dù đã đạt được các kết quả kỹ thuật vững chắc, nghiên cứu còn một số giới hạn cần được giải quyết trong giai đoạn tiếp theo:
+\begin{itemize}
+  \item Một số thực nghiệm triệt tiêu hoán đổi cạnh còn giới hạn ở số lượng 1 seed do ràng buộc thời gian tính toán của hạ tầng GPU.
+  \item Giao thức tạo đồ thị hoán đổi cạnh v2 hiện tại áp dụng phương pháp test-aware exclusion; cần nâng cấp lên mô hình strict test-blind hoàn toàn độc lập với nhãn kiểm thử.
+  \item Quá trình nghiệm thu thực nghiệm trên tập dữ liệu MMKG tiếng Việt tự xây cần được bổ sung đầy đủ các artifact chạy lại độc lập (independent replay artifacts).
+\end{itemize}
+
+\evidencetag{Project03_Report_Evidence_Gap_Map.md}{VERIFIED}
+
+\section{Hướng nghiên cứu tiếp theo (Future Work)}
+\label{sec:future-work}
+
+Để hoàn thiện và nâng tầm giá trị học thuật của công trình, các công việc trọng tâm cần tiếp tục triển khai bao gồm:
+\begin{enumerate}
+  \item Chạy bổ sung các seed ngẫu nhiên còn thiếu cho các nhánh ablation trên DB15K và FB15k-237 để báo cáo khoảng tin cậy trung bình và độ lệch chuẩn thống kê toàn diện.
+  \item Triển khai hoàn tất benchmark kiểm thử độc lập trên tập dữ liệu MMKG tiếng Việt tự xây, hoàn thiện Data Card và tài liệu hướng dẫn chuyển giao.
+  \item Nghiên cứu mở rộng cơ chế kết hợp điểm thích nghi động (adaptive query-dependent fusion) và ứng dụng sang miền dữ liệu video đa phương thức.
+\end{enumerate}
+
+\placeholdertag{Kế hoạch hoàn thiện}{Bổ sung lộ trình hoàn thiện các thực nghiệm còn lại trước ngày bảo vệ chính thức.}

@@ -9,6 +9,7 @@ venv/
 .env
 
 # LaTeX build outputs
+/report/report_compiled/
 /report/main.pdf
 /report/*.aux
 /report/*.fdb_latexmk

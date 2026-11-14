@@ -1,0 +1,115 @@
+\chapter{Thiết kế thực nghiệm}
+\label{chap:experimental-setup}
+
+\section{Tập dữ liệu và đặc trưng dữ liệu (Datasets and Characteristics)}
+\label{sec:datasets}
+
+Nghiên cứu sử dụng nhiều bộ dữ liệu công khai tiêu chuẩn và một tập dữ liệu tự xây nhằm phục vụ các mục tiêu chuyên biệt của từng cấp độ. \textbf{Nguyên tắc học thuật bắt buộc:} Các tập dữ liệu này sở hữu cấu trúc, phân phối và không gian ứng viên hoàn toàn khác nhau; do đó chúng được vận hành trên các giao thức thực nghiệm độc lập và kết quả giữa các tập không được so sánh chéo trực tiếp để rút ra kết luận thắng thua tổng quát.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Tổng hợp các bộ dữ liệu thực nghiệm trong nghiên cứu}
+\label{tab:dataset-summary}
+\begin{tabularx}{\textwidth}{L{2.8cm}C{1.8cm}L{3.2cm}L{3.0cm}Y}
+\toprule
+\textbf{Tập dữ liệu} & \textbf{Cấp độ} & \textbf{Số lượng thực thể / ảnh} & \textbf{Số bộ ba / cạnh đồ thị} & \textbf{Vai trò trong đồ án}\\
+\midrule
+Flickr30k Entities & Level 1 & 31.783 ảnh; 158.915 captions & Đồ thị thực thể--cụm từ cục bộ & Đánh giá baseline CLIP và mô hình GAT cơ sở\\
+Visual Genome & Level 1 / Phụ & 104.426 ảnh; \textit{split\_v2} (80/10/10) & Scene graphs: đối tượng, quan hệ, vùng & Khảo sát mở rộng quy mô đồ thị cảnh lớn\\
+DB15K (MMKG) & Level 2 & 14.708 thực thể; 12.842 ảnh & 99.028 triples; 279 relations & Đánh giá AdaMF-based và truy vấn gián tiếp\\
+FB15k-237 (MMKG) & Level 2 & 14.541 thực thể; ảnh gắn thực thể & 310.116 triples; 237 relations & Đối chứng phương pháp MMKG tiên tiến\\
+Custom MMKG & Level 3 & \tableplaceholder{50--150 entities} & \tableplaceholder{300--1.000 triples} & Đánh giá tính chuyển giao sang tiếng Việt\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 10); DB15K_Shuffled_Edges_v2_Review_Feedback.md; plan_Nghiep_Khanh.md}{VERIFIED}
+
+\section{Tiền xử lý dữ liệu và xây dựng đồ thị (Data Preprocessing and Graph Construction)}
+\label{sec:preprocessing}
+
+Để đảm bảo tính nghiêm ngặt và ngăn chặn rò rỉ dữ liệu, toàn bộ quy trình tiền xử lý được thực hiện theo các nguyên tắc:
+\begin{enumerate}
+  \item \textbf{Trích xuất đặc trưng:} Sử dụng mô hình CLIP (OpenCLIP ViT-B/32) đóng băng tham số. Đặc trưng hình ảnh và văn bản được trích xuất sẵn một lần duy nhất và lưu trữ dưới dạng mảng nhị phân định dạng Parquet/Tensor nhằm đảm bảo tính bất biến giữa các lần chạy.
+  \item \textbf{Xây dựng đồ thị và phân chia tập (Split Strategy):}
+  \begin{itemize}
+    \item Trên Visual Genome: Sử dụng quy tắc phân cụm ảnh trùng lặp (\textit{split\_v2}) với tỷ lệ 80/10/10 trên 104.426 ảnh, đảm bảo các ảnh có mã băm SHA-256 giống nhau hoặc khoảng cách pHash $\le 6$ bắt buộc phải nằm chung một tập phân chia để ngăn ngừa rò rỉ hình ảnh.
+    \item Trên DB15K và FB15k-237: Kế thừa tập phân chia chuẩn train/valid/test từ MMKB benchmark. Các cạnh đồ thị phục vụ huấn luyện chỉ được trích xuất duy nhất từ tập train.
+  \end{itemize}
+  \item \textbf{Không gian ứng viên (Candidate Pool):} Trong bài toán truy vấn DB15K, không gian ứng viên gồm 5.477 truy vấn kiểm thử được đối chiếu với toàn bộ tập thực thể đích hợp lệ theo giao thức chuẩn top-$k$ ($k=1000$).
+\end{enumerate}
+
+\evidencetag{plan_Nghiep_Khanh.md (Mục 2); frozen_contract.json; test_protocol.json}{VERIFIED}
+
+\section{Giao thức huấn luyện và đánh giá (Training and Evaluation Protocol)}
+\label{sec:training-protocol}
+
+Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để bảo đảm tính khách quan tuyệt đối:
+\begin{itemize}
+  \item \textbf{Kiểm soát tính ngẫu nhiên (Multi-seed Control):} Mọi thực nghiệm chính được chạy trên tối thiểu 3 seed ngẫu nhiên độc lập:
+  \begin{itemize}
+    \item Flickr30k (Level 1): Ba seed gồm \texttt{2026}, \texttt{2027}, \texttt{2028}.
+    \item DB15K / FB15k-237 (Level 2): Ba seed gồm \texttt{2027}, \texttt{2028}, \texttt{2029}.
+  \end{itemize}
+  Kết quả báo cáo bắt buộc phải thể hiện giá trị trung bình mẫu (Sample Mean) và độ lệch chuẩn mẫu (Sample Standard Deviation: $\text{Mean} \pm \text{SD}$).
+  \item \textbf{Quy tắc lựa chọn mô hình và siêu tham số:} Trọng số dung hợp $\alpha$, checkpoint tốt nhất (best checkpoint) và các siêu tham số huấn luyện (learning rate, weight decay, số lớp GNN) chỉ được tối ưu hóa dựa trên chỉ số MRR của tập kiểm định (validation set).
+  \item \textbf{Đóng băng kiểm thử (Frozen Test Protocol):} Tập kiểm thử chỉ được suy luận đúng một lần duy nhất sau khi toàn bộ tham số đã được khóa hoàn toàn. Tuyệt đối không dùng nhãn tập kiểm thử để điều chỉnh đồ thị hoặc tinh chỉnh ngưỡng.
+\end{itemize}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 6); test_protocol.json}{VERIFIED}
+
+\section{Cấu hình cơ sở và kiểm thử triệt tiêu (Baselines and Ablations)}
+\label{sec:baselines-ablations}
+
+Để phân lập chính xác nguồn gốc của sự cải thiện hiệu năng, nghiên cứu thiết lập hệ thống các cấu hình đối chứng (baselines) và kiểm thử triệt tiêu (ablation configurations) chuẩn mực:
+\begin{enumerate}
+  \item \textbf{CLIP-only Baseline:} Mô hình chỉ sử dụng độ tương đồng cosine của CLIP đóng băng, hoàn toàn không có sự tham gia của đồ thị ($\alpha_{\text{CLIP}} = 1.0$).
+  \item \textbf{Full Graph (CLIP + GAT / AdaMF-based):} Mô hình đầy đủ kết hợp thông tin tương đồng bề mặt và cấu trúc quan hệ đồ thị huấn luyện trên tập train.
+  \item \textbf{No-edges Control (Không cạnh):}
+  \begin{itemize}
+    \item Trong pipeline GAT (Flickr30k): Đồ thị loại bỏ hoàn toàn các cạnh quan hệ giữa các đối tượng, chỉ giữ lại các vòng lặp tự thân (self-loops). Cấu hình này tương đương với một mạng nơ-ron chiếu thích nghi (MLP/Adapter) không có cơ chế truyền thông điệp liên đối tượng.
+    \item Trong pipeline AdaMF (DB15K): Đóng băng hoàn toàn nhánh KGC, mô hình tương đương với CLIP-only thuần túy.
+  \end{itemize}
+  \item \textbf{Random Graph Control (Đồ thị ngẫu nhiên):} Thay thế các cạnh thực tế bằng các cạnh kết nối ngẫu nhiên đồng đều giữa các đỉnh để kiểm tra xem đồ thị có đơn thuần đóng vai trò như một bộ tạo nhiễu chính quy hóa hay không.
+  \item \textbf{Shuffled Edges Control (Hoán đổi cạnh bảo toàn bậc):}
+  \begin{itemize}
+    \item Hoán đổi các thực thể neo/đích trong cùng một loại quan hệ nhằm bảo toàn phân phối bậc (degree distribution) của các đỉnh nhưng phá hủy hoàn toàn ngữ nghĩa thực tế của bộ ba.
+    \item \textbf{Ghi chú audit quan trọng:} Nghiên cứu phân biệt rõ hai phiên bản Shuffled Edges trên DB15K: bản v1 (tồn tại 172 cạnh trùng tập validation và 171 cạnh trùng tập test) và bản v2 (đã loại bỏ hoàn toàn cạnh trùng held-out triples bằng phương pháp test-aware exclusion).
+  \end{itemize}
+\end{enumerate}
+
+\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2--3); 04b2_adamf_fb15k237_seed2027_ablation_shuffled_edges_molab.py}{VERIFIED}
+
+\section{Thang đo đánh giá (Evaluation Metrics)}
+\label{sec:metrics}
+
+Hệ thống đánh giá định lượng sử dụng các chỉ số học thuật tiêu chuẩn:
+\begin{itemize}
+  \item \textbf{Chỉ số truy hồi (Retrieval Performance):}
+  \begin{itemize}
+    \item $\text{Recall@}K$ ($K \in \{1, 5, 10\}$): Tỷ lệ phần trăm số câu truy vấn tìm thấy kết quả đúng trong top-$K$.
+    \item $\text{MRR}$ (Mean Reciprocal Rank): Nghịch đảo vị trí trung bình của kết quả đúng.
+    \item $\text{Indirect MRR}$: Điểm MRR tính riêng trên tập con các truy vấn gián tiếp nhằm xác định năng lực suy luận của đồ thị.
+  \end{itemize}
+  \item \textbf{Chỉ số giải thích (Explainability Metrics):}
+  \begin{itemize}
+    \item $\text{Fidelity}^-$ (Sufficiency/Fidelity): Mức độ sụt giảm điểm số khi loại bỏ đường đi giải thích khỏi đồ thị.
+    \item $\text{Validity}$: Tỷ lệ giải thích hợp lệ về mặt ngữ nghĩa và cú pháp logic.
+    \item $\text{Sparsity}$: Tỷ lệ số cạnh tối giản trong đồ thị con giải thích so với đồ thị tổng thể.
+  \end{itemize}
+\end{itemize}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 7)}{VERIFIED}
+
+\section{Khả năng tái lập và phòng chống rò rỉ dữ liệu (Reproducibility \& Leakage Prevention)}
+\label{sec:reproducibility-leakage}
+
+Nghiên cứu áp dụng các quy chuẩn phòng chống rò rỉ dữ liệu (Data Leakage Prevention) tuyệt đối:
+\begin{itemize}
+  \item \textbf{Khóa mã băm (Artifact Hash Locking):} Toàn bộ tập dữ liệu đã chia, ma trận đặc trưng trích xuất và file checkpoint mô hình đều được lưu kèm chữ ký mã băm SHA-256 trong file \texttt{test\_protocol.json} và \texttt{baseline\_manifest.json}.
+  \item \textbf{Kiểm soát chồng lấn cạnh (Edge Overlap Audit):} Báo cáo công khai và minh bạch kết quả rà soát chồng lấn cạnh. Trên DB15K Shuffled Edges v2, quy trình tạo đồ thị bảo đảm \texttt{validation\_overlap = 0} và \texttt{test\_overlap = 0}. Báo cáo ghi nhận rõ ràng đây là phương pháp loại trừ có nhận biết nhãn tập kiểm thử (test-aware exclusion), không tuyên bố là blind-generation thuần túy nhằm giữ vững đạo đức nghiên cứu khoa học.
+\end{itemize}
+
+\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 3); frozen_contract.json}{VERIFIED}

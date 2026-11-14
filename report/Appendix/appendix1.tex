@@ -1,0 +1,109 @@
+\chapter{Phụ lục bổ trợ}
+\label{chap:appendices}
+
+\section{Phụ lục A: Bảng đối chiếu yêu cầu đề bài và tình trạng minh chứng}
+\label{app:requirement-traceability}
+
+Bảng~\ref{tab:app-requirement-traceability} tổng hợp sự đối chiếu chi tiết giữa các yêu cầu chính thức trong đề bài \cite{project03requirement} với các artifact thực nghiệm đã được kiểm chứng độc lập trong hệ thống.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\caption{Đối chiếu yêu cầu đề tài Project 03 với artifact và tình trạng kiểm chứng}
+\label{tab:app-requirement-traceability}
+\begin{tabularx}{\textwidth}{L{1.4cm}L{3.2cm}L{4.2cm}C{2.0cm}Y}
+\toprule
+\textbf{Cấp độ} & \textbf{Yêu cầu đề bài} & \textbf{Artifact / File nguồn} & \textbf{Tình trạng} & \textbf{Ghi chú học thuật}\\
+\midrule
+Level 1 & Baseline CLIP đóng băng & \path{03_3_clip_baseline_retrieval.ipynb} & VERIFIED & Test MRR $\sim 0.7232$ trên Flickr30k\\
+Level 1 & CLIP + GAT (3 seeds) & \path{04a_gat_training_validation.ipynb} & VERIFIED & Mean MRR $\sim 0.8273$ qua seeds 2026--2028\\
+Level 1 & Ablation: No-edge / Random & \path{double-check/flickr30k_ablation.json} & VERIFIED & Xác định vai trò của projection adapter\\
+Level 1 & Phân tích 5 thành công + 5 thất bại & \path{06_flickr30k_gat_xai_level1.ipynb} & PARTIAL & Đã có notebook và đồ thị ví dụ\\
+\midrule
+Level 2 & MMKG: 2 tập công khai & DB15K và FB15k-237 manifests & VERIFIED & Kế thừa chuẩn MMKB\\
+Level 2 & Phương pháp mới $\ge 2024$ (AdaMF) & \path{src/gml_v2/}; \path{04b2_adamf_*.py} & VERIFIED & AdaMF-based Multimodal Fusion\\
+Level 2 & Phân tách Direct vs. Indirect & \path{DB15K_Shuffled_Edges_v2_Review.md} & VERIFIED & Indirect MRR tăng từ 0.047 lên 0.316\\
+Level 2 & Bộ 20 truy vấn đánh giá chuẩn & \path{test_protocol.json} & PARTIAL & 5.477 queries test; cần trích lọc 20 case\\
+Level 2 & Ablation: Shuffled Edges v2 & \path{test_metrics.csv} & VERIFIED & MRR 0.3156 (overlap 0/0 test-aware)\\
+\midrule
+Level 3 & Đo Fidelity, Validity, Sparsity & \path{07_db15k_fb15k_adamf_xai_level2.ipynb} & PARTIAL & Đã có framework và công thức đo lường\\
+Level 3 & Custom MMKG tiếng Việt & \path{dataset/mmkg_tv} & NOT VERIFIED & Có ảnh và metadata; chưa có test run\\
+\midrule
+Mở rộng & Image-to-Text / Video / Loss & \path{Project03_Multimodal_XAI.pdf} & NOT VERIFIED & Hướng mở rộng tính điểm cộng\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Phụ lục B: Cấu hình siêu tham số và tài nguyên tính toán}
+\label{app:hyperparameters}
+
+Bảng~\ref{tab:hyperparameters} liệt kê chi tiết các siêu tham số được sử dụng để huấn luyện mô hình ở từng cấp độ thực nghiệm:
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Bảng tổng hợp siêu tham số huấn luyện của các mô hình}
+\label{tab:hyperparameters}
+\begin{tabularx}{\textwidth}{L{4.0cm}L{3.5cm}L{3.5cm}Y}
+\toprule
+\textbf{Tham số / Cấu hình} & \textbf{Level 1 (GAT)} & \textbf{Level 2 (AdaMF)} & \textbf{Ghi chú}\\
+\midrule
+Backbone thị giác & ViT-B/32 (OpenCLIP) & ViT-B/32 (OpenCLIP) & Đóng băng toàn bộ trọng số\\
+Kích thước nhúng ($d$) & 512 & 512 & Đồng nhất không gian CLIP\\
+Số lớp GNN & 2 lớp GAT & 2 tầng Transformer & Truyền thông điệp cục bộ\\
+Kích thước ẩn (Hidden Dim) & 128 & 256 & Chiếu không gian trung gian\\
+Số đầu chú ý (Heads) & 4 heads & 4 heads & Đa cơ chế chú ý\\
+Tỷ lệ Dropout & 0.2 & 0.1 & Phòng chống quá khớp\\
+Hàm tối ưu & AdamW & AdamW & Weight decay = $1\text{e-}4$\\
+Tốc độ học (Learning Rate) & $1\text{e-}3$ & $5\text{e-}4$ & Giảm theo Cosine Annealing\\
+Số Epoch tối đa & 50 & 500 (Early stop = 8) & Dừng sớm theo Validation\\
+Trọng số kết hợp $\alpha_{\text{CLIP}}$ & 0.6 (trên VG) & 0.2 (trên DB15K) & Khóa trên Validation\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Phụ lục C: Hướng dẫn tái lập thực nghiệm (Reproduction Guide)}
+\label{app:reproduction}
+
+Quy trình tái lập các kết quả thực nghiệm từ mã nguồn và dữ liệu đã chuẩn hóa được tóm tắt qua các bước chuẩn:
+
+\begin{lstlisting}[language=bash,caption={Các bước tái lập thực nghiệm trên môi trường GPU}]
+# 1. Khoi tao moi truong ao va cai dat thu vien
+python3 -m venv venv && source venv/bin/activate
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+pip install torch_geometric pyarrow duckdb pandas scikit-learn transformers
+
+# 2. Xac thuc ma bam du lieu va checkpoint
+sha256sum -c reference/model_handoff_manifest.json
+
+# 3. Tai lap ket qua suy luan Level 1 (Flickr30k)
+python src/gml_v1/evaluate_gat.py --seed 2026 --checkpoint model/gat_v1/seed_2026/best.pt
+
+# 4. Tai lap ket qua suy luan Level 2 (DB15K AdaMF seed 2027)
+python src/gml_v2/evaluate_adamf.py --dataset DB15K --seed 2027 --alpha 0.2
+\end{lstlisting}
+
+\section{Phụ lục D: Phân công trách nhiệm và đóng góp của thành viên}
+\label{app:contributions}
+
+Bảng~\ref{tab:contributions} ghi nhận minh bạch vai trò và tỷ lệ đóng góp của từng thành viên trong nhóm đồ án:
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Bảng phân công trách nhiệm và tỷ lệ đóng góp của thành viên}
+\label{tab:contributions}
+\begin{tabularx}{\textwidth}{C{1.0cm}L{3.0cm}L{2.5cm}Y C{1.8cm}}
+\toprule
+\textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Nhiệm vụ chính phụ trách} & \textbf{Đóng góp}\\
+\midrule
+1 & Chung Gia Khánh & 23120282 & Trưởng nhóm, thiết kế kiến trúc tổng thể, audit kỹ thuật, kiểm thử triệt tiêu Level 2 và biên tập báo cáo & 25\%\\
+2 & \textit{[CẦN ĐIỀN: Tên SV 2]} & \textit{[23120xxx]} & Xử lý dữ liệu Visual Genome / Flickr30k, trích xuất CLIP baseline và xây dựng đồ thị Level 1 & 25\%\\
+3 & \textit{[CẦN ĐIỀN: Tên SV 3]} & \textit{[23120xxx]} & Huấn luyện và tối ưu mạng GAT Level 1, phân tích truy vấn định tính 5 thành công + 5 thất bại & 25\%\\
+4 & \textit{[CẦN ĐIỀN: Tên SV 4]} & \textit{[23120xxx]} & Triển khai cơ chế giải thích xAI Level 3, đo lường Fidelity, thu thập tập dữ liệu MMKG tự xây & 25\%\\
+\bottomrule
+\end{tabularx}
+\end{table}

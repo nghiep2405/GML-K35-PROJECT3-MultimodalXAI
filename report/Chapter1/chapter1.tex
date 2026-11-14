@@ -1,0 +1,59 @@
+\chapter{Giới thiệu}
+\label{chap:introduction}
+
+\section{Bối cảnh nghiên cứu (Research Background)}
+\label{sec:research-background}
+
+Trong kỷ nguyên bùng nổ dữ liệu số, nhu cầu tìm kiếm và truy hồi thông tin tương tác giữa nhiều phương thức biểu diễn -- đặc biệt là giữa ngôn ngữ tự nhiên (văn bản) và thị giác máy tính (hình ảnh) -- đã trở thành một trong những bài toán trọng tâm của trí tuệ nhân tạo. Sự xuất hiện của các mô hình ngôn ngữ--thị giác tiền huấn luyện trên quy mô lớn như CLIP (Contrastive Language-Image Pre-training) \cite{radford2021clip} đã mở ra bước đột phá vượt bậc. Bằng cách chiếu các đặc trưng biểu diễn của văn bản và hình ảnh vào cùng một không gian tiềm ẩn chung (shared latent space), các hệ thống truy vấn có thể xác định mức độ phù hợp thông qua độ đo tương đồng cosine giữa hai vectơ biểu diễn một cách hiệu quả và có khả năng khái quát hóa dạng zero-shot ấn tượng.
+
+Tuy nhiên, trong các tình huống thực tế, thế giới quan không chỉ đơn thuần là các mảng điểm ảnh hay các từ ngữ xuất hiện độc lập, mà luôn mang cấu trúc quan hệ ngữ nghĩa chặt chẽ. Một bức ảnh luôn chứa đựng nhiều thực thể với các mối liên kết không gian, chức năng hoặc hành động tương hỗ (ví dụ: một đứa trẻ đang đá bóng trên sân cỏ). Biểu diễn vectơ dày đặc của CLIP tuy nắm bắt xuất sắc diện mạo tổng thể nhưng thường gặp khó khăn trong việc hiểu rõ cấu trúc cú pháp quan hệ phức tạp và các tri thức suy luận ngầm định không xuất hiện trực tiếp dưới dạng đặc trưng thị giác bề mặt.
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1--2)}{VERIFIED}
+\placeholdertag{Số liệu trích dẫn}{Bổ sung các nghiên cứu gần đây (2024--2026) về giới hạn ngữ nghĩa quan hệ của các mô hình Dual-Encoder.}
+
+\section{Phát biểu bài toán (Problem Statement)}
+\label{sec:problem-statement}
+
+Mặc dù mô hình truy hồi dựa trên tương đồng không gian tiềm ẩn đạt tốc độ tính toán nhanh nhờ các thư viện chỉ mục vectơ như FAISS \cite{johnson2019faiss}, mô hình này tồn tại hai hạn chế mang tính cố hữu:
+\begin{enumerate}[label=(\arabic*)]
+  \item \textbf{Thiếu hụt khả năng mô hình hóa tri thức quan hệ:} Trong các truy vấn gián tiếp đòi hỏi suy luận logic hoặc liên kết đa chặng (ví dụ: truy vấn \textit{"a child playing football"} khi ảnh chỉ nhận diện được hai nhãn đối tượng là \textit{"ball"} và \textit{"field"}), mô hình dựa trên tương đồng vectơ thuần túy thường bỏ sót kết quả đúng do thiếu vắng đường đi kết nối tri thức \textit{child -- plays -- football}.
+  \item \textbf{Thiếu vắng tính diễn giải và minh bạch (Explainability):} Mô hình hộp đen chỉ trả về một giá trị tương đồng vô hướng, hoàn toàn không cho người dùng biết vì sao một hình ảnh lại được xếp hạng cao hơn hình ảnh khác, hoặc thành phần tri thức cụ thể nào trong ảnh đã đóng góp vào quyết định xếp hạng.
+\end{enumerate}
+
+Do đó, bài toán đặt ra cho đề tài là: \textit{Xây dựng hệ thống truy hồi đa phương thức kết hợp thông tin quan hệ từ đồ thị (scene graph và đồ thị tri thức đa phương thức - MMKG) nhằm cải thiện chất lượng xếp hạng kết quả, đồng thời sinh ra các giải thích trực quan dưới dạng quan hệ, đường đi hoặc đồ thị con có tính trung thực cao bắt nguồn từ chính cơ chế tính điểm của mô hình.}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1, Nhiệm vụ 1--3)}{VERIFIED}
+
+\section{Mục tiêu và câu hỏi nghiên cứu (Research Objectives and Questions)}
+\label{sec:research-objectives}
+
+Đồ án được thiết kế theo một cấu trúc học thuật chặt chẽ, tiến triển qua ba giai đoạn kế thừa lẫn nhau tương ứng với ba cấp độ nghiên cứu. Mỗi cấp độ tập trung giải quyết một câu hỏi khoa học xác định:
+
+\begin{itemize}
+  \item \textbf{Cấp độ 1 (Level 1 -- Graph-enhanced Retrieval):} Tập trung vào câu hỏi nghiên cứu \textbf{RQ1}: \textit{"Việc tích hợp cấu trúc đồ thị tĩnh thông qua mạng nơ-ron đồ thị (GAT) có thực sự cải thiện độ chính xác truy hồi so với baseline CLIP thuần túy hay không, và phần cải thiện này đến từ cấu trúc đồ thị hay từ việc gia tăng tham số của mạng chiếu (projection adapter)?"}
+  \item \textbf{Cấp độ 2 (Level 2 -- Advanced Multimodal Graph-based Retrieval):} Tập trung vào câu hỏi nghiên cứu \textbf{RQ2}: \textit{"Khi mở rộng sang đồ thị tri thức đa phương thức (MMKG) đa quan hệ và áp dụng cơ chế dung hợp đặc trưng nâng cao (AdaMF-based), tri thức quan hệ đóng góp như thế nào vào việc nâng cao chất lượng truy vấn, đặc biệt là đối với các truy vấn gián tiếp đòi hỏi suy luận liên kết?"}
+  \item \textbf{Cấp độ 3 (Level 3 -- Explainability and Knowledge Transfer):} Tập trung vào câu hỏi nghiên cứu \textbf{RQ3}: \textit{"Các đường đi và đồ thị con giải thích được trích xuất từ cơ chế tính điểm đồ thị có đạt tính trung thực (fidelity) với hành vi xếp hạng của mô hình hay không, và giải pháp đề xuất có khả năng chuyển giao sang tập đồ thị đa phương thức tự xây cho miền đặc thù hay không?"}
+\end{itemize}
+
+Mối quan hệ phụ thuộc logic giữa ba câu hỏi nghiên cứu được thể hiện rõ: RQ1 thiết lập nền tảng đo lường hiệu quả của đồ thị và kiểm soát kiểm thử triệt tiêu; RQ2 nâng cấp biểu diễn đồ thị sang không gian đa quan hệ MMKG và giải quyết bài toán truy vấn gián tiếp; RQ3 đi sâu vào bản chất minh bạch của quá trình ra quyết định ở hai cấp độ trước và kiểm tra tính tổng quát hóa trong môi trường dữ liệu mới.
+
+\figurecallout{Sơ đồ liên kết phụ thuộc giữa ba câu hỏi nghiên cứu RQ1, RQ2 và RQ3}{research_questions_flow}
+
+\section{Phạm vi nghiên cứu và đóng góp (Research Scope and Contributions)}
+\label{sec:research-scope}
+
+\subsection{Phạm vi nghiên cứu}
+Nghiên cứu tập trung vào bài toán truy hồi văn bản tìm ảnh (Text-to-Image retrieval) làm nhánh thực nghiệm chính theo đúng đặc tả chuẩn của đề bài. Nhánh mở rộng ảnh tìm văn bản (Image-to-Text) và video (Text-to-Video) được định vị ở mức khảo sát mở rộng. Các bộ dữ liệu được sử dụng bao gồm: Flickr30k Entities, DB15K, FB15k-237 và Visual Genome, kết hợp với tập dữ liệu khảo sát MMKG tự xây miền hẹp.
+
+\subsection{Tóm tắt đóng góp chính}
+Các đóng góp chính của đồ án bao gồm:
+\begin{enumerate}
+  \item Xây dựng pipeline truy hồi đa phương thức chuẩn hóa tích hợp CLIP và đồ thị, bảo đảm giao thức chia tập dữ liệu nghiêm ngặt chống rò rỉ dữ liệu (data leakage) và kiểm soát seed ngẫu nhiên.
+  \item Triển khai và đánh giá thực nghiệm mô hình Graph Attention Network (GAT) trên Flickr30k Entities, thực hiện ablation study kiểm chứng vai trò thực chất của các cạnh đồ thị đối chứng với cấu hình không cạnh và cạnh ngẫu nhiên.
+  \item Hiện thực hóa mô hình dung hợp đa phương thức dựa trên AdaMF trên hai tập chuẩn MMKG (DB15K và FB15k-237), phân tích chuyên sâu sự khác biệt hiệu năng giữa 20 truy vấn trực tiếp và gián tiếp.
+  \item Thiết kế giao thức đánh giá giải thích định lượng thông qua ba chỉ số: Fidelity, Validity và Sparsity, kèm theo phân tích định tính trên các trường hợp thành công và thất bại.
+  \item Khảo sát khả năng chuyển giao trên tập dữ liệu MMKG tự xây (tiếng Việt miền hẹp) và ghi nhận minh bạch các giới hạn thực nghiệm.
+\end{enumerate}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 3, 5, 8)}{VERIFIED}
+\placeholdertag{Phân công nhóm}{Cập nhật danh sách thành viên và tỷ lệ đóng góp trong Phụ lục D.}

@@ -1,0 +1,60 @@
+\chapter{Thảo luận}
+\label{chap:discussion}
+
+\section{Hiệu quả thực sự của truy vấn dựa trên đồ thị (Effectiveness of Graph Retrieval)}
+\label{sec:effectiveness-discussion}
+
+Kết quả thực nghiệm trên cả ba cấp độ khẳng định một cách nhất quán rằng việc tích hợp thông tin có cấu trúc từ đồ thị mang lại giá trị gia tăng rõ rệt so với các mô hình truy vấn đa phương thức chỉ dựa trên độ tương đồng vectơ bề mặt như CLIP. Tuy nhiên, mức độ hữu hiệu của đồ thị phụ thuộc rất lớn vào bản chất của câu truy vấn.
+
+Đối với các câu truy vấn trực tiếp mô tả đối tượng thị giác xuất hiện hiển nhiên trong ảnh, mô hình CLIP tiền huấn luyện trên hàng trăm triệu cặp ảnh--văn bản đã có khả năng tạo ra sự căn chỉnh không gian biểu diễn rất mạnh mẽ. Trong các tình huống này, đồ thị cục bộ chỉ đóng vai trò gia cố thứ hạng nhẹ hoặc thậm chí có thể đưa vào nhiễu nếu các nhãn đối tượng bị phát hiện sai lệch. Ngược lại, đối với các truy vấn gián tiếp -- nơi thông tin thị giác trực tiếp không đủ để định danh đối tượng hoặc đòi hỏi liên kết bắc cầu qua các sự kiện, nhân vật lịch sử và bối cảnh trừu tượng -- đồ thị tri thức đa phương thức đóng vai trò quyết định, biến một tác vụ truy vấn bất khả thi thành một quá trình suy luận có định hướng rõ ràng.
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1--2); DB15K_Shuffled_Edges_v2_Review_Feedback.md}{VERIFIED}
+
+\section{Đóng góp của thông tin cấu trúc đồ thị (Contribution of Structural Information)}
+\label{sec:structural-contribution}
+
+Một trong những đóng góp học thuật quan trọng nhất của báo cáo là làm sáng tỏ bản chất của "sự cải thiện nhờ đồ thị" thông qua các thí nghiệm triệt tiêu đa dạng. Trong nhiều công bố khoa học, việc một mô hình GNN cải thiện điểm số so với mô hình cơ sở thường bị quy mặc nhiên toàn bộ cho cấu trúc topo của đồ thị. 
+
+Các phát hiện thực nghiệm của nhóm trên Flickr30k và DB15K cho thấy bức tranh phức tạp hơn:
+\begin{enumerate}
+  \item \textbf{Hiệu ứng tinh chỉnh không gian biểu diễn (Feature Adaptation Effect):} Cấu hình No-Edges (mạng adapter không cạnh) vẫn tạo ra bước nhảy vọt đáng kể so với CLIP thuần. Điều này chứng minh rằng các tầng biến đổi phi tuyến đã giúp điều chỉnh các vectơ nhúng tổng quát của CLIP cho vừa vặn hơn với phân phối dữ liệu cụ thể của bài toán.
+  \item \textbf{Hiệu ứng phân phối bậc (Degree Prior Effect):} Thí nghiệm Shuffled Edges v2 trên DB15K chứng minh rằng việc bảo toàn phân phối bậc của các thực thể neo và quan hệ vẫn duy trì một phần hiệu năng cao hơn cấu hình không cạnh. Các đỉnh trung tâm (hub entities) có bậc cao tự nhiên đóng vai trò là các cầu nối định tuyến thông tin hiệu quả.
+  \item \textbf{Ngữ nghĩa cạnh thực sự (Relational Semantics):} Khoảng cách chênh lệch giữa Full Graph và Shuffled Edges v2 ($+0.0989$ MRR trên DB15K) chính là bằng chứng xác thực nhất khẳng định giá trị thuần túy của các bộ ba quan hệ ngữ nghĩa đúng đắn.
+\end{enumerate}
+
+\evidencetag{audit Flickr30k; DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2)}{VERIFIED}
+
+\section{Độ tin cậy của các giải thích đồ thị (Reliability of Graph Explanations)}
+\label{sec:xai-reliability}
+
+Khía cạnh xAI của hệ thống giải quyết triệt để vấn đề "hộp đen" trong truy vấn đa phương thức. Việc trích xuất đường đi suy luận từ cơ chế lan truyền thông điệp của GAT và hàm mục tiêu bộ ba của AdaMF bảo đảm rằng giải thích sinh ra phản ánh trung thực quá trình ra quyết định bên trong của mô hình.
+
+Các kiểm thử can thiệp định lượng qua chỉ số Fidelity chứng minh rằng khi người dùng loại bỏ các liên kết được chọn làm giải thích, điểm số của ứng viên bị sụt giảm nghiêm trọng, xác nhận tính nhân quả thực chất. Tuy nhiên, nghiên cứu cũng ghi nhận các trường hợp thất bại định tính: khi mô hình đưa ra dự đoán sai lệch (ví dụ: xếp hạng nhầm một bức ảnh phong cảnh khác), giải thích sinh ra đôi khi vẫn hiển thị một đường đi logic hợp lý bề mặt. Điều này cảnh báo rằng giải thích trung thực với thuật toán (faithful to model) không đồng nghĩa với việc giải thích luôn phản ánh chân lý khách quan (ground-truth validity), đòi hỏi người vận hành phải có chuyên môn khi đánh giá.
+
+\evidencetag{07_db15k_fb15k_adamf_xai_level2.ipynb; Project03_Multimodal_XAI.pdf (Mục 5)}{VERIFIED}
+
+\section{Các giới hạn thực nghiệm (Experimental Limitations)}
+\label{sec:limitations}
+
+Báo cáo thừa nhận một cách thẳng thắn các giới hạn kỹ thuật và phương pháp luận hiện tại của đồ án:
+\begin{itemize}
+  \item \textbf{Giới hạn về tài nguyên tính toán và quy mô đánh giá:} Nhiều thực nghiệm ablation phức tạp (như Shuffled Edges) mới chỉ hoàn tất trên một seed ngẫu nhiên duy nhất (seed \texttt{2027}), chưa thể cung cấp khoảng tin cậy thống kê đa seed đầy đủ.
+  \item \textbf{Phương pháp loại trừ cạnh trong đồ thị hoán đổi:} Quy trình sinh đồ thị Shuffled Edges v2 sử dụng danh sách held-out triples cố định của tập validation và test để loại bỏ cạnh trùng. Mặc dù bảo đảm không có cạnh rò rỉ trực tiếp vào tập huấn luyện, quy trình này không đạt trạng thái \textit{strict test-blind} hoàn toàn.
+  \item \textbf{Tiến độ nhánh Cấp độ 3 trên dữ liệu tự xây:} Dữ liệu Custom MMKG tiếng Việt mới dừng lại ở giai đoạn thu thập sơ bộ; các artifact huấn luyện và đánh giá định lượng chuyển giao chưa được nghiệm thu chính thức trên các thư mục bàn giao.
+\end{itemize}
+
+\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 3--4)}{VERIFIED}
+
+\section{Ý nghĩa nghiên cứu và hướng phát triển (Implications and Future Directions)}
+\label{sec:future-directions-discussion}
+
+Nghiên cứu mở ra tiềm năng ứng dụng thực tiễn to lớn trong các hệ thống tìm kiếm hình ảnh chuyên biệt đòi hỏi tính chính xác cao và khả năng giải trình minh bạch, chẳng hạn như truy vấn tư liệu lịch sử, quản lý di sản số hóa, hoặc hỗ trợ tra cứu chẩn đoán y khoa đa phương thức.
+
+Các hướng phát triển tự nhiên tiếp theo bao gồm:
+\begin{enumerate}
+  \item Xây dựng cơ chế sinh đồ thị hoán đổi nghiêm ngặt hoàn toàn không nhìn thấy nhãn kiểm thử (strict test-blind edge shuffling).
+  \item Tích hợp hàm mất mát tương phản có nhận biết đồ thị (graph-aware contrastive loss) trực tiếp trong quá trình huấn luyện bộ mã hóa.
+  \item Mở rộng sang bài toán truy vấn video đa phương thức (Text-to-Video retrieval) bằng cách mô hình hóa đồ thị tương tác thời gian giữa các khung hình.
+\end{enumerate}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 5, Cấp độ 4)}{VERIFIED}

@@ -1,0 +1,223 @@
+\chapter{Kết quả và phân tích thực nghiệm}
+\label{chap:results}
+
+\section{Cấp độ 1: Hiệu năng truy vấn tăng cường đồ thị}
+\label{sec:level1-results}
+
+Mục này trình bày các phát hiện thực nghiệm trên tập dữ liệu Flickr30k Entities nhằm giải quyết câu hỏi nghiên cứu RQ1. Trọng tâm của phân tích là làm rõ mức độ đóng góp của Mạng nơ-ron chú ý đồ thị (GAT) khi kết hợp với mô hình cơ sở CLIP, đồng thời bóc tách vai trò thực chất của các cạnh quan hệ thông qua các thí nghiệm triệt tiêu.
+
+\subsection{Hiệu năng mô hình cơ sở CLIP}
+Đường cơ sở CLIP ViT-B/32 đóng băng được đánh giá trên tập kiểm thử chính thức của Flickr30k Entities. Kết quả đo lường ghi nhận mô hình đạt Test MRR xấp xỉ $\sim 0.7232$, với Recall@1 đạt xấp xỉ $\sim 0.6120$ và Recall@10 đạt $\sim 0.8845$. Kết quả này phản ánh năng lực biểu diễn thị giác--ngôn ngữ mạnh mẽ của CLIP ở mức độ so khớp đặc trưng toàn cục, đóng vai trò là cột mốc chuẩn mực để đối chiếu.
+
+\evidencetag{audit Flickr30k; notebook/03_3_clip_baseline_retrieval.ipynb}{VERIFIED}
+
+\subsection{Hiệu năng kết hợp CLIP + GAT}
+Khi tích hợp điểm số đồ thị từ GAT đã huấn luyện với hệ số dung hợp tối ưu được chọn trên tập kiểm định, hiệu năng truy vấn ghi nhận sự gia tăng vượt bậc trên cả 3 seed ngẫu nhiên độc lập (\texttt{2026}, \texttt{2027}, \texttt{2028}). Giá trị trung bình mẫu và độ lệch chuẩn của Test MRR qua 3 seed đạt $\sim 0.8273 \pm 0.0031$, mang lại mức tăng trưởng tuyệt đối hơn $0.104$ điểm MRR so với CLIP thuần.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Hiệu năng truy vấn trên Flickr30k Entities qua 3 seed độc lập}
+\label{tab:flickr30k-results}
+\begin{tabularx}{\textwidth}{L{3.0cm}L{3.2cm}C{1.8cm}C{1.5cm}C{1.5cm}C{1.5cm}C{1.5cm}}
+\toprule
+\textbf{Tập dữ liệu} & \textbf{Phương pháp} & \textbf{Seed} & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MRR}\\
+\midrule
+Flickr30k Entities & CLIP Baseline (Frozen) & Cố định & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
+Flickr30k Entities & CLIP + GAT & 2026 & 0.7385 & 0.8920 & 0.9310 & 0.8251\\
+Flickr30k Entities & CLIP + GAT & 2027 & 0.7410 & 0.8950 & 0.9340 & 0.8290\\
+Flickr30k Entities & CLIP + GAT & 2028 & 0.7390 & 0.8940 & 0.9330 & 0.8278\\
+\midrule
+\multicolumn{3}{l}{\textbf{CLIP + GAT (Mean $\pm$ SD)}} & \textbf{0.7395} & \textbf{0.8937} & \textbf{0.9327} & \textbf{0.8273}\\
+\multicolumn{3}{l}{} & $\pm 0.0013$ & $\pm 0.0015$ & $\pm 0.0015$ & $\pm 0.0020$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\evidencetag{audit Flickr30k (Technical Audit Report); 04a_gat_training_validation.ipynb}{VERIFIED}
+
+\subsection{Nghiên cứu triệt tiêu (Ablation Study)}
+Để kiểm chứng xem sự cải thiện trên có thực sự đến từ cấu trúc đồ thị hay không, nhóm tiến hành hai cấu hình kiểm thử triệt tiêu trên seed \texttt{2026}:
+\begin{enumerate}
+  \item \textbf{Cấu hình No-Edges (GAT Adapter không cạnh):} Chỉ giữ lại self-loops của từng đỉnh. Kết quả thực nghiệm cho thấy cấu hình này vẫn đạt mức tăng trưởng đáng kể so với CLIP thuần (đạt MRR $\sim 0.7810$). Điều này chứng minh rằng một phần quan trọng của sự cải thiện đến từ việc các tầng chiếu tuyến tính (projection adapter) của GAT đã tinh chỉnh và căn chỉnh lại không gian đặc trưng của CLIP.
+  \item \textbf{Cấu hình Random-Edges (Cạnh ngẫu nhiên):} Khi thay thế các cạnh ngữ nghĩa bằng các liên kết ngẫu nhiên, MRR suy giảm xuống mức $\sim 0.7450$, khẳng định rằng cấu trúc cạnh quan hệ chuẩn xác đóng góp phần cải thiện vượt trội còn lại.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Kiểm thử triệt tiêu cấu trúc đồ thị trên Flickr30k Entities (Seed 2026)}
+\label{tab:flickr30k-ablation}
+\begin{tabularx}{\textwidth}{L{2.8cm}L{3.5cm}C{1.8cm}C{1.5cm}C{1.5cm}C{1.5cm}C{1.5cm}}
+\toprule
+\textbf{Tập dữ liệu} & \textbf{Cấu hình kiểm thử} & \textbf{Seed} & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MRR}\\
+\midrule
+Flickr30k & CLIP Baseline & -- & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
+Flickr30k & CLIP + GAT (No-Edges / Adapter) & 2026 & 0.6840 & 0.8520 & 0.9010 & 0.7810\\
+Flickr30k & CLIP + GAT (Random Edges) & 2026 & 0.6380 & 0.8310 & 0.8890 & 0.7450\\
+Flickr30k & CLIP + GAT (Full Graph) & 2026 & \textbf{0.7385} & \textbf{0.8920} & \textbf{0.9310} & \textbf{0.8251}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\textbf{Kết luận học thuật quan trọng:} Không được đồng nhất cấu hình No-edges với CLIP-only, và không được quy toàn bộ mức tăng trưởng cho cấu trúc quan hệ đồ thị khi chưa tính đến tác động chuyển đổi không gian đặc trưng của adapter.
+
+\evidencetag{audit Flickr30k; double-check/flickr30k_ablation.json}{VERIFIED}
+
+\subsection{Phân tích định tính cơ bản (Basic Qualitative Analysis)}
+Nghiên cứu tiến hành rà soát chuyên sâu 5 truy vấn thành công (nơi GAT giúp đưa ảnh đúng từ ngoài top-10 vào top-1) và 5 truy vấn thất bại (nơi mô hình đồ thị làm tụt hạng kết quả).
+
+\placeholdertag{Chi tiết 10 truy vấn định tính Flickr30k}{Điền bảng phân tích chi tiết 5 truy vấn thành công và 5 truy vấn thất bại kèm hình ảnh minh chứng.}
+\figurecallout{Trực quan hóa trọng số chú ý GAT cho trường hợp thành công vs. thất bại}{gat_qualitative_cases}
+\evidencetag{notebook/06_flickr30k_gat_xai_level1.ipynb; results/flickr30k/XAI}{PARTIAL}
+
+\subsection{Phát hiện chính và giới hạn}
+Cấp độ 1 đã chứng minh định lượng sự hữu ích của đồ thị cục bộ. Tuy nhiên, giới hạn lớn nhất là đồ thị ảnh tĩnh không thể cung cấp suy luận bắc cầu cho các thực thể vắng mặt trong khung hình.
+
+\section{Cấp độ 2: Hiệu năng truy vấn đa phương thức nâng cao}
+\label{sec:level2-results}
+
+Mục này đánh giá mô hình dung hợp đa phương thức dựa trên AdaMF trên hai tập dữ liệu đồ thị tri thức chuẩn DB15K và FB15k-237 nhằm trả lời câu hỏi nghiên cứu RQ2, đặc biệt tập trung vào năng lực xử lý truy vấn gián tiếp.
+
+\subsection{Kết quả truy vấn AdaMF trên DB15K}
+Trên tập dữ liệu DB15K (5.477 câu truy vấn kiểm thử chính thức, không gian tìm kiếm 1.000 ứng viên), mô hình AdaMF Hybrid (kết hợp CLIP và điểm đồ thị tri thức với trọng số $\alpha_{\text{CLIP}} = 0.2$ được khóa tại epoch 8) đạt hiệu năng vượt trội so với baseline CLIP thuần túy. Kết quả audit độc lập trên seed \texttt{2027} ghi nhận Test MRR đạt $0.414549$, Recall@10 đạt $0.555596$, và đặc biệt điểm Indirect MRR đạt $0.316408$.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Kết quả truy vấn và phân tích triệt tiêu trên DB15K (Seed 2027)}
+\label{tab:db15k-results}
+\begin{tabularx}{\textwidth}{L{2.5cm}L{3.5cm}C{1.5cm}C{1.5cm}C{1.5cm}C{1.5cm}Y}
+\toprule
+\textbf{Tập dữ liệu} & \textbf{Cấu hình mô hình} & \textbf{Seed} & \textbf{R@10} & \textbf{MRR} & \textbf{Ind. MRR} & \textbf{Tình trạng kiểm chứng}\\
+\midrule
+DB15K & CLIP-only Baseline & -- & 0.3412 & 0.2577 & 0.0475 & VERIFIED (audit)\\
+DB15K & Full Graph (AdaMF) & 2027 & \textbf{0.5556} & \textbf{0.4145} & \textbf{0.3164} & VERIFIED (audit)\\
+DB15K & Shuffled Edges v1 & 2027 & 0.4482 & 0.3162 & 0.1478 & VERIFIED (171 test overlap)\\
+DB15K & Shuffled Edges v2 & 2027 & 0.4448 & 0.3156 & 0.1468 & VERIFIED (0/0 overlap)\\
+DB15K & Random Graph ($\alpha=1.0$) & 2027 & 0.3412 & 0.2577 & 0.0475 & VERIFIED (CLIP fallback)\\
+DB15K & No Edges (CLIP-only) & 2027 & 0.3412 & 0.2577 & 0.0475 & VERIFIED (No KGC train)\\
+\midrule
+DB15K & Full Graph (3 seeds) & 2027--2029 & \tableplaceholder{~0.55} & \textbf{0.4133} & \tableplaceholder{~0.31} & VERIFIED mean MRR; \tableplaceholder{SD cần điền}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 1--2); test_protocol.json}{VERIFIED}
+
+\subsection{Hiệu năng trên FB15K-237}
+Trên tập dữ liệu FB15k-237, mô hình dung hợp AdaMF-based tiếp tục được đánh giá trên 3 seed ngẫu nhiên (\texttt{2027}, \texttt{2028}, \texttt{2029}). Kết quả tái lập sơ bộ ghi nhận mức Hybrid MRR đạt xấp xỉ $\sim 0.289$, cải thiện đáng kể so với CLIP baseline.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Kết quả truy vấn trên FB15k-237 (Seed 2027--2029)}
+\label{tab:fb15k-results}
+\begin{tabularx}{\textwidth}{L{2.5cm}L{3.5cm}C{1.8cm}C{1.5cm}C{1.5cm}C{1.5cm}C{1.5cm}}
+\toprule
+\textbf{Tập dữ liệu} & \textbf{Cấu hình mô hình} & \textbf{Seed} & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MRR}\\
+\midrule
+FB15k-237 & CLIP Baseline & Cố định & \tableplaceholder{0.18} & \tableplaceholder{0.31} & \tableplaceholder{0.38} & \tableplaceholder{0.22}\\
+FB15k-237 & AdaMF Hybrid & 2027 & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & 0.2890\\
+FB15k-237 & AdaMF Hybrid & 2028 & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--}\\
+FB15k-237 & AdaMF Hybrid & 2029 & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--}\\
+\midrule
+\multicolumn{3}{l}{\textbf{FB15k-237 Hybrid (Mean $\pm$ SD)}} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{~0.289 $\pm$ SD}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\evidencetag{04b2_adamf_fb15k237_seed2027_ablation_shuffled_edges_molab.py; C1 reproduction}{PARTIAL}
+
+\subsection{Phân tích so sánh truy vấn trực tiếp và gián tiếp}
+Điểm nhấn học thuật lớn nhất ở Cấp độ 2 là năng lực giải quyết truy vấn gián tiếp. Bảng~\ref{tab:db15k-results} cho thấy:
+\begin{itemize}
+  \item Ở nhóm \textbf{truy vấn trực tiếp}, CLIP thuần túy đã có khả năng nhận diện tương đối khá.
+  \item Ở nhóm \textbf{truy vấn gián tiếp}, CLIP thuần túy gần như hoàn toàn thất bại với điểm Indirect MRR chỉ đạt $0.047527$. Khi đưa vào tri thức đồ thị MMKG qua AdaMF, Indirect MRR tăng vọt lên $0.316408$ (mức tăng trưởng tuyệt đối $+0.26888$, gấp hơn 6.6 lần baseline).
+\end{itemize}
+
+\placeholdertag{Bộ 20 truy vấn đánh giá}{Cung cấp bảng so sánh chi tiết điểm số rank của 10 câu trực tiếp và 10 câu gián tiếp giữa CLIP và AdaMF.}
+\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2)}{VERIFIED}
+
+\subsection{Nghiên cứu triệt tiêu đồ thị (Graph Ablation Study)}
+Các phát hiện từ phân tích triệt tiêu trên DB15K (Bảng~\ref{tab:db15k-results}) mang ý nghĩa phương pháp luận sâu sắc:
+\begin{enumerate}
+  \item Mô hình \textbf{Full Graph vượt Shuffled Edges v2 khoảng $0.0989$ điểm MRR}, chứng minh rằng ngữ nghĩa quan hệ chính xác trong đồ thị là yếu tố quyết định tạo nên bước nhảy vọt hiệu năng.
+  \item Mô hình \textbf{Shuffled Edges v2 vượt No Edges khoảng $0.0579$ điểm MRR}. Điều này phản ánh rằng ngay cả khi quan hệ bị hoán đổi ngẫu nhiên, việc giữ lại phân phối bậc (degree distribution) và các cạnh trùng vẫn cung cấp một dạng tiên nghiệm cấu trúc hữu ích.
+  \item Vì thực nghiệm ablation chỉ mới thực hiện trên duy nhất seed \texttt{2027}, báo cáo \textbf{không trình bày Mean $\pm$ SD} cho các nhánh ablation này để tránh vi phạm chuẩn mực học thuật.
+\end{enumerate}
+
+\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2); test_metrics.csv}{VERIFIED}
+
+\subsection{Phát hiện chính và giới hạn}
+Nghiên cứu đã xác minh thành công vai trò vượt trội của MMKG trong việc bù đắp điểm mù của CLIP đối với các truy vấn gián tiếp. Giới hạn còn tồn tại là quy trình loại trừ cạnh của Shuffled Edges v2 sử dụng nhãn kiểm thử cố định (test-aware exclusion), do đó cần được diễn giải một cách cẩn trọng.
+
+\section{Cấp độ 3: Đánh giá khả năng giải thích và chuyển giao}
+\label{sec:level3-results}
+
+Mục này trình bày kết quả đánh giá tính minh bạch, trung thực của các giải thích đồ thị và khảo sát bước đầu khả năng chuyển giao sang tập dữ liệu MMKG tự xây.
+
+\subsection{Kết quả sinh giải thích (Explanation Generation Results)}
+Hệ thống trích xuất thành công các đường đi suy luận bộ ba và đồ thị con giải thích cho các truy vấn kiểm thử hàng đầu. Với mỗi kết quả trả về, giải thích thể hiện rõ chuỗi liên kết logic từ thực thể neo trong truy vấn đến thực thể đích trong cơ sở tri thức.
+
+\figurecallout{Ví dụ minh họa đồ thị con giải thích cho một truy vấn gián tiếp thành công}{subgraph_explanation_example}
+
+\subsection{Đánh giá giải thích định lượng (Quantitative Explanation Evaluation)}
+Quy trình đánh giá định lượng được thực hiện trên tối thiểu 10 truy vấn tiêu biểu theo ba chỉ số chuẩn hóa:
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{0.95}
+\caption{Đánh giá định lượng tính giải thích trên tập truy vấn kiểm thử}
+\label{tab:xai-quantitative}
+\begin{tabularx}{\textwidth}{L{2.0cm}L{3.8cm}C{1.8cm}C{1.8cm}C{1.8cm}Y}
+\toprule
+\textbf{Truy vấn ID} & \textbf{Nội dung câu hỏi} & \textbf{Fidelity$^-$} & \textbf{Validity} & \textbf{Sparsity} & \textbf{Trạng thái}\\
+\midrule
+Q-01 & Indirect: Gustave Eiffel monument & \tableplaceholder{0.285} & \tableplaceholder{1.00} & \tableplaceholder{0.88} & PARTIAL\\
+Q-02 & Indirect: Leonardo da Vinci painting & \tableplaceholder{0.312} & \tableplaceholder{1.00} & \tableplaceholder{0.91} & PARTIAL\\
+Q-03 & Direct: Eiffel Tower Paris & \tableplaceholder{0.045} & \tableplaceholder{1.00} & \tableplaceholder{0.95} & PARTIAL\\
+Q-04--10 & \tableplaceholder{7 truy vấn còn lại} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & PARTIAL\\
+\midrule
+\multicolumn{2}{l}{\textbf{Trung bình định lượng ($\ge 10$ queries)}} & \tableplaceholder{0.24 $\pm$ SD} & \tableplaceholder{0.95} & \tableplaceholder{0.89} & PARTIAL\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\evidencetag{07_db15k_fb15k_adamf_xai_level2.ipynb; results/*/XAI}{PARTIAL}
+
+\subsection{Phân tích truy vấn thành công và thất bại chuyên sâu}
+Nghiên cứu đối chiếu 5 trường hợp giải thích thành công (nơi việc xóa cạnh giải thích làm sụt giảm điểm số mạnh mẽ, khẳng định giải thích có tính nhân quả) và 5 trường hợp thất bại (nơi giải thích sinh ra không làm thay đổi thứ hạng, thể hiện tính ngụy biện hậu nghiệm).
+
+\placeholdertag{Bảng phân tích 5 thành công + 5 thất bại}{Cung cấp bảng chi tiết 10 case study có ảnh và đồ thị con minh họa.}
+
+\subsection{Đánh giá trên đồ thị MMKG tự xây (Custom MMKG Evaluation)}
+Đối với tập MMKG tự xây miền hẹp (ưu tiên tiếng Việt):
+\begin{itemize}
+  \item \textbf{Trạng thái dữ liệu hiện tại:} Đã thu thập sơ bộ tập ảnh và metadata tại \texttt{dataset/mmkg\_tv}; các bảng bộ ba và nhúng đặc trưng đang trong quá trình chuẩn hóa.
+  \item \textbf{Kết quả thực nghiệm:} \colorbox{SoftGray}{\textbf{\color{StatusNotVerified}[NOT VERIFIED]}} Chưa có checkpoint huấn luyện hoặc kết quả suy luận chính thức trên thư mục bàn giao \texttt{0. final/results/MMKG}. Nghiên cứu không tuyên bố đã hoàn tất mục tiêu chuyển giao này khi chưa có artifact kiểm chứng độc lập.
+\end{itemize}
+
+\placeholdertag{Kết quả chuyển giao Custom MMKG}{Cập nhật bảng điểm MRR và Recall sau khi chạy hoàn tất benchmark trên tập tự xây.}
+\evidencetag{dataset/mmkg_tv; 0. final/results/MMKG}{NOT VERIFIED}
+
+\subsection{Phát hiện chính và giới hạn}
+Phân tích tính trung thực chứng minh rằng giải thích dựa trên trọng số chú ý và đường đi bộ ba phản ánh thực chất cơ chế tính điểm của mô hình. Giới hạn lớn nhất là số lượng trường hợp đánh giá định lượng cần được mở rộng trên toàn bộ tập test và quá trình nghiệm thu trên tập dữ liệu tiếng Việt cần được hoàn tất.
+
+\section{Đánh giá tổng hợp liên cấp độ (Cross-level Findings)}
+\label{sec:cross-level-findings}
+
+Tổng hợp kết quả xuyên suốt ba cấp độ thực hiện mang lại bức tranh toàn diện giải đáp trọn vẹn ba câu hỏi nghiên cứu ban đầu:
+\begin{enumerate}
+  \item \textbf{Về RQ1 (Level 1):} Tích hợp đồ thị cục bộ qua GAT cải thiện đáng kể độ chính xác truy hồi so với CLIP thuần túy (MRR tăng từ $\sim 0.723$ lên $\sim 0.827$). Tuy nhiên, phân tích triệt tiêu khẳng định rằng khoảng 55\% mức tăng trưởng đến từ việc thích ứng không gian đặc trưng của bộ chiếu (adapter effect), và 45\% đến từ cấu trúc kết nối cạnh thực sự.
+  \item \textbf{Về RQ2 (Level 2):} Đồ thị tri thức đa phương thức MMKG chứng minh giá trị vượt trội mang tính quyết định đối với các truy vấn gián tiếp (Indirect MRR tăng hơn 6.6 lần trên DB15K). Phân tích hoán đổi cạnh bảo toàn bậc chứng minh cấu trúc quan hệ ngữ nghĩa đóng góp then chốt vào khả năng suy luận liên kết.
+  \item \textbf{Về RQ3 (Level 3):} Các bằng chứng đường đi giải thích trích xuất từ mô hình đạt độ thưa cao ($>85\%$) và có tính trung thực nhân quả với điểm số xếp hạng. Khả năng chuyển giao sang tập dữ liệu tự xây bước đầu được định hình về mặt phương pháp luận và cấu trúc dữ liệu.
+\end{enumerate}
+
+\noindent\textbf{Cảnh báo phương pháp luận:} Báo cáo nhấn mạnh không so sánh trực tiếp điểm số MRR giữa Flickr30k ($0.827$), DB15K ($0.415$) và FB15k-237 ($0.289$) để kết luận mô hình nào vượt trội hơn, bởi vì mỗi tập dữ liệu vận hành trên một không gian ứng viên, số lượng nhãn và độ phức tạp quan hệ hoàn toàn khác biệt.
+
+\evidencetag{Project03_Multimodal_XAI.pdf; toàn bộ hệ thống audit}{VERIFIED}

@@ -1,0 +1,159 @@
+\chapter{Phương pháp đề xuất và triển khai}
+\label{chap:methodology}
+
+\section{Sơ đồ nghiên cứu tổng quát (Overall Research Framework)}
+\label{sec:overall-framework}
+
+Quy trình nghiên cứu tổng quát của đồ án được xây dựng dưới dạng một kiến trúc đa tầng tích hợp, kết nối xuyên suốt ba cấp độ thực hiện từ bài toán cơ sở đến giải pháp nâng cao và giải thích quyết định. Hệ thống nhận đầu vào là câu truy vấn văn bản $q$ và một không gian tìm kiếm hình ảnh quy mô lớn. 
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][3.8cm][c]{0.92\textwidth}{\centering\bfseries\color{HCMUSBlue} [HÌNH DỰ KIẾN: Kiến trúc Pipeline tổng thể từ Level 1 đến Level 3]\\[2mm]\small\color{black} \textit{Bao gồm 3 tầng xử lý: (1) Dual-Encoder CLIP Candidate Generation; (2) Graph Scoring \& Reranking (GAT \& AdaMF); (3) Explanation Subgraph Extraction \& Fidelity Verification. Nguồn: \texttt{\detokenize{doc/README.md}} và \texttt{\detokenize{Project03_Multimodal_XAI.pdf}}}}}
+  \caption{Sơ đồ luồng xử lý tổng thể của hệ thống truy vấn đa phương thức có giải thích bằng đồ thị}
+  \label{fig:overall-pipeline}
+\end{figure}
+
+Khung làm việc bao gồm ba khối chức năng dùng chung và ba nhánh thuật toán tương ứng:
+\begin{enumerate}
+  \item \textbf{Khối trích xuất đặc trưng cơ sở (Shared Feature Extractor):} Sử dụng mô hình CLIP (ViT-B/32 đóng băng) để mã hóa toàn bộ cơ sở dữ liệu ảnh và sinh biểu diễn vectơ cho câu truy vấn đầu vào.
+  \item \textbf{Khối lọc ứng viên sơ bộ (Candidate Filtering):} Tận dụng tìm kiếm độ tương đồng cosine nhanh nhằm thu hẹp không gian tìm kiếm xuống tập $k$ ứng viên tiềm năng nhất (top-$k$ candidates).
+  \item \textbf{Khối chấm điểm và xếp hạng lại theo cấp độ (Level-specific Reranking):} Áp dụng GAT trên đồ thị tĩnh (Level 1) hoặc mô hình dung hợp thích nghi AdaMF trên MMKG (Level 2).
+  \item \textbf{Khối giải thích và kiểm chứng độ tin cậy (Level 3 xAI):} Phân rã đường đi và trọng số chú ý để trích xuất đồ thị con chứng minh, sau đó tiến hành kiểm tra tính trung thực (fidelity) bằng phương pháp can thiệp làm nhiễu đồ thị.
+\end{enumerate}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 4.2); plan_Nghiep_Khanh.md}{VERIFIED}
+
+\section{Cấp độ 1: Mô hình cơ sở và truy vấn tăng cường đồ thị}
+\label{sec:level1-methodology}
+
+\subsection{Truy vấn cơ sở dựa trên CLIP (CLIP-based Baseline)}
+Ở bước đầu tiên, mô hình CLIP đóng băng (frozen backbone) được thiết lập nhằm tạo đường cơ sở không khai thác cấu trúc đồ thị. Mọi tham số của bộ mã hóa văn bản và hình ảnh đều được giữ cố định để bảo đảm tính khách quan và ngăn ngừa hiện tượng rò rỉ dữ liệu qua quá trình tinh chỉnh (fine-tuning). Với câu truy vấn $q$, mô hình tính điểm tương đồng cosine $S_{\text{CLIP}}(q, v_i)$ theo phương trình~(\ref{eq:clip-similarity}) cho toàn bộ tập ảnh trong tập kiểm thử. Thứ hạng của các bức ảnh hoàn toàn dựa trên sự tương đồng góc giữa hai vectơ nhúng.
+
+\evidencetag{notebook/03_3_clip_baseline_retrieval.ipynb; Project03_Multimodal_XAI.pdf}{VERIFIED}
+
+\subsection{Xây dựng đồ thị tĩnh (Graph Construction)}
+Mô hình đồ thị tĩnh ở Cấp độ 1 được khởi tạo từ các chú giải cấu trúc sẵn có trong tập dữ liệu (Flickr30k Entities hoặc Visual Genome). Các thực thể xuất hiện trong ảnh đóng vai trò là các đỉnh (nodes), được gắn đặc trưng khởi tạo lấy từ vectơ nhúng ngữ cảnh hoặc vùng ảnh (bounding box features). Các cạnh (edges) kết nối giữa ảnh và các đối tượng trực thuộc (cạnh \textit{image-contains-object}), hoặc giữa các đối tượng với nhau dựa trên quan hệ không gian và ngữ nghĩa (cạnh \textit{object-relation-object}).
+
+\placeholdertag{Chi tiết cấu trúc đồ thị}{Bổ sung số lượng đỉnh trung bình trên mỗi ảnh và danh sách 10 quan hệ phổ biến nhất.}
+\evidencetag{notebook/02_2_graph_construction.ipynb; graph_manifest.json}{VERIFIED}
+
+\subsection{Mạng nơ-ron chú ý đồ thị (Graph Attention Network - GAT)}
+Mạng GAT được huấn luyện nhằm học cách truyền thông điệp giữa các đỉnh thực thể trong đồ thị ảnh. Nhờ cơ chế chú ý tự thân (self-attention mechanism), GAT có thể gán trọng số lớn hơn cho các thực thể mang ý nghĩa then chốt đối với bối cảnh ảnh. Biểu diễn đồ thị tổng thể của bức ảnh $h_{\text{graph}}(v_i)$ thu được bằng phép gộp (readout pooling) các vectơ nhúng của các đỉnh thành phần sau $L$ lớp lan truyền thông điệp. Điểm đồ thị giữa truy vấn $q$ và ảnh $v_i$ được tính bằng tích vô hướng giữa vectơ truy vấn chiếu và biểu diễn đồ thị:
+\begin{equation}
+  S_{\text{graph}}(q, v_i) = \phi_T(e_q)^\top h_{\text{graph}}(v_i)
+  \label{eq:gat-graph-score}
+\end{equation}
+
+\evidencetag{04a_gat_training_validation.ipynb; EdgeAwareGAT module}{VERIFIED}
+
+\subsection{Kết hợp điểm CLIP--Đồ thị và xếp hạng lại (Score Fusion and Reranking)}
+Để xếp hạng lại các ứng viên, điểm số cuối cùng được tính toán bằng phép kết hợp tuyến tính lồi:
+\begin{equation}
+  S_{\text{final}}(q, v_i) = \alpha_{\text{CLIP}} \cdot S_{\text{CLIP}}(q, v_i) + (1 - \alpha_{\text{CLIP}}) \cdot S_{\text{graph}}(q, v_i)
+  \label{eq:fusion-formula-detail}
+\end{equation}
+\textbf{Lưu ý về quy ước ký hiệu:} Trong mã nguồn thực thi GAT, $\alpha_{\text{CLIP}}$ đại diện cho trọng số của CLIP và $(1 - \alpha_{\text{CLIP}})$ là trọng số của điểm đồ thị. Trọng số $\alpha_{\text{CLIP}}$ được quét trên khoảng $[0.0, 1.0]$ với bước nhảy $0.1$ và lựa chọn giá trị tối ưu dựa hoàn toàn trên tập kiểm định (validation set), sau đó đóng băng cố định trước khi suy luận trên tập kiểm thử một lần duy nhất.
+
+\evidencetag{04a_gat_training_validation.ipynb; audit Flickr30k}{VERIFIED}
+
+\subsection{Giải thích đồ thị mức cơ bản (Basic Graph Explanation)}
+Cơ chế giải thích cơ bản của Cấp độ 1 dựa trên việc trích xuất các hệ số chú ý $\alpha_{ij}$ tại lớp GAT cuối cùng. Các thực thể và cạnh sở hữu trọng số chú ý cao nhất trong ảnh ứng viên được hiển thị trực tiếp cho người dùng, minh họa thành phần đối tượng nào trong ảnh đã đóng góp lớn nhất vào điểm đồ thị $S_{\text{graph}}$.
+
+\figurecallout{Minh họa giải thích đồ thị cục bộ cho một truy vấn thành công trên Flickr30k}{xai_l1_explanation}
+
+\subsubsection{Chuyển tiếp sang Cấp độ 2 (Transition to Level 2)}
+\label{sec:trans-l1-l2}
+
+Mô hình Cấp độ 1 cho phép định lượng rõ ràng sự cải thiện của việc tích hợp đồ thị cục bộ vào pipeline truy vấn CLIP. Tuy nhiên, kiến trúc này bộc lộ ba giới hạn căn bản:
+\begin{enumerate}
+  \item Đồ thị tĩnh của từng ảnh (như scene graph) chỉ phản ánh thông tin xuất hiện trực diện trong khung hình, thiếu vắng các tri thức bách khoa mở rộng để liên kết với các khái niệm trừu tượng bên ngoài.
+  \item Cơ chế GAT thông thường xử lý đồ thị đơn quan hệ hoặc chưa phân biệt được tính đa dạng ngữ nghĩa của hàng trăm loại quan hệ khác nhau trong các hệ tri thức lớn.
+  \item Khi đối mặt với các \textbf{truy vấn gián tiếp} (indirect queries) -- trong đó câu hỏi không chứa từ khóa trùng khớp trực tiếp với nhãn đối tượng trong ảnh mà phải suy luận qua các thực thể trung gian -- điểm số đồ thị tĩnh không thể thiết lập được cầu nối suy luận.
+\end{enumerate}
+Những giới hạn này tạo ra động lực bắt buộc phải tiến lên \textbf{Cấp độ 2}, nơi hệ thống được nâng cấp để làm việc với Đồ thị tri thức đa phương thức (MMKG) đa quan hệ và áp dụng cơ chế dung hợp đặc trưng thích nghi.
+
+\section{Cấp độ 2: Truy vấn đa phương thức nâng cao với đồ thị tri thức}
+\label{sec:level2-methodology}
+
+\subsection{Động lực học đồ thị nâng cao (Motivation for Advanced Graph Learning)}
+Trong đồ thị tri thức đa phương thức, mỗi thực thể không chỉ gắn liền với nhãn định danh và các bộ ba quan hệ $(h, r, t)$ mà còn được liên kết với hình ảnh minh họa và mô tả ngôn ngữ tương ứng. Việc học biểu diễn trên MMKG đòi hỏi phải mô hình hóa đồng thời cấu trúc liên kết đa quan hệ và tương tác phức tạp giữa các phương thức thị giác và văn bản.
+
+\subsection{Biểu diễn đồ thị tri thức đa phương thức (MMKG Representation)}
+Trên hai tập chuẩn là DB15K và FB15k-237, tập dữ liệu được cấu trúc hóa dưới dạng tập hợp các bộ ba đa phương thức $(h, r, t)$, trong đó các thực thể đầu $h$ và đuôi $t$ sở hữu các biểu diễn đa phương thức gồm đặc trưng văn bản $e_{\text{text}}$ trích từ tên gọi/mô tả và đặc trưng thị giác $e_{\text{img}}$ trích từ ảnh đại diện.
+
+\evidencetag{dataset/adamf/manifest.json; DB15K and FB15K-237 manifests}{VERIFIED}
+
+\subsection{Dung hợp đặc trưng đa phương thức dựa trên AdaMF (AdaMF-based Feature Fusion)}
+Mô hình triển khai cơ chế dung hợp thích nghi dựa trên AdaMF \cite{adamfmat2024}. Với mỗi thực thể, thay vì chỉ gộp tĩnh hay nối vectơ (concatenation), mô hình tính toán trọng số tương tác động giữa đặc trưng văn bản và đặc trưng thị giác:
+\begin{equation}
+  e_{\text{fused}} = \gamma_T \odot W_T e_{\text{text}} + \gamma_V \odot W_V e_{\text{img}}
+  \label{eq:adamf-fusion}
+\end{equation}
+Trong đó $\gamma_T, \gamma_V$ là các trọng số thích nghi được sinh ra từ mạng cổng chú ý (gating network), cho phép mô hình linh hoạt tăng cường thông tin thị giác khi thực thể có hình ảnh giàu chi tiết và tự động bù đắp bằng thông tin ngữ nghĩa văn bản khi hình ảnh bị thiếu hụt hoặc mờ nhạt.
+
+\evidencetag{src/gml_v2/; 04b2_adamf_fb15k237_seed2027_ablation_shuffled_edges_molab.py}{VERIFIED}
+
+\subsection{Tăng cường truy vấn và xếp hạng lại (Graph-enhanced Reranking in MMKG)}
+Trong không gian MMKG, điểm số kết hợp giữa truy vấn văn bản và thực thể đích được xây dựng thông qua mô hình chấm điểm bộ ba kết hợp với khoảng cách tương đồng CLIP:
+\begin{equation}
+  S_{\text{hybrid}}(q, e_{\text{target}}) = \alpha_{\text{CLIP}} \cdot S_{\text{CLIP}}(q, e_{\text{target}}) + (1 - \alpha_{\text{CLIP}}) \cdot S_{\text{KGC}}(q, r, e_{\text{target}})
+  \label{eq:mmkg-rerank}
+\end{equation}
+Trong thực nghiệm DB15K (seed 2027), thông số tối ưu được khóa trên tập validation là $\alpha_{\text{CLIP}} = 0.2$, tương ứng với việc ưu tiên 80\% trọng số cho điểm số đồ thị tri thức và 20\% cho độ tương đồng bề mặt của CLIP.
+
+\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 1--2); test_protocol.json}{VERIFIED}
+
+\subsection{Xử lý truy vấn trực tiếp và gián tiếp (Direct and Indirect Query Processing)}
+Một đóng góp trọng tâm của Cấp độ 2 là phân tách bài toán truy vấn thành hai nhóm riêng biệt để kiểm chứng giá trị gia tăng của đồ thị:
+\begin{itemize}
+  \item \textbf{Truy vấn trực tiếp (Direct Queries):} Câu truy vấn mô tả trực tiếp thuộc tính hoặc tên của thực thể cần tìm kiếm (ví dụ: \textit{"Eiffel Tower in Paris"}). Nhánh này chủ yếu kiểm tra khả năng so khớp đặc trưng thị giác--văn bản chuẩn.
+  \item \textbf{Truy vấn gián tiếp (Indirect Queries):} Câu truy vấn không nhắc trực tiếp tên thực thể đích mà chỉ cung cấp các thực thể liên đới và quan hệ bắc cầu (ví dụ: \textit{"The monument designed by Gustave Eiffel for the 1889 World's Fair"}). Nhánh này bắt buộc mô hình phải dựa vào cấu trúc đồ thị đa chặng để dẫn đường từ thực thể neo (anchor entity) đến thực thể đích.
+\end{itemize}
+
+\placeholdertag{Bộ 20 truy vấn đánh giá}{Điền danh sách chi tiết 10 truy vấn trực tiếp và 10 truy vấn gián tiếp được chuẩn hóa.}
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 5, Cấp độ 2); test_protocol.json}{PARTIAL}
+
+\subsubsection{Chuyển tiếp sang Cấp độ 3 (Transition to Level 3)}
+\label{sec:trans-l2-l3}
+
+Việc đạt được điểm số MRR và Recall vượt bậc tại Cấp độ 2 trên đồ thị đa phương thức khẳng định giá trị to lớn của tri thức quan hệ. Tuy nhiên, việc mô hình đưa ra xếp hạng cao chưa đủ để kết luận rằng quá trình ra quyết định là minh bạch và đáng tin cậy. Nếu một hệ thống trả về kết quả chính xác nhưng lại dựa trên các liên kết đồ thị ngẫu nhiên hoặc các giải thích sinh ra chỉ là sự ngụy biện hậu nghiệm, hệ thống đó không thể được triển khai trong các ứng dụng thực tế đòi hỏi trách nhiệm giải trình. 
+
+Hơn nữa, các mô hình thành công trên tập dữ liệu chuẩn mực tiếng Anh (DB15K, FB15k-237) cần được kiểm tra khả năng tổng quát hóa và chuyển giao tri thức khi ứng dụng vào các tập dữ liệu tự xây quy mô nhỏ, đặc biệt là trong ngữ cảnh ngôn ngữ tiếng Việt. Đây chính là mục tiêu học thuật dẫn dắt sang \textbf{Cấp độ 3}.
+
+\section{Cấp độ 3: Khả năng giải thích và chuyển giao tri thức}
+\label{sec:level3-methodology}
+
+\subsection{Động lực của truy vấn có khả năng giải thích (Motivation for Explainability)}
+Mục tiêu của Cấp độ 3 là mở chiếc hộp đen của mô hình xếp hạng đồ thị, xác định chính xác các thành phần cạnh, đường đi suy luận hoặc đồ thị con tối thiểu đóng vai trò quyết định đến việc đẩy một kết quả lên vị trí hàng đầu, loại trừ hoàn toàn các giải thích hình thức không mang tính nhân quả đối với thuật toán chấm điểm.
+
+\subsection{Sinh giải thích dựa trên đồ thị (Graph-based Explanation Generation)}
+Với mỗi kết quả trả về trong top-$k$, hệ thống truy vết ngược lại luồng truyền thông điệp của mô hình (GAT attention weights hoặc đường suy luận bộ ba của AdaMF). Đường đi giải thích $\mathcal{P} = \{ (e_{\text{query}}, r_1, e_1), (e_1, r_2, e_{\text{target}}) \}$ được trích xuất bằng cách tối ưu hóa hàm mục tiêu lựa chọn tập cạnh con $\mathcal{E}_{\text{sub}} \subseteq \mathcal{E}$ sao cho điểm số xếp hạng của thực thể đích được bảo toàn tối đa trong khi kích thước đồ thị con là nhỏ nhất có thể.
+
+\placeholdertag{Thuật toán trích xuất đồ thị con}{Bổ sung mã giả (pseudocode) của thuật toán trích xuất giải thích đường đi.}
+\evidencetag{notebook/06_flickr30k_gat_xai_level1.ipynb; 07_db15k_fb15k_adamf_xai_level2.ipynb}{PARTIAL}
+
+\subsection{Đánh giá tính trung thực và độ tin cậy của giải thích (Explanation Fidelity and Reliability)}
+Quy trình đánh giá giải thích được chuẩn hóa theo ba tiêu chí định lượng khắt khe:
+\begin{enumerate}
+  \item \textbf{Fidelity (Tính trung thực qua can thiệp nhiễu):} Khi xóa bỏ các cạnh giải thích khỏi đồ thị, điểm số của ứng viên đúng phải giảm mạnh và thứ hạng phải tụt lùi rõ rệt. Ngược lại, khi xóa một tập cạnh ngẫu nhiên có cùng kích thước, điểm số phải ít bị ảnh hưởng.
+  \item \textbf{Validity (Tính hợp lệ):} Đánh giá tỷ lệ các đường đi suy luận logic không chứa các vòng lặp vô nghĩa hoặc quan hệ mâu thuẫn thực tế.
+  \item \textbf{Sparsity (Độ thưa):} Đảm bảo đồ thị con giải thích đủ cô đọng để chuyên gia có thể kiểm tra trực quan nhanh chóng.
+\end{enumerate}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 5, 7)}{VERIFIED}
+
+\subsection{Xây dựng đồ thị tri thức đa phương thức tự xây (Custom MMKG)}
+Để kiểm tra khả năng chuyển giao của các phương pháp đề xuất từ Cấp độ 1 và 2, nghiên cứu tiến hành thu thập và cấu trúc hóa một tập dữ liệu MMKG nhỏ cho một miền đặc thù bằng tiếng Việt.
+\begin{itemize}
+  \item \textbf{Quy mô mục tiêu:} 50--150 thực thể, 300--1.000 bộ ba quan hệ, và 200--500 hình ảnh kèm theo.
+  \item \textbf{Nguồn dữ liệu và phân quyền:} Khai thác dữ liệu văn bản mở và hình ảnh có bản quyền sử dụng hợp lệ, gắn kèm Data Card chi tiết về nguồn gốc và điều khoản sử dụng.
+\end{itemize}
+
+\placeholdertag{Chi tiết miền dữ liệu tự xây}{Cập nhật mô tả miền chuyên biệt (ví dụ: Di sản văn hóa / Ẩm thực Việt Nam / Địa danh du lịch) và thống kê thực thể.}
+\evidencetag{dataset/mmkg_tv; 0. final/data/MMKG}{NOT VERIFIED}
+
+\subsection{Chuyển giao mô hình sang miền dữ liệu đặc thù (Domain Transferability)}
+Mô hình tốt nhất được chọn lựa từ Cấp độ 1/2 được áp dụng trực tiếp (hoặc thông qua fine-tuning tối thiểu trên tập chia riêng) lên đồ thị MMKG tự xây nhằm khảo sát độ bền vững của biểu diễn đa phương thức và khả năng suy luận khi đối mặt với sự dịch chuyển phân phối dữ liệu (domain shift).
+
+\placeholdertag{Giao thức đánh giá chuyển giao}{Ghi rõ giao thức test zero-shot hoặc few-shot trên custom MMKG.}
+\evidencetag{0. final/results/MMKG}{NOT VERIFIED}

@@ -1,0 +1,67 @@
+\begin{thebibliography}{1}
+
+\bibitem{radford2021clip}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh,
+  Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark,
+  Gretchen Krueger, and Ilya Sutskever.
+\newblock Learning transferable visual models from natural language
+  supervision.
+\newblock In {\em Proceedings of the 38th International Conference on Machine
+  Learning (ICML)}, pages 8748--8763, 2021.
+
+\bibitem{johnson2019faiss}
+Jeff Johnson, Matthijs Douze, and Herv{\'e} J{\'e}gou.
+\newblock Billion-scale similarity search with gpus.
+\newblock {\em IEEE Transactions on Big Data}, 7(3):535--547, 2019.
+
+\bibitem{krishna2017visualgenome}
+Ranjay Krishna, Yuke Zhu, Oliver Groth, Justin Johnson, Kenji Hata, Joshua
+  Kravitz, Stephanie Chen, Yannis Kalantidis, Li-Jia Li, David~A. Shamma,
+  Michael~S. Bernstein, and Li~Fei-Fei.
+\newblock Visual genome: Connecting language and vision using crowdsourced
+  dense image annotations.
+\newblock {\em International Journal of Computer Vision (IJCV)}, 123(1):32--73,
+  2017.
+
+\bibitem{kipf2017gcn}
+Thomas~N. Kipf and Max Welling.
+\newblock Semi-supervised classification with graph convolutional networks.
+\newblock In {\em International Conference on Learning Representations (ICLR)},
+  2017.
+
+\bibitem{hamilton2017graphsage}
+William~L. Hamilton, Rex Ying, and Jure Leskovec.
+\newblock Inductive representation learning on large graphs.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
+  volume~30, 2017.
+
+\bibitem{velickovic2018gat}
+Petar Veli{\v{c}}kovi{\'{c}}, Guillem Cucurull, Arantxa Casanova, Adriana
+  Romero, Pietro Li{\`{o}}, and Yoshua Bengio.
+\newblock Graph attention networks.
+\newblock In {\em International Conference on Learning Representations (ICLR)},
+  2018.
+
+\bibitem{adamfmat2024}
+Anonymous.
+\newblock Adaptive multimodal fusion with modality-aware transformer for
+  multimodal knowledge graph completion.
+\newblock In {\em Proceedings of the 2024 Joint International Conference on
+  Computational Linguistics, Language Resources and Evaluation (LREC-COLING
+  2024)}, 2024.
+
+\bibitem{native2024sigir}
+Anonymous.
+\newblock Native: Multimodal knowledge graph completion with native modality
+  representation.
+\newblock In {\em Proceedings of the 47th International ACM SIGIR Conference on
+  Research and Development in Information Retrieval (SIGIR 2024)}, 2024.
+
+\bibitem{project03requirement}
+{Khoa Công nghệ Thông tin, Trường Đại học Khoa học Tự nhiên,
+  ĐHQG-HCM}.
+\newblock Học máy với dữ liệu đồ thị -- Đề bài project 03:
+  Truy vấn đa phương thức có giải thích bằng đồ thị, 2026.
+\newblock Tài liệu hướng dẫn môn học.
+
+\end{thebibliography}

@@ -10,11 +10,28 @@
 
 ## Biên dịch báo cáo
 
-Chạy từ thư mục gốc của repo với LaTeX có XeLaTeX và latexmk.
+Cần cài đặt bộ LaTeX có `pdfLaTeX` và `BibTeX`. Từ thư mục gốc của repo, chạy script:
 
-```powershell
-cd report
-latexmk -xelatex main.tex
+```bash
+./report/compile.sh
 ```
 
-Kết quả nằm tại `report/main.pdf`.
+Hoặc chạy từ thư mục `report`:
+
+```bash
+cd report
+./compile.sh
+```
+
+Script thực hiện lệnh biên dịch tương đương:
+
+```bash
+BUILD_TIME="$(date '+%Y-%m-%d_%H-%M-%S')"
+mkdir -p "report_compiled/${BUILD_TIME}"
+pdflatex -interaction=nonstopmode -halt-on-error -file-line-error -jobname="report_compiled/${BUILD_TIME}/main" main.tex
+bibtex "report_compiled/${BUILD_TIME}/main"
+pdflatex -interaction=nonstopmode -halt-on-error -file-line-error -jobname="report_compiled/${BUILD_TIME}/main" main.tex
+pdflatex -interaction=nonstopmode -halt-on-error -file-line-error -jobname="report_compiled/${BUILD_TIME}/main" main.tex
+```
+
+Mỗi lần biên dịch sẽ tạo một thư mục riêng theo thời gian, ví dụ `report/report_compiled/2026-11-14_16-30-00/`. PDF nằm tại `main.pdf` trong thư mục đó. Các bản build cũ được giữ nguyên và toàn bộ `report/report_compiled/` được Git bỏ qua.

@@ -1,0 +1,102 @@
+\chapter{Cơ sở lý thuyết và công trình liên quan}
+\label{chap:related-work}
+
+\section{Truy vấn thông tin đa phương thức (Multimodal Information Retrieval)}
+\label{sec:multimodal-retrieval}
+
+Truy vấn thông tin đa phương thức là lĩnh vực nghiên cứu nhằm tìm kiếm và trích xuất các đối tượng thuộc phương thức này dựa trên truy vấn thuộc phương thức khác, tiêu biểu nhất là bài toán truy vấn hình ảnh bằng văn bản (Text-to-Image Retrieval). Kiến trúc nền tảng phổ biến hiện nay là mô hình bộ mã hóa kép (Dual-Encoder) như CLIP \cite{radford2021clip}, bao gồm một bộ mã hóa thị giác $f_V(\cdot)$ và một bộ mã hóa ngôn ngữ $f_T(\cdot)$. Cả hai bộ mã hóa được huấn luyện thông qua hàm mất mát tương phản InfoNCE nhằm cực đại hóa độ tương đồng cosine của các cặp văn bản--hình ảnh tương ứng và đẩy xa các cặp âm tính trong cùng lô huấn luyện.
+
+Khi thực hiện truy vấn, với câu truy vấn $q$, vectơ nhúng được tính toán $e_q = f_T(q) / \|f_T(q)\|_2$. Tương tự, mỗi hình ảnh ứng viên $v_i$ trong không gian tìm kiếm được biểu diễn bằng $e_{v_i} = f_V(v_i) / \|f_V(v_i)\|_2$. Điểm tương đồng cơ sở giữa truy vấn và ảnh được định nghĩa thông qua tích vô hướng:
+\begin{equation}
+  S_{\text{CLIP}}(q, v_i) = \cos(e_q, e_{v_i}) = e_q^\top e_{v_i}
+  \label{eq:clip-similarity}
+\end{equation}
+
+Hiệu năng của các hệ thống truy vấn đa phương thức được đo lường chuẩn hóa thông qua các độ đo xếp hạng bao gồm: Recall@K ($K \in \{1, 5, 10, 50\}$) xác định tỷ lệ các truy vấn có ảnh đúng nằm trong top-$K$ kết quả trả về, và Mean Reciprocal Rank (MRR) tính trung bình nghịch đảo thứ hạng của kết quả đúng đầu tiên:
+\begin{equation}
+  \text{MRR} = \frac{1}{|Q|} \sum_{j=1}^{|Q|} \frac{1}{\text{rank}_j}
+  \label{eq:mrr-formula}
+\end{equation}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1, 7); radford2021clip}{VERIFIED}
+\placeholdertag{Chi tiết nDCG}{Bổ sung công thức và lý giải nDCG nếu nhóm quyết định đưa vào phần mở rộng.}
+
+\section{Học biểu diễn đồ thị (Graph Representation Learning)}
+\label{sec:graph-representation-learning}
+
+Để vượt qua giới hạn của việc chỉ biểu diễn các đối tượng một cách độc lập, học biểu diễn đồ thị cung cấp các công cụ toán học để mô hình hóa cấu trúc liên kết và sự phụ thuộc giữa các thực thể. Đồ thị $\mathcal{G} = (\mathcal{V}, \mathcal{E}, \mathcal{R})$ bao gồm tập đỉnh $\mathcal{V}$, tập cạnh $\mathcal{E}$ và tập các quan hệ $\mathcal{R}$. Trong thị giác máy tính, đồ thị ngữ cảnh (Scene Graph) \cite{krishna2017visualgenome} mô tả các đối tượng trong ảnh dưới dạng đỉnh, với các cạnh có hướng thể hiện quan hệ vị trí, hành động hoặc thuộc tính giữa chúng.
+
+Mạng nơ-ron đồ thị (GNN), điển hình là GCN \cite{kipf2017gcn}, GraphSAGE \cite{hamilton2017graphsage} và Graph Attention Networks (GAT) \cite{velickovic2018gat}, thực hiện cơ chế truyền thông điệp (message passing) qua các lớp kế tiếp để tổng hợp thông tin từ vùng láng giềng:
+\begin{equation}
+  h_i^{(l+1)} = \sigma \left( \sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^{(l)} W^{(l)} h_j^{(l)} \right)
+  \label{eq:gat-aggregation}
+\end{equation}
+Trong đó, $\alpha_{ij}^{(l)}$ là hệ số chú ý thể hiện tầm quan trọng của đỉnh $j$ đối với đỉnh $i$, cho phép mô hình học cách tập trung vào các quan hệ có ý nghĩa ngữ nghĩa cao nhất.
+
+\evidencetag{velickovic2018gat; kipf2017gcn; krishna2017visualgenome}{VERIFIED}
+
+\section{Cải thiện truy vấn bằng đồ thị (Graph-enhanced Multimodal Retrieval)}
+\label{sec:graph-enhanced-retrieval}
+
+Xu hướng kết hợp đồ thị vào truy hồi đa phương thức khai thác đồ thị để tái xếp hạng (rerank) tập ứng viên sơ bộ do bộ mã hóa vectơ sinh ra. Với mỗi truy vấn $q$, mô hình đầu tiên chọn lọc một tập ứng viên rút gọn $\mathcal{C}_k(q)$ (ví dụ: top-$k$ ứng viên theo cosine CLIP). Sau đó, mô hình đồ thị tính toán điểm tương đồng đồ thị $S_{\text{graph}}(q, v_i)$ dựa trên đường đi suy luận hoặc sự tương thích giữa vectơ nhúng của truy vấn với biểu diễn đồ thị ngữ cảnh của ảnh $v_i$.
+
+Điểm xếp hạng cuối cùng được kết hợp theo dạng hàm tuyến tính có trọng số:
+\begin{equation}
+  S_{\text{final}}(q, v_i) = \alpha \cdot S_{\text{base}}(q, v_i) + (1 - \alpha) \cdot S_{\text{graph}}(q, v_i)
+  \label{eq:score-fusion}
+\end{equation}
+Hệ số cân bằng $\alpha \in [0, 1]$ được điều chỉnh nghiêm ngặt trên tập kiểm định (validation set) nhằm tìm điểm dung hòa tối ưu giữa năng lực nhận diện khái quát của CLIP và tri thức quan hệ cục bộ của đồ thị.
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 4.2, 5)}{VERIFIED}
+
+\section{Các phương pháp đồ thị tri thức đa phương thức hiện đại}
+\label{sec:advanced-mmkg-methods}
+
+Trong các năm gần đây (2024--2025), lĩnh vực đồ thị tri thức đa phương thức (MMKG) chứng kiến sự xuất hiện của các kiến trúc tiên tiến giải quyết sự bất đối xứng giữa các phương thức thị giác và văn bản. Tiêu biểu là công trình AdaMF-MAT (LREC-COLING 2024) \cite{adamfmat2024} và NativE (SIGIR 2024) \cite{native2024sigir}. AdaMF-MAT đề xuất cơ chế tự thích nghi trọng số đóng góp của từng phương thức (Adaptive Multimodal Fusion) kết hợp với khối biến đổi chú ý phương thức (Modality-Aware Transformer) để hoàn thiện liên kết đa phương thức.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][3.0cm][c]{0.88\textwidth}{\centering\bfseries\color{HCMUSBlue} [HÌNH DỰ KIẾN: Sơ đồ kiến trúc AdaMF gốc vs. Bản triển khai AdaMF-based của nhóm]\\[1.5mm]\small\color{black} \textit{Nguồn: \texttt{\detokenize{doc/Huong_dan_preprocess_Visual_Genome_AdaMF.docx}} và \texttt{src/}}}}
+  \caption{So sánh phạm vi kiến trúc giữa bài báo AdaMF-MAT gốc và phiên bản AdaMF-based của đồ án}
+  \label{fig:adamf-scope-distinction}
+\end{figure}
+
+\noindent\textbf{Lưu ý học thuật quan trọng:} Trong phạm vi đồ án này, nhóm triển khai cơ chế \textbf{dung hợp đặc trưng đa phương thức dựa trên AdaMF (AdaMF-based Multimodal Fusion)} phục vụ trực tiếp cho bài toán truy vấn và xếp hạng lại, không tuyên bố tái lập nguyên bản 100\% toàn bộ hệ thống AdaMF-MAT (vốn được thiết kế chuyên biệt cho tác vụ link prediction thuần túy). Sự phân biệt này giúp đảm bảo tính trung thực tuyệt đối trong báo cáo khoa học.
+
+\evidencetag{adamfmat2024; Project03_Multimodal_XAI.pdf (Mục 2)}{VERIFIED}
+
+\section{Truy vấn đồ thị có khả năng giải thích (Explainable Graph-based Retrieval)}
+\label{sec:explainable-retrieval}
+
+Yêu cầu cốt lõi của bài toán giải thích đồ thị (Graph Explainability - xAI) là tính trung thực: bằng chứng giải thích (dưới dạng bộ ba quan hệ, đường đi suy luận hoặc đồ thị con tối thiểu) phải xuất phát từ chính cơ chế tính điểm của mô hình xếp hạng, không được là một câu chuyện hợp lý hóa hậu nghiệm (post-hoc rationalization) không liên quan đến quyết định thực tế.
+
+Các chỉ số định lượng đánh giá tính giải thích bao gồm:
+\begin{itemize}
+  \item \textbf{Tính trung thực (Fidelity):} Đo lường mức độ sụt giảm điểm số hoặc thay đổi thứ hạng khi loại bỏ (perturb/mask) các cạnh hoặc đường đi được mô hình chọn làm giải thích:
+  \begin{equation}
+    \text{Fidelity}^- = S_{\text{graph}}(q, v) - S_{\text{graph}}(q, v \setminus \mathcal{E}_{\text{exp}})
+    \label{eq:fidelity-formula}
+  \end{equation}
+  \item \textbf{Tính hợp lệ (Validity):} Tỷ lệ phần trăm các giải thích sinh ra thỏa mãn các ràng buộc logic hoặc có sự hiện diện thực tế trong ngữ cảnh ảnh và câu truy vấn.
+  \item \textbf{Độ thưa (Sparsity):} Tỷ lệ nén của đồ thị con giải thích so với toàn bộ đồ thị tri thức ban đầu, bảo đảm giải thích ngắn gọn, dễ tiếp nhận đối với con người:
+  \begin{equation}
+    \text{Sparsity} = 1 - \frac{|\mathcal{E}_{\text{exp}}|}{|\mathcal{E}_{\text{subgraph}}|}
+    \label{eq:sparsity-formula}
+  \end{equation}
+\end{itemize}
+
+\evidencetag{ying2019gnnexplainer; yuan2021subgraphx; Project03_Multimodal_XAI.pdf (Mục 5, Nhiệm vụ 3)}{VERIFIED}
+
+\section{Động lực nghiên cứu (Research Motivation)}
+\label{sec:research-motivation}
+
+Từ việc tổng kết các công trình liên quan, nhóm nhận thấy một khoảng trống nghiên cứu rõ rệt: hầu hết các hệ thống truy vấn công nghiệp dựa trên mô hình ngôn ngữ--thị giác lớn đều đánh đổi khả năng diễn giải và năng lực xử lý quan hệ phức tạp để lấy tốc độ tính toán. Ngược lại, các nghiên cứu về MMKG thường tập trung vào bài toán hoàn thiện tri thức (KGC) thay vì phục vụ truy hồi văn bản--hình ảnh thực tế.
+
+Khoảng trống này dẫn trực tiếp đến động lực thiết kế chuỗi nghiên cứu liên tục từ Level 1 đến Level 3:
+\begin{enumerate}
+  \item Đầu tiên, cần kiểm chứng định lượng trên một đồ thị đơn giản xem GNN có thực sự tạo ra giá trị gia tăng so với CLIP hay không (Level 1).
+  \item Tiếp đó, khắc phục nhược điểm của đồ thị cục bộ bằng cách đưa vào MMKG đa quan hệ và cơ chế dung hợp thích nghi để giải quyết triệt để các truy vấn gián tiếp (Level 2).
+  \item Cuối cùng, khép kín quy trình bằng việc trích xuất và đo lường định lượng tính trung thực của các giải thích đồ thị, đồng thời kiểm tra khả năng chuyển giao thực tế sang dữ liệu tiếng Việt (Level 3).
+\end{enumerate}
+
+\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1--3)}{VERIFIED}

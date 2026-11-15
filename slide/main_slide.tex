@@ -1,0 +1,557 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% Packages for Vietnamese typesetting
+\usepackage[T5]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,positioning,shapes.geometric}
+
+% Color definitions (Matching HCMUS Report)
+\definecolor{HCMUSBlue}{HTML}{165A9F}
+\definecolor{DarkNavy}{HTML}{0D2E52}
+\definecolor{SoftBlue}{HTML}{EAF3FA}
+\definecolor{SoftGray}{HTML}{F4F5F6}
+\definecolor{AccentGreen}{HTML}{287D3C}
+\definecolor{AccentRed}{HTML}{DC2626}
+\definecolor{AccentOrange}{HTML}{D97706}
+
+% Beamer Theme Customization
+\usetheme{Madrid}
+\usecolortheme{whale}
+
+\setbeamercolor{palette primary}{bg=HCMUSBlue,fg=white}
+\setbeamercolor{palette secondary}{bg=DarkNavy,fg=white}
+\setbeamercolor{palette tertiary}{bg=SoftBlue,fg=DarkNavy}
+\setbeamercolor{titlelike}{parent=palette primary,fg=white,bg=HCMUSBlue}
+\setbeamercolor{frametitle}{bg=HCMUSBlue,fg=white}
+\setbeamercolor{block title}{bg=HCMUSBlue,fg=white}
+\setbeamercolor{block body}{bg=SoftBlue!40,fg=black}
+\setbeamercolor{item}{fg=HCMUSBlue}
+\setbeamercolor{subitem}{fg=DarkNavy}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+
+% Custom Footline
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.5ex,dp=1ex,left]{palette primary}%
+      \hspace*{2ex}\textbf{Nhóm 02} -- Học máy với dữ liệu đồ thị
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.5ex,dp=1ex,center]{palette primary}%
+      \textbf{Project 03: Multimodal XAI}
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.5ex,dp=1ex,right]{palette primary}%
+      \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+    \end{beamercolorbox}%
+  }%
+  \vskip0pt%
+}
+
+% Column types
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% Presentation Metadata
+\title[Multimodal XAI Retrieval]{\LARGE\textbf{PROJECT 03: TRUY VẤN ĐA PHƯƠNG THỨC CÓ GIẢI THÍCH BẰNG ĐỒ THỊ}}
+\subtitle{\large Báo cáo Đồ án Môn học -- Học máy với dữ liệu đồ thị}
+\author[Nhóm 02]{%
+  \textbf{Nhóm thực hiện: 02}\\
+  \footnotesize Chung Gia Khánh (23120282) -- Lê Hoàng Mỹ Hạ (23120038)\\
+  Hàn Vũ Phương Uyên (23120106) -- Trần Gia Hiển (23120123) -- Nguyễn An Nghiệp (23127234)%
+}
+\institute[KHTN - ĐHQG-HCM]{%
+  \textbf{Giảng viên hướng dẫn:} TS. Lê Ngọc Thành -- ThS. Huỳnh Lâm Hải Đăng\\[1mm]
+  Khoa Công nghệ Thông tin -- Trường ĐH Khoa học Tự nhiên, ĐHQG-HCM%
+}
+\date{Tháng 11 năm 2026}
+
+\begin{document}
+
+% Slide 1: Title Slide
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[HCMUSBlue] (current page.north west) rectangle ($(current page.north east)+(0,-1.0cm)$);
+    \fill[DarkNavy] ($(current page.north west)+(0,-1.0cm)$) rectangle ($(current page.north east)+(0,-1.15cm)$);
+    \node[anchor=north west] at ($(current page.north west)+(0.8cm,-0.12cm)$) {
+      \includegraphics[height=0.78cm]{logo_khtn.png}
+    };
+    \node[anchor=north east, text=white] at ($(current page.north east)+(-0.8cm,-0.32cm)$) {
+      \scriptsize\textbf{TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN -- ĐHQG-HCM}
+    };
+  \end{tikzpicture}
+  \vspace{0.6cm}
+  \titlepage
+\end{frame}
+
+% Slide 2: Agenda
+\begin{frame}{Nội dung trình bày}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textbf{Phần I: Cơ sở và Thiết kế hệ thống}}
+        \begin{itemize}
+          \item Bối cảnh và Phát biểu bài toán
+          \item Kiến trúc hệ thống tổng thể 3 cấp độ
+          \item Giao thức phòng chống data leakage
+        \end{itemize}
+      \end{block}
+      \begin{block}{\textbf{Phần II: Cấp độ 1 -- Tăng cường đồ thị cục bộ}}
+        \begin{itemize}
+          \item Mô hình cơ sở CLIP và GAT reranking
+          \item Kết quả thực nghiệm và ablation study
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textbf{Phần III: Cấp độ 2 -- Đồ thị tri thức MMKG}}
+        \begin{itemize}
+          \item Dung hợp đặc trưng AdaMF-based
+          \item Đột phá trên truy vấn gián tiếp (Indirect query)
+          \item Kiểm thử hoán đổi cạnh (Shuffled Edges v2)
+        \end{itemize}
+      \end{block}
+      \begin{block}{\textbf{Phần IV: Cấp độ 3, Demo và Kết luận}}
+        \begin{itemize}
+          \item Trích xuất xAI và kiểm chứng Fidelity
+          \item Kịch bản Video Demo ($\le$ 5 phút)
+          \item Phân công đóng góp và Vấn đáp
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 3: Problem Statement
+\begin{frame}{Bối cảnh và Phát biểu bài toán}
+  \begin{columns}[c]
+    \begin{column}{0.58\textwidth}
+      \textbf{Thách thức của các mô hình Dual-Encoder (CLIP thuần):}
+      \begin{itemize}
+        \item \textbf{Thiếu hụt tri thức quan hệ:} Nhận diện tốt diện mạo tổng thể nhưng bỏ sót quan hệ cú pháp và ngữ nghĩa liên kết giữa các thực thể.
+        \item \textbf{Thất bại trên truy vấn gián tiếp:} Khi câu hỏi không chứa từ khóa trực diện mà cần liên kết tri thức bắc cầu (ví dụ: \textit{"Công trình do Gustave Eiffel thiết kế cho Hội chợ 1889"}), CLIP không thể suy luận.
+        \item \textbf{Thiếu Explainability (Hộp đen):} Chỉ trả về điểm vô hướng, không cho biết lý do vì sao một kết quả được xếp hạng cao.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{block}{\textbf{Mục tiêu nghiên cứu}}
+        \small
+        Xây dựng hệ thống truy hồi đa phương thức kết hợp thông tin quan hệ từ đồ thị (\textbf{Scene Graph} \& \textbf{MMKG}), đạt bước nhảy vọt trên truy vấn gián tiếp và sinh giải thích \textbf{xAI trung thực nhân quả (Fidelity)}.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 4: Overall Framework
+\begin{frame}{Kiến trúc hệ thống tổng thể}
+  \begin{center}
+    \begin{tikzpicture}[node distance=0.6cm, auto, >=Latex]
+      \tikzstyle{block} = [draw, fill=SoftBlue, rounded corners, minimum height=1.1cm, minimum width=2.6cm, align=center, font=\scriptsize\bfseries]
+      \tikzstyle{arrow} = [thick, ->, >=stealth]
+      
+      \node[block, fill=DarkNavy, text=white] (input) {Truy vấn $q$\\+ Kho ảnh};
+      \node[block, fill=HCMUSBlue, text=white, right=0.6cm of input] (stage1) {Tầng 1: Lọc ứng viên\\(Frozen CLIP, Top-$k$)};
+      \node[block, fill=SoftBlue, right=0.6cm of stage1] (stage2) {Tầng 2: Điểm đồ thị\\(GAT / AdaMF Hybrid)};
+      \node[block, fill=AccentGreen, text=white, right=0.6cm of stage2] (stage3) {Tầng 3: xAI \& Fidelity\\(Subgraph Extraction)};
+
+      \draw[arrow] (input) -- (stage1);
+      \draw[arrow] (stage1) -- (stage2);
+      \draw[arrow] (stage2) -- (stage3);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.2cm}
+  \begin{columns}[t]
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\textbf{Cấp độ 1}}
+        \footnotesize
+        Flickr30k Entities + GAT.\\
+        Kiểm chứng vai trò thực chất của cạnh đồ thị tĩnh vs. adapter effect.
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\textbf{Cấp độ 2}}
+        \footnotesize
+        DB15K / FB15k-237 + AdaMF.\\
+        Giải quyết triệt để truy vấn gián tiếp qua suy luận đa chặng MMKG.
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\textbf{Cấp độ 3}}
+        \footnotesize
+        Trích xuất đường đi xAI.\\
+        Đo Fidelity qua can thiệp xóa cạnh; khảo sát chuyển giao tiếng Việt.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 5: Level 1 Methodology
+\begin{frame}{Cấp độ 1: Mô hình cơ sở và tăng cường đồ thị GAT}
+  \begin{columns}[c]
+    \begin{column}{0.50\textwidth}
+      \textbf{Xây dựng đồ thị tĩnh (Flickr30k Entities):}
+      \begin{itemize}
+        \item Đỉnh (nodes): Biểu diễn các thực thể và vùng ảnh (bounding boxes).
+        \item Cạnh (edges): Quan hệ không gian và đồng xuất hiện ngữ nghĩa giữa các cụm từ.
+      \end{itemize}
+      \vspace{0.2cm}
+      \textbf{Mạng nơ-ron chú ý đồ thị GAT:}
+      \begin{itemize}
+        \item Cơ chế self-attention học trọng số chú ý $\alpha_{ij}$ phản ánh mức độ quan trọng ngữ nghĩa giữa các đối tượng.
+        \item Trích xuất biểu diễn đồ thị $h_{\text{graph}}(v_i)$ qua readout pooling.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textbf{Cơ chế kết hợp điểm số}}
+        Điểm số cuối cùng kết hợp tuyến tính lồi:
+        \begin{equation*}
+          S_{\text{final}} = \alpha_{\text{CLIP}} \cdot S_{\text{CLIP}} + (1 - \alpha_{\text{CLIP}}) \cdot S_{\text{graph}}
+        \end{equation*}
+        \footnotesize
+        \textbf{Nguyên tắc nghiêm ngặt:} Trọng số $\alpha_{\text{CLIP}} = 0.6$ được quét và tối ưu trên validation set, đóng băng cố định trước khi suy luận trên test set một lần duy nhất.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 6: Level 1 Results & Ablation
+\begin{frame}{Cấp độ 1: Kết quả thực nghiệm và kiểm thử triệt tiêu}
+  \begin{columns}[t]
+    \begin{column}{0.54\textwidth}
+      \textbf{Hiệu năng qua 3 seed độc lập (2026--2028):}
+      \vspace{0.1cm}
+      \footnotesize
+      \begin{tabularx}{\textwidth}{L{2.8cm}C{1.1cm}C{1.1cm}C{1.1cm}}
+        \toprule
+        \textbf{Cấu hình} & \textbf{R@1} & \textbf{R@10} & \textbf{MRR}\\
+        \midrule
+        CLIP Baseline & 0.6120 & 0.8845 & 0.7232\\
+        CLIP + GAT (2026) & 0.7385 & 0.9310 & 0.8251\\
+        CLIP + GAT (2027) & 0.7410 & 0.9340 & 0.8290\\
+        CLIP + GAT (2028) & 0.7390 & 0.9330 & 0.8278\\
+        \midrule
+        \textbf{Mean $\pm$ SD} & \textbf{0.7395} & \textbf{0.9327} & \textbf{0.8273}\\
+        & $\pm 0.001$ & $\pm 0.001$ & $\pm 0.002$\\
+        \bottomrule
+      \end{tabularx}
+      \normalsize
+      \vspace{0.2cm}
+      $\rightarrow$ Tăng trưởng vượt bậc $+0.1041$ điểm MRR tuyệt đối.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \textbf{Kiểm thử triệt tiêu (Ablation Study):}
+      \vspace{0.1cm}
+      \footnotesize
+      \begin{tabularx}{\textwidth}{L{2.5cm}C{1.2cm}C{1.2cm}}
+        \toprule
+        \textbf{Cấu hình} & \textbf{R@1} & \textbf{MRR}\\
+        \midrule
+        CLIP Baseline & 0.6120 & 0.7232\\
+        No-Edges (Adapter) & 0.6840 & 0.7810\\
+        Random-Edges & 0.6380 & 0.7450\\
+        \textbf{Full Graph (GAT)} & \textbf{0.7385} & \textbf{0.8251}\\
+        \bottomrule
+      \end{tabularx}
+      \vspace{0.2cm}
+      \begin{alertblock}{\textbf{Phát hiện học thuật cốt lõi}}
+        Khoảng $55\%$ mức tăng đến từ adapter effect (chiếu không gian đặc trưng), và $45\%$ đến từ cấu trúc kết nối cạnh thực tế!
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 7: Level 2 MMKG Motivation
+\begin{frame}{Cấp độ 2: Động lực học đồ thị nâng cao trên MMKG}
+  \begin{columns}[c]
+    \begin{column}{0.54\textwidth}
+      \textbf{Giới hạn bắt buộc phải nâng cấp lên Cấp độ 2:}
+      \begin{itemize}
+        \item Đồ thị cục bộ (scene graph) chỉ gói gọn trong một ảnh, không thể suy luận tri thức bách khoa mở rộng bên ngoài.
+        \item Khi gặp \textbf{truy vấn gián tiếp}, người dùng không nhắc tên trực tiếp đối tượng mà mô tả quan hệ trung gian $\rightarrow$ GAT đơn lẻ bất lực.
+      \end{itemize}
+      \vspace{0.2cm}
+      \textbf{Mở rộng sang Đồ thị tri thức đa phương thức:}
+      \begin{itemize}
+        \item Cấu trúc đa quan hệ: bộ ba $(h, r, t)$ với 279 quan hệ (DB15K).
+        \item Biểu diễn đa phương thức: mỗi thực thể gồm $e_{\text{text}}$ (văn bản) và $e_{\text{img}}$ (thị giác).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{block}{\textbf{Tập dữ liệu MMKG chuẩn}}
+        \small
+        \textbf{DB15K}: 14.708 thực thể, 12.842 ảnh, 99.028 bộ ba.\\
+        \textbf{FB15k-237}: 14.541 thực thể, 310.116 bộ ba, 237 quan hệ.
+      \end{block}
+      \begin{block}{\textbf{Phân loại nhóm truy vấn}}
+        \small
+        \textbf{Direct Query}: Tên thực thể xuất hiện rõ.\\
+        \textbf{Indirect Query}: Đòi hỏi suy luận liên kết từ anchor entity tới target entity.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 8: Level 2 AdaMF Fusion
+\begin{frame}{Cấp độ 2: Dung hợp đặc trưng đa phương thức AdaMF}
+  \begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+      \textbf{Cơ chế dung hợp thích nghi AdaMF-based:}
+      Thay vì nối ghép thô (concatenation), mô hình tính tương tác động:
+      \begin{equation*}
+        e_{\text{fused}} = \gamma_T \odot W_T e_{\text{text}} + \gamma_V \odot W_V e_{\text{img}}
+      \end{equation*}
+      \begin{itemize}
+        \item Trọng số $\gamma_T, \gamma_V$ sinh ra từ gating network.
+        \item Tự động ưu tiên thông tin thị giác khi ảnh giàu chi tiết và bù đắp bằng ngữ nghĩa văn bản khi ảnh mờ nhạt hoặc trừu tượng.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{block}{\textbf{Xếp hạng lai ghép (Hybrid Reranking)}}
+        \begin{equation*}
+          S_{\text{hybrid}} = \alpha \cdot S_{\text{CLIP}} + (1 - \alpha) \cdot S_{\text{KGC}}
+        \end{equation*}
+        \footnotesize
+        \textbf{Khóa tham số:} $\alpha_{\text{CLIP}} = 0.2$ trên validation set (ưu tiên 80\% trọng số cho điểm đồ thị tri thức MMKG).
+      \end{block}
+      \begin{exampleblock}{\textbf{Phạm vi học thuật rõ ràng}}
+        \footnotesize
+        Triển khai cơ chế dung hợp AdaMF-based phục vụ truy vấn và xếp hạng lại, không tuyên bố tái lập 100\% toàn bộ hệ thống AdaMF-MAT gốc.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 9: Level 2 Retrieval Performance
+\begin{frame}{Cấp độ 2: Hiệu năng truy vấn trực tiếp và gián tiếp}
+  \begin{block}{\textbf{Bảng kết quả kiểm chứng độc lập trên DB15K (Seed 2027, 5.477 queries, top-1000 pool)}}
+    \centering\small
+    \begin{tabularx}{0.95\textwidth}{L{3.2cm}C{1.6cm}C{1.6cm}C{1.8cm}Y}
+      \toprule
+      \textbf{Cấu hình mô hình} & \textbf{R@10} & \textbf{MRR} & \textbf{Indirect MRR} & \textbf{Tình trạng audit}\\
+      \midrule
+      CLIP-only Baseline & 0.3412 & 0.2577 & 0.0475 & VERIFIED\\
+      \textbf{Full Graph (AdaMF)} & \textbf{0.5556} & \textbf{0.4145} & \textbf{0.3164} & \textbf{VERIFIED (Top-1)}\\
+      Shuffled Edges v2 & 0.4448 & 0.3156 & 0.1468 & VERIFIED (0/0 overlap)\\
+      Random Graph ($\alpha=1$) & 0.3412 & 0.2577 & 0.0475 & VERIFIED\\
+      \bottomrule
+    \end{tabularx}
+  \end{block}
+  \vspace{0.2cm}
+  \begin{columns}[c]
+    \begin{column}{0.48\textwidth}
+      \textbf{Truy vấn trực tiếp (Direct):}
+      CLIP thuần đã đạt hiệu năng tương đối khá; MMKG hỗ trợ nâng thêm độ chính xác.
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \textbf{Truy vấn gián tiếp (Indirect -- Điểm nhấn cốt lõi):}
+      Indirect MRR tăng từ \textbf{0.0475} lên \textbf{0.3164} (\textbf{gấp 6.6 lần baseline CLIP thuần})!
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 10: Level 2 Shuffled Edges Ablation
+\begin{frame}{Cấp độ 2: Phân tích triệt tiêu cấu trúc và hoán đổi cạnh}
+  \begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+      \textbf{Phương pháp luận hoán đổi cạnh (Shuffled Edges):}
+      \begin{itemize}
+        \item Hoán đổi các đỉnh trong cùng loại quan hệ nhằm bảo toàn degree distribution nhưng phá hủy hoàn toàn ngữ nghĩa bộ ba.
+        \item \textbf{Shuffled Edges v1:} Phát hiện có 171 cạnh trùng tập test (tiềm ẩn rò rỉ).
+        \item \textbf{Shuffled Edges v2:} Đạt \textbf{overlap 0/0} bằng phương pháp test-aware exclusion $\rightarrow$ Báo cáo hoàn toàn minh bạch.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{block}{\textbf{Bóc tách giá trị cấu trúc đồ thị}}
+        \begin{itemize}
+          \item \textbf{Full Graph vs. Shuffled Edges v2:} Chênh lệch $+0.0989$ điểm MRR $\rightarrow$ Khẳng định giá trị thực sự của ngữ nghĩa quan hệ bộ ba.
+          \item \textbf{Shuffled Edges v2 vs. No-Edges:} Chênh lệch $+0.0579$ điểm MRR $\rightarrow$ Việc giữ lại degree distribution vẫn mang lại tiên nghiệm cấu trúc nhất định.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 11: Level 3 xAI Framework
+\begin{frame}{Cấp độ 3: Khung giải thích xAI dựa trên đồ thị}
+  \begin{columns}[c]
+    \begin{column}{0.50\textwidth}
+      \textbf{Nguyên tắc giải thích có tính nhân quả:}
+      \begin{itemize}
+        \item Giải thích không được là ngụy biện hậu nghiệm (post-hoc rationalization).
+        \item Phải phản ánh trực tiếp luồng tính điểm của GAT attention và liên kết bộ ba AdaMF.
+      \end{itemize}
+      \vspace{0.2cm}
+      \textbf{Trích xuất đồ thị con giải thích:}
+      \begin{equation*}
+        \mathcal{P} = \{ (e_{\text{query}}, r_1, e_1), (e_1, r_2, e_{\text{target}}) \}
+      \end{equation*}
+      Tối ưu hóa tập cạnh con tối thiểu bảo toàn thứ hạng của thực thể đích.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textbf{Bộ tiêu chuẩn định lượng 3 chỉ số}}
+        \begin{itemize}
+          \item \textbf{Fidelity$^-$ (Tính trung thực qua can thiệp):} Mức sụt giảm điểm số khi can thiệp xóa (mask) các cạnh giải thích.
+          \item \textbf{Validity (Tính hợp lệ):} Tỷ lệ đường đi logic hợp lệ, không chứa vòng lặp rỗng.
+          \item \textbf{Sparsity (Độ thưa):} Tỷ lệ nén cạnh giải thích so với đồ thị tổng thể ($>85\%$).
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 12: Level 3 Quantitative Evaluation
+\begin{frame}{Cấp độ 3: Đánh giá định lượng Fidelity, Validity, Sparsity}
+  \begin{columns}[t]
+    \begin{column}{0.54\textwidth}
+      \textbf{Thực nghiệm can thiệp nhiễu (Perturbation Test):}
+      \vspace{0.1cm}
+      \footnotesize
+      \begin{tabularx}{\textwidth}{L{2.0cm}C{1.1cm}C{1.1cm}C{1.0cm}}
+        \toprule
+        \textbf{Truy vấn ID} & \textbf{Fidelity$^-$} & \textbf{Validity} & \textbf{Sparsity}\\
+        \midrule
+        Q-01 (Indirect) & 0.285 & 1.00 & 0.88\\
+        Q-02 (Indirect) & 0.312 & 1.00 & 0.91\\
+        Q-03 (Direct) & 0.045 & 1.00 & 0.95\\
+        \midrule
+        \textbf{Mean ($\ge 10$ queries)} & \textbf{0.240} & \textbf{0.950} & \textbf{0.890}\\
+        \bottomrule
+      \end{tabularx}
+      \normalsize
+      \vspace{0.2cm}
+      \begin{itemize}
+        \item Xóa cạnh giải thích $\rightarrow$ Thứ hạng rơi tự do.
+        \item Xóa cạnh ngẫu nhiên $\rightarrow$ Thứ hạng được giữ nguyên.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{alertblock}{\textbf{Bài học từ các Failure Cases}}
+        Khi mô hình xếp hạng sai kết quả, đồ thị con giải thích đôi khi vẫn hiển thị một đường đi logic hợp lý bề mặt.
+        \vspace{0.1cm}\\
+        $\rightarrow$ \textbf{Cảnh báo:} Giải thích faithful to model không đồng nghĩa với ground-truth validity!
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 13: Level 3 Custom MMKG
+\begin{frame}{Cấp độ 3: Khảo sát chuyển giao dữ liệu tiếng Việt}
+  \begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+      \textbf{Mục tiêu xây dựng Custom MMKG tiếng Việt:}
+      \begin{itemize}
+        \item Khảo sát độ bền vững của mô hình và kiểm tra khả năng chuyển giao khi gặp hiện tượng domain shift.
+        \item Quy mô dữ liệu mục tiêu: 50--150 thực thể, 300--1.000 bộ ba, 200--500 hình ảnh.
+      \end{itemize}
+      \vspace{0.2cm}
+      \textbf{Nguyên tắc thu thập và đạo đức dữ liệu:}
+      \begin{itemize}
+        \item Đính kèm Data Card minh bạch nguồn gốc hình ảnh và giấy phép sử dụng.
+        \item Không thu thập dữ liệu cá nhân nhạy cảm.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{block}{\textbf{Hiện trạng minh chứng thực nghiệm}}
+        \begin{itemize}
+          \item \textbf{Đã hoàn tất:} Thu thập ảnh và bảng bộ ba metadata tại \texttt{dataset/mmkg\_tv}.
+          \item \textbf{Minh bạch học thuật:} Chưa nghiệm thu artifact checkpoint chính thức tại thư mục bàn giao $\rightarrow$ Báo cáo ghi nhận rõ tình trạng và kế hoạch hoàn thiện.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 14: Data Leakage Prevention
+\begin{frame}{Phòng chống data leakage và kiểm soát tính tái lập}
+  \begin{block}{\textbf{Bốn trụ cột phòng chống data leakage của đồ án}}
+    \begin{enumerate}
+      \item \textbf{Khóa chữ ký mã băm (Artifact Hash Locking):} Mọi ma trận đặc trưng, tập split và checkpoint được gắn mã SHA-256 bất biến trong \texttt{test\_protocol.json}.
+      \item \textbf{Kiểm soát trùng lặp ảnh (Visual Genome Split v2):} Phân cụm pHash ($\le 6$) và SHA-256 đảm bảo các ảnh tương đồng bắt buộc nằm chung một tập train/val/test.
+      \item \textbf{Giao thức Frozen Test:} Tập test chỉ được suy luận đúng một lần sau khi siêu tham số $\alpha$ đã được khóa hoàn toàn trên validation set.
+      \item \textbf{Kiểm soát chồng lấn cạnh (Edge Overlap Audit):} Đạt \texttt{overlap = 0/0} trên DB15K Shuffled Edges v2; ghi nhận rõ ràng tính chất test-aware exclusion.
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+% Slide 15: Demo Section
+\begin{frame}{Kịch bản Video Demo và thực nghiệm trực tiếp}
+  \begin{columns}[c]
+    \begin{column}{0.48\textwidth}
+      \textbf{Cấu trúc Video Demo ($\le$ 5 phút):}
+      \begin{enumerate}
+        \item \textbf{0:00--0:35:} Xác thực hash artifact và load checkpoint đóng băng.
+        \item \textbf{0:35--1:35:} Demo Cấp độ 1 (CLIP vs. GAT trên Flickr30k).
+        \item \textbf{1:35--2:50:} Demo Cấp độ 2 (So sánh Direct vs. Indirect query trên DB15K).
+        \item \textbf{2:50--4:05:} Demo Cấp độ 3 (Trích xuất xAI và can thiệp Fidelity).
+        \item \textbf{4:05--5:00:} Case study thất bại và tổng kết.
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{center}
+        \begin{tikzpicture}
+          \node[draw=HCMUSBlue, fill=SoftBlue!60, rounded corners=6pt, inner sep=8pt, align=center] {
+            \large\textbf{\color{HCMUSBlue} TRÌNH CHIẾU VIDEO DEMO}\\[2mm]
+            \footnotesize\textit{(Thời lượng dự phòng: $\le$ 5 phút)}\\[3mm]
+            \scriptsize Hỗ trợ chạy trực tiếp trên Notebook / Web UI\\tại buổi vấn đáp theo yêu cầu của Giảng viên.
+          };
+        \end{tikzpicture}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 16: Conclusions & Contributions
+\begin{frame}{Kết luận và Đóng góp chính}
+  \begin{columns}[t]
+    \begin{column}{0.50\textwidth}
+      \begin{block}{\textbf{Bốn đóng góp chính của đồ án}}
+        \begin{enumerate}
+          \item Thiết lập pipeline thực nghiệm mẫu mực với cơ chế kiểm soát mã băm chống data leakage nghiêm ngặt.
+          \item Phân lập khoa học giữa đóng góp thực sự của cấu trúc đồ thị ($45\%$) và adapter effect ($55\%$).
+          \item Đột phá trên truy vấn gián tiếp với cơ chế dung hợp AdaMF-based trên MMKG (tăng 6.6 lần MRR).
+          \item Quy trình đánh giá xAI định lượng có kiểm chứng can thiệp nhiễu (Fidelity verified).
+        \end{enumerate}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textbf{Hướng phát triển tiếp theo}}
+        \begin{itemize}
+          \item Sinh đồ thị hoán đổi theo giao thức strict test-blind hoàn toàn.
+          \item Tích hợp hàm mất mát graph-aware contrastive loss vào khâu huấn luyện.
+          \item Hoàn thiện benchmark nghiệm thu trên tập dữ liệu MMKG tiếng Việt tự xây.
+          \item Mở rộng sang bài toán truy vấn video Text-to-Video.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 17: Team Contribution & Q&A
+\begin{frame}{Bảng phân công đóng góp và Phần vấn đáp}
+  \begin{block}{\textbf{Bảng phân công trách nhiệm thành viên (Nhóm 02)}}
+    \centering\footnotesize
+    \begin{tabularx}{0.96\textwidth}{C{0.6cm}L{3.0cm}C{1.5cm}Y C{1.2cm}}
+      \toprule
+      \textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Nhiệm vụ chính phụ trách} & \textbf{Tỷ lệ}\\
+      \midrule
+      1 & Chung Gia Khánh & 23120282 & Trưởng nhóm, kiến trúc tổng thể, audit Level 2 & 20\%\\
+      2 & Lê Hoàng Mỹ Hạ & 23120038 & Tiền xử lý dữ liệu, trích xuất CLIP baseline & 20\%\\
+      3 & Hàn Vũ Phương Uyên & 23120106 & Xây dựng đồ thị cảnh và huấn luyện GAT Level 1 & 20\%\\
+      4 & Trần Gia Hiển & 23120123 & Thực nghiệm dung hợp AdaMF và ablation Level 2 & 20\%\\
+      5 & Nguyễn An Nghiệp & 23127234 & Khung xAI Level 3, đo Fidelity, thu thập MMKG & 20\%\\
+      \bottomrule
+    \end{tabularx}
+  \end{block}
+  \vspace{0.2cm}
+  \begin{center}
+    \Large\textbf{\color{HCMUSBlue} CẢM ƠN QUÝ THẦY CÔ ĐÃ LẮNG NGHE!}\\[1.5mm]
+    \normalsize\textit{Kính mời Thầy Cô đặt câu hỏi cho các thành viên trong nhóm.}
+  \end{center}
+\end{frame}
+
+\end{document}

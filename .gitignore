@@ -19,3 +19,16 @@ venv/
 /report/*.toc
 /report/*.synctex.gz
 /report/*.xdv
+
+/slide/slide_compiled/
+/slide/main_slide.pdf
+/slide/*.aux
+/slide/*.fdb_latexmk
+/slide/*.fls
+/slide/*.log
+/slide/*.nav
+/slide/*.out
+/slide/*.snm
+/slide/*.toc
+/slide/*.synctex.gz
+/slide/*.xdv

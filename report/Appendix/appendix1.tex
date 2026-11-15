@@ -53,18 +53,18 @@ Bảng~\ref{tab:hyperparameters} liệt kê chi tiết các siêu tham số đư
 Backbone thị giác & ViT-B/32 (OpenCLIP) & ViT-B/32 (OpenCLIP) & Đóng băng toàn bộ trọng số\\
 Kích thước nhúng ($d$) & 512 & 512 & Đồng nhất không gian CLIP\\
 Số lớp GNN & 2 lớp GAT & 2 tầng Transformer & Truyền thông điệp cục bộ\\
-Kích thước ẩn (Hidden Dim) & 128 & 256 & Chiếu không gian trung gian\\
-Số đầu chú ý (Heads) & 4 heads & 4 heads & Đa cơ chế chú ý\\
+Hidden dimension & 128 & 256 & Chiếu không gian trung gian\\
+Số attention heads & 4 heads & 4 heads & Đa cơ chế chú ý\\
 Tỷ lệ Dropout & 0.2 & 0.1 & Phòng chống quá khớp\\
 Hàm tối ưu & AdamW & AdamW & Weight decay = $1\text{e-}4$\\
-Tốc độ học (Learning Rate) & $1\text{e-}3$ & $5\text{e-}4$ & Giảm theo Cosine Annealing\\
+Learning rate & $1\text{e-}3$ & $5\text{e-}4$ & Giảm theo Cosine Annealing\\
 Số Epoch tối đa & 50 & 500 (Early stop = 8) & Dừng sớm theo Validation\\
 Trọng số kết hợp $\alpha_{\text{CLIP}}$ & 0.6 (trên VG) & 0.2 (trên DB15K) & Khóa trên Validation\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{Phụ lục C: Hướng dẫn tái lập thực nghiệm (Reproduction Guide)}
+\section{Phụ lục C: Hướng dẫn tái lập thực nghiệm}
 \label{app:reproduction}
 
 Quy trình tái lập các kết quả thực nghiệm từ mã nguồn và dữ liệu đã chuẩn hóa được tóm tắt qua các bước chuẩn:

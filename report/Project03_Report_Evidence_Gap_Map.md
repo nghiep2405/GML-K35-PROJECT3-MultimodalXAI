@@ -1,4 +1,4 @@
-# BẢNG MA TRẬN MINH CHỨNG VÀ KHOẢNG TRỐNG THỰC NGHIỆM (EVIDENCE GAP MAP)
+# BẢNG MA TRẬN MINH CHỨNG VÀ KHOẢNG TRỐNG THỰC NGHIỆM
 ## DỰ ÁN: MULTIMODAL RETRIEVAL WITH GRAPH-BASED EXPLAINABILITY (PROJECT 03)
 
 > **Mục đích tài liệu:** Đây là tài liệu tác nghiệp nội bộ dành cho người viết và nhóm nghiên cứu, theo dõi đối chiếu từng mục trong sườn báo cáo 7 chương với artifact thực tế, trạng thái kiểm chứng và các việc cần bổ sung. **Không đưa nguyên bảng tracker này vào thân báo cáo chính.**
@@ -81,7 +81,7 @@
 
 ---
 
-### Tóm tắt các công việc trọng tâm cần làm tiếp theo (Priority Tasks)
+### Tóm tắt các công việc trọng tâm cần làm tiếp theo
 
 1. **[P0] Hoàn thiện bảng số liệu 3 seeds cho DB15K và FB15k-237:** Trích xuất độ lệch chuẩn SD của 3 seed DB15K (seeds 2027, 2028, 2029) và kiểm tra trạng thái chạy đủ 3 seed của FB15k-237 để thay thế các placeholder trong Bảng 5.3 và 5.4.
 2. **[P0] Trích lọc và chuẩn hóa Bộ 20 truy vấn đánh giá Cấp độ 2:** Cố định danh sách 10 câu truy vấn trực tiếp và 10 câu truy vấn gián tiếp kèm theo thứ hạng so sánh giữa CLIP và AdaMF từ file `test_query_ranks.csv` của DB15K.

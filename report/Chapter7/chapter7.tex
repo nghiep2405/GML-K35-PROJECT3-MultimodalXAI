@@ -1,7 +1,7 @@
 \chapter{Kết luận}
 \label{chap:conclusion}
 
-\section{Tóm tắt kết quả nghiên cứu (Summary of Research Findings)}
+\section{Tóm tắt kết quả nghiên cứu}
 \label{sec:conclusion-summary}
 
 Đồ án đã hoàn thành việc xây dựng và khảo nghiệm toàn diện hệ thống truy hồi thông tin đa phương thức có khai thác cấu trúc đồ thị và sinh giải thích minh bạch theo chuỗi tiến trình học thuật ba cấp độ (Level 1 $\rightarrow$ Level 2 $\rightarrow$ Level 3). 
@@ -10,11 +10,11 @@ Tại Cấp độ 1, nghiên cứu đã chứng minh bằng thực nghiệm đ�
 
 Tại Cấp độ 2, việc ứng dụng mô hình dung hợp thích nghi dựa trên AdaMF trên các đồ thị tri thức đa phương thức quy mô lớn (DB15K và FB15k-237) đã tạo nên bước đột phá quyết định đối với bài toán truy vấn gián tiếp. Bằng chứng audit thực nghiệm trên DB15K xác nhận điểm Indirect MRR tăng vọt từ $0.0475$ (CLIP thuần) lên $0.3164$ (AdaMF Hybrid), vượt trội rõ rệt so với các cấu hình triệt tiêu không cạnh và hoán đổi cạnh bảo toàn bậc.
 
-Tại Cấp độ 3, nghiên cứu đã hoàn thiện khung phương pháp luận trích xuất giải thích đường đi và đồ thị con bắt nguồn trực tiếp từ cơ chế tính điểm của mô hình, thiết lập bộ tiêu chuẩn đo lường định lượng tính trung thực (fidelity), tính hợp lệ (validity) và độ thưa (sparsity), đồng thời phân định minh bạch các trường hợp giải thích thành công và thất bại.
+Tại Cấp độ 3, nghiên cứu đã hoàn thiện khung phương pháp luận trích xuất giải thích đường đi và đồ thị con bắt nguồn trực tiếp từ cơ chế tính điểm của mô hình, thiết lập bộ tiêu chuẩn đo lường định lượng fidelity, validity và sparsity, đồng thời phân định minh bạch các trường hợp giải thích thành công và thất bại.
 
 \evidencetag{Toàn bộ hệ thống artifact và audit logs}{VERIFIED}
 
-\section{Đóng góp chính và các giới hạn còn lại (Contributions and Limitations)}
+\section{Đóng góp chính và các giới hạn còn lại}
 \label{sec:contributions-limitations}
 
 \subsection{Các đóng góp chính}
@@ -30,19 +30,19 @@ Mặc dù đã đạt được các kết quả kỹ thuật vững chắc, nghi
 \begin{itemize}
   \item Một số thực nghiệm triệt tiêu hoán đổi cạnh còn giới hạn ở số lượng 1 seed do ràng buộc thời gian tính toán của hạ tầng GPU.
   \item Giao thức tạo đồ thị hoán đổi cạnh v2 hiện tại áp dụng phương pháp test-aware exclusion; cần nâng cấp lên mô hình strict test-blind hoàn toàn độc lập với nhãn kiểm thử.
-  \item Quá trình nghiệm thu thực nghiệm trên tập dữ liệu MMKG tiếng Việt tự xây cần được bổ sung đầy đủ các artifact chạy lại độc lập (independent replay artifacts).
+  \item Quá trình nghiệm thu thực nghiệm trên tập dữ liệu MMKG tiếng Việt tự xây cần được bổ sung đầy đủ các independent replay artifacts.
 \end{itemize}
 
 \evidencetag{Project03_Report_Evidence_Gap_Map.md}{VERIFIED}
 
-\section{Hướng nghiên cứu tiếp theo (Future Work)}
+\section{Hướng nghiên cứu tiếp theo}
 \label{sec:future-work}
 
 Để hoàn thiện và nâng tầm giá trị học thuật của công trình, các công việc trọng tâm cần tiếp tục triển khai bao gồm:
 \begin{enumerate}
   \item Chạy bổ sung các seed ngẫu nhiên còn thiếu cho các nhánh ablation trên DB15K và FB15k-237 để báo cáo khoảng tin cậy trung bình và độ lệch chuẩn thống kê toàn diện.
   \item Triển khai hoàn tất benchmark kiểm thử độc lập trên tập dữ liệu MMKG tiếng Việt tự xây, hoàn thiện Data Card và tài liệu hướng dẫn chuyển giao.
-  \item Nghiên cứu mở rộng cơ chế kết hợp điểm thích nghi động (adaptive query-dependent fusion) và ứng dụng sang miền dữ liệu video đa phương thức.
+  \item Nghiên cứu mở rộng cơ chế cơ chế adaptive query-dependent fusion và ứng dụng sang miền dữ liệu video đa phương thức.
 \end{enumerate}
 
 \placeholdertag{Kế hoạch hoàn thiện}{Bổ sung lộ trình hoàn thiện các thực nghiệm còn lại trước ngày bảo vệ chính thức.}

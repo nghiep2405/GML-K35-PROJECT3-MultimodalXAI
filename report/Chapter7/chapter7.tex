@@ -8,7 +8,7 @@
 
 Tại Cấp độ 1, nghiên cứu đã chứng minh bằng thực nghiệm độc lập có kiểm soát rằng việc kết hợp mạng nơ-ron chú ý đồ thị GAT với mô hình CLIP đóng băng nâng Mean Test MRR trên Flickr30k Entities từ $0.7232$ lên $0.8273$ qua 3 seed độc lập. Các phân tích triệt tiêu chặt chẽ đã bóc tách rõ ràng phần đóng góp của cấu trúc cạnh ngữ nghĩa đối xứng với hiệu ứng điều chỉnh không gian đặc trưng của bộ chuyển đổi adapter.
 
-Tại Cấp độ 2, việc ứng dụng mô hình dung hợp thích nghi dựa trên AdaMF trên các đồ thị tri thức đa phương thức quy mô lớn (DB15K và FB15k-237) đã tạo nên bước đột phá quyết định đối với bài toán truy vấn gián tiếp. Bằng chứng audit thực nghiệm trên DB15K xác nhận điểm Indirect MRR tăng vọt từ $0.0475$ (CLIP thuần) lên $0.3164$ (AdaMF Hybrid), vượt trội rõ rệt so với các cấu hình triệt tiêu không cạnh và hoán đổi cạnh bảo toàn bậc.
+Tại Cấp độ 2, AdaMF đạt MRR trung bình $0.413301 \pm 0.001256$ trên DB15K và $0.289240 \pm 0.000670$ trên FB15K-237-IMG qua ba seed. MRR của CLIP lần lượt là $0.257698$ và $0.099057$. MRR gián tiếp tăng từ $0.047527$ lên $0.314268$ trên DB15K và từ $0.012171$ lên $0.118621$ trên FB15K-237-IMG. Trong đối chứng DB15K seed 2027, đồ thị gốc đạt MRR $0.414549$ và đồ thị hoán đổi cạnh đạt $0.315632$ (Mục~\ref{sec:level2-results}).
 
 Tại Cấp độ 3, nghiên cứu đã hoàn thiện khung phương pháp luận trích xuất giải thích đường đi và đồ thị con bắt nguồn trực tiếp từ cơ chế tính điểm của mô hình, thiết lập bộ tiêu chuẩn đo lường định lượng fidelity, validity và sparsity, đồng thời phân định minh bạch các trường hợp giải thích thành công và thất bại.
 
@@ -21,7 +21,7 @@ Tại Cấp độ 3, nghiên cứu đã hoàn thiện khung phương pháp luậ
 \begin{enumerate}
   \item Thiết lập một quy trình thực nghiệm truy hồi đa phương thức mẫu mực, bảo đảm tuyệt đối tính bất biến của dữ liệu kiểm thử và phòng chống rò rỉ thông tin qua các cơ chế kiểm soát mã băm SHA-256 nghiêm ngặt.
   \item Phân lập một cách khoa học vai trò của cấu trúc đồ thị so với các yếu tố gia tăng tham số trong mạng nơ-ron, xóa bỏ sự ngộ nhận học thuật phổ biến về nguồn gốc của sự cải thiện hiệu năng.
-  \item Hiện thực hóa cơ chế dung hợp đặc trưng AdaMF-based trên đồ thị tri thức đa phương thức, giải quyết triệt để điểm mù của các mô hình Dual-Encoder đối với các truy vấn liên kết đa chặng.
+  \item Thích nghi cơ chế dung hợp của AdaMF cho truy hồi ảnh trên hai đồ thị tri thức đa phương thức và đo hiệu quả trên truy vấn tìm đầu hoặc đuôi của một quan hệ.
   \item Xây dựng quy trình đánh giá tính giải thích định lượng có kiểm chứng can thiệp nhiễu, nâng cao trách nhiệm giải trình của hệ thống trí tuệ nhân tạo.
 \end{enumerate}
 
@@ -29,7 +29,7 @@ Tại Cấp độ 3, nghiên cứu đã hoàn thiện khung phương pháp luậ
 Mặc dù đã đạt được các kết quả kỹ thuật vững chắc, nghiên cứu còn một số giới hạn cần được giải quyết trong giai đoạn tiếp theo:
 \begin{itemize}
   \item Một số thực nghiệm triệt tiêu hoán đổi cạnh còn giới hạn ở số lượng 1 seed do ràng buộc thời gian tính toán của hạ tầng GPU.
-  \item Giao thức tạo đồ thị hoán đổi cạnh v2 hiện tại áp dụng phương pháp test-aware exclusion; cần nâng cấp lên mô hình strict test-blind hoàn toàn độc lập với nhãn kiểm thử.
+  \item Đối chứng hoán đổi cạnh trên DB15K sử dụng bộ ba validation và test để loại cạnh trùng. Kết quả hiện có trên một seed, với checkpoint và trọng số kết hợp được chọn riêng cho từng cấu hình.
   \item Quá trình nghiệm thu thực nghiệm trên tập dữ liệu MMKG tiếng Việt tự xây cần được bổ sung đầy đủ các independent replay artifacts.
 \end{itemize}
 

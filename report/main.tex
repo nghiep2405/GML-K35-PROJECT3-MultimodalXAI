@@ -61,13 +61,13 @@
 % Callout & Evidence Tags for Skeleton & Draft Audit
 \newcommand{\evidencetag}[2]{%
   \par\vspace{0.4em}\noindent%
-  \colorbox{SoftGray}{\small\textbf{\color{HCMUSBlue}[EVIDENCE]} \texttt{\detokenize{#1}} \textbf{|} \textbf{#2}}%
+  \colorbox{SoftGray}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\raggedright \small\textbf{\color{HCMUSBlue}[EVIDENCE]} \texttt{\detokenize{#1}} \textbf{|} \textbf{#2}}}%
   \par\vspace{0.4em}%
 }
 
 \newcommand{\placeholdertag}[2]{%
   \par\vspace{0.4em}\noindent%
-  \colorbox{SoftBlue}{\small\textbf{\color{HCMUSBlue}[CẦN ĐIỀN: #1]} \textit{#2}}%
+  \colorbox{SoftBlue}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\raggedright \small\textbf{\color{HCMUSBlue}[CẦN ĐIỀN: #1]} \textit{#2}}}%
   \par\vspace{0.4em}%
 }
 

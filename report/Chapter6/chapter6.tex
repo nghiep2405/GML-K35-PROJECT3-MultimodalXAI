@@ -18,8 +18,8 @@ Một trong những đóng góp học thuật quan trọng nhất của báo cá
 Các phát hiện thực nghiệm của nhóm trên Flickr30k và DB15K cho thấy bức tranh phức tạp hơn:
 \begin{enumerate}
   \item \textbf{Hiệu ứng tinh chỉnh không gian biểu diễn:} Cấu hình No-Edges (mạng adapter không cạnh) vẫn tạo ra bước nhảy vọt đáng kể so với CLIP thuần. Điều này chứng minh rằng các tầng biến đổi phi tuyến đã giúp điều chỉnh các vectơ nhúng tổng quát của CLIP cho vừa vặn hơn với phân phối dữ liệu cụ thể của bài toán.
-  \item \textbf{Hiệu ứng phân phối bậc:} Thí nghiệm Shuffled Edges v2 trên DB15K chứng minh rằng việc bảo toàn phân phối bậc của các thực thể neo và quan hệ vẫn duy trì một phần hiệu năng cao hơn cấu hình không cạnh. Các hub entities có bậc cao tự nhiên đóng vai trò là các cầu nối định tuyến thông tin hiệu quả.
-  \item \textbf{Ngữ nghĩa cạnh thực sự:} Khoảng cách chênh lệch giữa Full Graph và Shuffled Edges v2 ($+0.0989$ MRR trên DB15K) chính là bằng chứng xác thực nhất khẳng định giá trị thuần túy của các bộ ba quan hệ ngữ nghĩa đúng đắn.
+  \item \textbf{Hiệu ứng phân phối bậc:} Đồ thị hoán đổi cạnh trên DB15K giữ bậc vào và ra theo từng quan hệ và đạt MRR 0,315632, so với 0,257698 của CLIP. Thực nghiệm này chưa cô lập ảnh hưởng riêng của phân phối bậc.
+  \item \textbf{Ngữ nghĩa cạnh thực sự:} Đồ thị gốc cao hơn đồ thị hoán đổi khoảng 0,0989 MRR trên DB15K seed 2027. Hai cấu hình chọn trọng số và checkpoint riêng, nên mức chênh lệch được diễn giải ở cấp cấu hình.
 \end{enumerate}
 
 \evidencetag{audit Flickr30k; DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2)}{VERIFIED}

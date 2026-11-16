@@ -19,7 +19,7 @@ Nghiên cứu sử dụng nhiều bộ dữ liệu công khai tiêu chuẩn và 
 Flickr30k Entities & Level 1 & 31.783 ảnh; 158.915 captions & Đồ thị thực thể--cụm từ cục bộ & Đánh giá baseline CLIP và mô hình GAT cơ sở\\
 Visual Genome & Level 1 / Phụ & 104.426 ảnh; \textit{split\_v2} (80/10/10) & Scene graphs: đối tượng, quan hệ, vùng & Khảo sát mở rộng quy mô đồ thị cảnh lớn\\
 DB15K & Level 2 & 14.708 thực thể; 12.842 ảnh & 99.028 triples; 279 relations & Đánh giá AdaMF-based và truy vấn gián tiếp\\
-FB15k-237 & Level 2 & 14.541 thực thể; ảnh gắn thực thể & 310.116 triples; 237 relations & Đối chứng phương pháp MMKG tiên tiến\\
+FB15K-237-IMG & Level 2 & 14.541 thực thể; ảnh gắn thực thể & 310.116 triples; 237 relations & Đối chứng phương pháp MMKG tiên tiến\\
 Custom MMKG & Level 3 & \tableplaceholder{50--150 entities} & \tableplaceholder{300--1.000 triples} & Đánh giá tính chuyển giao sang tiếng Việt\\
 \bottomrule
 \end{tabularx}
@@ -38,7 +38,8 @@ Custom MMKG & Level 3 & \tableplaceholder{50--150 entities} & \tableplaceholder{
     \item Trên Visual Genome: Sử dụng quy tắc phân cụm ảnh trùng lặp (\textit{split\_v2}) với tỷ lệ 80/10/10 trên 104.426 ảnh, đảm bảo các ảnh có mã băm SHA-256 giống nhau hoặc khoảng cách pHash $\le 6$ bắt buộc phải nằm chung một tập phân chia để ngăn ngừa rò rỉ hình ảnh.
     \item Trên DB15K và FB15k-237: Kế thừa tập phân chia chuẩn train/valid/test từ MMKB benchmark. Các cạnh đồ thị phục vụ huấn luyện chỉ được trích xuất duy nhất từ tập train.
   \end{itemize}
-  \item \textbf{Không gian ứng viên:} Trong bài toán truy vấn DB15K, không gian ứng viên gồm 5.477 truy vấn kiểm thử được đối chiếu với toàn bộ tập thực thể đích hợp lệ theo giao thức chuẩn top-$k$ ($k=1000$).
+  \item \textbf{Không gian ứng viên ở Cấp độ 2:} Mỗi bộ dữ liệu dùng bảng truy vấn, ảnh liên quan và ảnh ứng viên theo từng split từ manifest. DB15K có 5.477 truy vấn test, gồm 2.282 trực tiếp và 3.195 gián tiếp. FB15K-237-IMG có 33.156 truy vấn test, gồm 8.592 trực tiếp và 24.564 gián tiếp. Mốc 1.000 là giới hạn xếp hạng lại sau lượt CLIP trên tập ảnh ứng viên.
+  \item \textbf{Đặc trưng ở Cấp độ 2:} Hai pipeline dùng encoder văn bản \texttt{openai/clip-vit-base-patch32} đã khóa revision và cache đặc trưng ảnh có sẵn. Metadata cache ảnh thiếu revision chính xác. Đặc trưng thị giác cấp thực thể trong mô hình được gộp từ ảnh train.
 \end{enumerate}
 
 \evidencetag{plan_Nghiep_Khanh.md (Mục 2); frozen_contract.json; test_protocol.json}{VERIFIED}
@@ -55,7 +56,7 @@ Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để
   \end{itemize}
   Kết quả báo cáo bắt buộc phải thể hiện giá trị $\text{Mean} \pm \text{SD}$.
   \item \textbf{Quy tắc lựa chọn mô hình và siêu tham số:} Trọng số dung hợp $\alpha$, best checkpoint và các siêu tham số huấn luyện (learning rate, weight decay, số lớp GNN) chỉ được tối ưu hóa dựa trên chỉ số MRR của validation set.
-  \item \textbf{Giao thức Frozen Test:} Tập kiểm thử chỉ được suy luận đúng một lần duy nhất sau khi toàn bộ tham số đã được khóa hoàn toàn. Tuyệt đối không dùng nhãn tập kiểm thử để điều chỉnh đồ thị hoặc tinh chỉnh ngưỡng.
+  \item \textbf{Giao thức Frozen Test:} Tập kiểm thử chỉ được suy luận đúng một lần duy nhất sau khi toàn bộ tham số đã được khóa hoàn toàn. Checkpoint và trọng số được khóa trước khi đánh giá. Đối chứng hoán đổi cạnh DB15K có ngoại lệ riêng ở khâu tạo đồ thị, mô tả trong Mục~\ref{sec:level2-graph-ablation}.
 \end{itemize}
 
 \evidencetag{Project03_Multimodal_XAI.pdf (Mục 6); test_protocol.json}{VERIFIED}
@@ -76,7 +77,7 @@ Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để
   \item \textbf{Shuffled Edges Control:}
   \begin{itemize}
     \item Hoán đổi các thực thể neo/đích trong cùng một loại quan hệ nhằm bảo toàn degree distribution của các đỉnh nhưng phá hủy hoàn toàn ngữ nghĩa thực tế của bộ ba.
-    \item \textbf{Ghi chú audit quan trọng:} Nghiên cứu phân biệt rõ hai phiên bản Shuffled Edges trên DB15K: bản v1 (tồn tại 172 cạnh trùng tập validation và 171 cạnh trùng tập test) và bản v2 (đã loại bỏ hoàn toàn cạnh trùng held-out triples bằng phương pháp test-aware exclusion).
+    \item \textbf{Ghi chú audit quan trọng:} Nghiên cứu phân biệt rõ hai phiên bản Shuffled Edges trên DB15K: bản v1 (tồn tại 172 cạnh trùng tập validation và 171 cạnh trùng tập test) và bản có kiểm tra chồng lấn (notebook \texttt{zero\_overlap\_v4}, dùng danh sách bộ ba validation/test để loại cạnh trùng).
   \end{itemize}
 \end{enumerate}
 
@@ -109,7 +110,7 @@ Hệ thống đánh giá định lượng sử dụng các chỉ số học thu�
 Nghiên cứu áp dụng các quy chuẩn phòng chống data leakage tuyệt đối:
 \begin{itemize}
   \item \textbf{Khóa mã băm:} Toàn bộ tập dữ liệu đã chia, ma trận đặc trưng trích xuất và file checkpoint mô hình đều được lưu kèm chữ ký mã băm SHA-256 trong file \texttt{test\_protocol.json} và \texttt{baseline\_manifest.json}.
-  \item \textbf{Kiểm soát chồng lấn cạnh:} Báo cáo công khai và minh bạch kết quả rà soát chồng lấn cạnh. Trên DB15K Shuffled Edges v2, quy trình tạo đồ thị bảo đảm \texttt{validation\_overlap = 0} và \texttt{test\_overlap = 0}. Báo cáo ghi nhận rõ ràng đây là phương pháp test-aware exclusion, không tuyên bố là blind-generation thuần túy nhằm giữ vững đạo đức nghiên cứu khoa học.
+  \item \textbf{Kiểm soát chồng lấn cạnh:} Báo cáo công khai và minh bạch kết quả rà soát chồng lấn cạnh. Trên đối chứng hoán đổi cạnh DB15K, quy trình tạo đồ thị bảo đảm \texttt{validation\_overlap = 0} và \texttt{test\_overlap = 0}. Báo cáo ghi nhận rõ ràng đây là phương pháp test-aware exclusion, không tuyên bố là blind-generation thuần túy nhằm giữ vững đạo đức nghiên cứu khoa học.
 \end{itemize}
 
 \evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 3); frozen_contract.json}{VERIFIED}

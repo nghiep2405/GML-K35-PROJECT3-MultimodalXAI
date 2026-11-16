@@ -75,50 +75,32 @@ Những giới hạn này tạo ra động lực bắt buộc phải tiến lên
 \section{Cấp độ 2: Truy vấn đa phương thức nâng cao với đồ thị tri thức}
 \label{sec:level2-methodology}
 
-\subsection{Động lực học đồ thị nâng cao}
-Trong đồ thị tri thức đa phương thức, mỗi thực thể không chỉ gắn liền với nhãn định danh và các bộ ba quan hệ $(h, r, t)$ mà còn được liên kết với hình ảnh minh họa và mô tả ngôn ngữ tương ứng. Việc học biểu diễn trên MMKG đòi hỏi phải mô hình hóa đồng thời cấu trúc liên kết đa quan hệ và tương tác phức tạp giữa các phương thức thị giác và văn bản.
+\subsection{Biểu diễn thực thể và quan hệ}
+Mỗi ảnh ứng viên gắn với một thực thể trong DB15K hoặc FB15K-237-IMG. Mô hình dung hợp embedding cấu trúc học được, đặc trưng văn bản lưu sẵn và đặc trưng thị giác tổng hợp từ ảnh train. Trọng số dung hợp được chuẩn hóa bằng softmax sau khi che các phương thức bị thiếu. Với truy vấn gián tiếp, mô hình điền thực thể của ảnh ứng viên vào vị trí đầu hoặc đuôi còn thiếu và chấm bộ ba bằng RotatE. Thực thể neo và quan hệ có sẵn trong bản ghi truy vấn. Nhãn đích dùng để xác định ảnh liên quan khi đánh giá.
 
-\subsection{Biểu diễn đồ thị tri thức đa phương thức}
-Trên hai tập chuẩn là DB15K và FB15k-237, tập dữ liệu được cấu trúc hóa dưới dạng tập hợp các bộ ba đa phương thức $(h, r, t)$, trong đó các thực thể đầu $h$ và đuôi $t$ sở hữu các biểu diễn đa phương thức gồm đặc trưng văn bản $e_{\text{text}}$ trích từ tên gọi/mô tả và đặc trưng thị giác $e_{\text{img}}$ trích từ ảnh đại diện.
-
-\evidencetag{dataset/adamf/manifest.json; DB15K and FB15K-237 manifests}{VERIFIED}
-
-\subsection{Dung hợp đặc trưng đa phương thức dựa trên AdaMF}
-Mô hình triển khai cơ chế dung hợp thích nghi dựa trên AdaMF \cite{adamfmat2024}. Với mỗi thực thể, thay vì chỉ gộp tĩnh hay concatenation, mô hình tính toán trọng số tương tác động giữa đặc trưng văn bản và đặc trưng thị giác:
-\begin{equation}
-  e_{\text{fused}} = \gamma_T \odot W_T e_{\text{text}} + \gamma_V \odot W_V e_{\text{img}}
-  \label{eq:adamf-fusion}
-\end{equation}
-Trong đó $\gamma_T, \gamma_V$ là các trọng số thích nghi được sinh ra từ gating network, cho phép mô hình linh hoạt tăng cường thông tin thị giác khi thực thể có hình ảnh giàu chi tiết và tự động bù đắp bằng thông tin ngữ nghĩa văn bản khi hình ảnh bị thiếu hụt hoặc mờ nhạt.
-
-\evidencetag{src/gml_v2/; 04b2_adamf_fb15k237_seed2027_ablation_shuffled_edges_molab.py}{VERIFIED}
-
-\subsection{Tăng cường truy vấn và xếp hạng lại}
-Trong không gian MMKG, điểm số kết hợp giữa truy vấn văn bản và thực thể đích được xây dựng thông qua mô hình chấm điểm bộ ba kết hợp với khoảng cách tương đồng CLIP:
-\begin{equation}
-  S_{\text{hybrid}}(q, e_{\text{target}}) = \alpha_{\text{CLIP}} \cdot S_{\text{CLIP}}(q, e_{\text{target}}) + (1 - \alpha_{\text{CLIP}}) \cdot S_{\text{KGC}}(q, r, e_{\text{target}})
-  \label{eq:mmkg-rerank}
-\end{equation}
-Trong thực nghiệm DB15K (seed 2027), thông số tối ưu được khóa trên validation set là $\alpha_{\text{CLIP}} = 0.2$, tương ứng với việc ưu tiên 80\% trọng số cho điểm số đồ thị tri thức và 20\% cho độ tương đồng bề mặt của CLIP.
-
-\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 1--2); test_protocol.json}{VERIFIED}
-
-\subsection{Xử lý truy vấn trực tiếp và gián tiếp}
-Một đóng góp trọng tâm của Cấp độ 2 là phân tách bài toán truy vấn thành hai nhóm riêng biệt để kiểm chứng giá trị gia tăng của đồ thị:
+\subsection{Thích nghi AdaMF cho truy hồi ảnh}
+Hai triển khai sử dụng cơ chế dung hợp và chấm bộ ba dựa trên AdaMF-MAT \cite{adamfmat2024}, với $\mu=0$ cho thành phần huấn luyện đối kháng đa phương thức.
 \begin{itemize}
-  \item \textbf{Truy vấn trực tiếp:} Câu truy vấn mô tả trực tiếp thuộc tính hoặc tên của thực thể cần tìm kiếm (ví dụ: \textit{"Eiffel Tower in Paris"}). Nhánh này chủ yếu kiểm tra khả năng so khớp đặc trưng thị giác--văn bản chuẩn.
-  \item \textbf{Truy vấn gián tiếp:} Câu truy vấn không nhắc trực tiếp tên thực thể đích mà chỉ cung cấp các thực thể liên đới và quan hệ bắc cầu (ví dụ: \textit{"The monument designed by Gustave Eiffel for the 1889 World's Fair"}). Nhánh này bắt buộc mô hình phải dựa vào cấu trúc đồ thị đa chặng để dẫn đường từ anchor entity đến thực thể đích.
+  \item \textbf{DB15K.} Huấn luyện hoàn thiện đồ thị tri thức trên bộ ba train với SigmoidLoss và 128 mẫu âm mỗi bộ ba. Truy vấn trực tiếp giữ thứ hạng CLIP. Truy vấn gián tiếp được xếp hạng lại bằng điểm bộ ba.
+  \item \textbf{FB15K-237-IMG.} Huấn luyện với cross-entropy trên từng truy vấn, một ảnh dương lấy mẫu và 50 ảnh âm khó từ 200 ứng viên CLIP đứng đầu. Truy vấn gián tiếp dùng điểm bộ ba. Với truy vấn trực tiếp, mô hình chiếu đặc trưng văn bản truy vấn và chấm độ tương đồng với biểu diễn thực thể đã dung hợp.
 \end{itemize}
 
-\placeholdertag{Bộ 20 truy vấn đánh giá}{Điền danh sách chi tiết 10 truy vấn trực tiếp và 10 truy vấn gián tiếp được chuẩn hóa.}
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 5, Cấp độ 2); test_protocol.json}{PARTIAL}
+\subsection{Xếp hạng lại và lựa chọn mô hình}
+CLIP tạo thứ hạng ban đầu trên tập ảnh ứng viên. Hệ thống chuẩn hóa z-score từng dãy điểm theo truy vấn và xếp hạng lại tối đa 1.000 ảnh đứng đầu:
+\begin{equation}
+  S(q,i)=\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))
+  +(1-\alpha_{\mathrm{CLIP}})z_q(S_{\mathrm{AdaMF}}(q,i)).
+  \label{eq:mmkg-rerank}
+\end{equation}
+Ảnh ngoài top 1.000 giữ thứ tự CLIP. Nếu top 1.000 thiếu ảnh liên quan, hệ thống giữ hạng ảnh đúng tốt nhất của CLIP. Checkpoint và $\alpha_{\mathrm{CLIP}}$ được chọn bằng MRR tổng hợp trên validation, với lưới trọng số từ 0 đến 1 theo bước 0,1.
+
+Truy vấn trực tiếp tìm ảnh theo mô tả thực thể. Truy vấn gián tiếp tìm một đầu còn thiếu của quan hệ. Giao thức đo khả năng tận dụng quan hệ đã xác định, còn trích xuất thực thể neo và quan hệ từ câu hỏi tự do hoặc suy luận đa chặng cần đánh giá riêng.
+
+\evidencetag{Notebook 04b1 và 04b2 trong src}{VERIFIED}
 
 \subsubsection{Chuyển tiếp sang Cấp độ 3}
 \label{sec:trans-l2-l3}
-
-Việc đạt được điểm số MRR và Recall vượt bậc tại Cấp độ 2 trên đồ thị đa phương thức khẳng định giá trị to lớn của tri thức quan hệ. Tuy nhiên, việc mô hình đưa ra xếp hạng cao chưa đủ để kết luận rằng quá trình ra quyết định là minh bạch và đáng tin cậy. Nếu một hệ thống trả về kết quả chính xác nhưng lại dựa trên các liên kết đồ thị ngẫu nhiên hoặc các giải thích sinh ra chỉ là sự ngụy biện hậu nghiệm, hệ thống đó không thể được triển khai trong các ứng dụng thực tế đòi hỏi trách nhiệm giải trình. 
-
-Hơn nữa, các mô hình thành công trên tập dữ liệu chuẩn mực tiếng Anh (DB15K, FB15k-237) cần được kiểm tra khả năng tổng quát hóa và chuyển giao tri thức khi ứng dụng vào các tập dữ liệu tự xây quy mô nhỏ, đặc biệt là trong ngữ cảnh ngôn ngữ tiếng Việt. Đây chính là mục tiêu học thuật dẫn dắt sang \textbf{Cấp độ 3}.
+Cấp độ 3 khảo sát cách giải thích các thay đổi thứ hạng và khả năng chuyển sang đồ thị của một miền khác.
 
 \section{Cấp độ 3: Khả năng giải thích và chuyển giao tri thức}
 \label{sec:level3-methodology}

@@ -79,83 +79,109 @@ Cấp độ 1 đã chứng minh định lượng sự hữu ích của đồ th�
 \section{Cấp độ 2: Hiệu năng truy vấn đa phương thức nâng cao}
 \label{sec:level2-results}
 
-Mục này đánh giá mô hình dung hợp đa phương thức dựa trên AdaMF trên hai tập dữ liệu đồ thị tri thức chuẩn DB15K và FB15k-237 nhằm trả lời câu hỏi nghiên cứu RQ2, đặc biệt tập trung vào năng lực xử lý truy vấn gián tiếp.
+Các bảng dùng kết quả test lưu trong notebook sau khi khóa checkpoint và trọng số trên validation. Trung bình và độ lệch chuẩn mẫu tính trên ba seed 2027--2029. R@K là tỷ lệ truy vấn có ít nhất một ảnh liên quan trong top $K$.
 
-\subsection{Kết quả truy vấn AdaMF trên DB15K}
-Trên tập dữ liệu DB15K (5.477 câu truy vấn kiểm thử chính thức, không gian tìm kiếm 1.000 ứng viên), mô hình AdaMF Hybrid (kết hợp CLIP và điểm đồ thị tri thức với trọng số $\alpha_{\text{CLIP}} = 0.2$ được khóa tại epoch 8) đạt hiệu năng vượt trội so với baseline CLIP thuần túy. Kết quả audit độc lập trên seed \texttt{2027} ghi nhận Test MRR đạt $0.414549$, Recall@10 đạt $0.555596$, và đặc biệt điểm Indirect MRR đạt $0.316408$.
+\subsection{Kết quả trên DB15K}
+Tập test gồm 5.477 truy vấn. Checkpoint lần lượt ở epoch 54, 359 và 53, với $\alpha_{\mathrm{CLIP}}$ là 0,0; 0,1 và 0,0.
 
 \begin{table}[H]
 \centering
 \small
-\renewcommand{\arraystretch}{0.95}
-\caption{Kết quả truy vấn và phân tích triệt tiêu trên DB15K (Seed 2027)}
+\setlength{\tabcolsep}{4pt}
+\caption{Kết quả test tổng hợp trên DB15K}
 \label{tab:db15k-results}
-\begin{tabularx}{\textwidth}{L{2.5cm}L{3.5cm}C{1.5cm}C{1.5cm}C{1.5cm}C{1.5cm}Y}
+\begin{tabular}{lrrrr}
 \toprule
-\textbf{Tập dữ liệu} & \textbf{Cấu hình mô hình} & \textbf{Seed} & \textbf{R@10} & \textbf{MRR} & \textbf{Ind. MRR} & \textbf{Tình trạng kiểm chứng}\\
+Cấu hình & MRR & R@1 & R@5 & R@10\\
 \midrule
-DB15K & CLIP-only Baseline & -- & 0.3412 & 0.2577 & 0.0475 & VERIFIED (audit)\\
-DB15K & Full Graph (AdaMF) & 2027 & \textbf{0.5556} & \textbf{0.4145} & \textbf{0.3164} & VERIFIED (audit)\\
-DB15K & Shuffled Edges v1 & 2027 & 0.4482 & 0.3162 & 0.1478 & VERIFIED (171 test overlap)\\
-DB15K & Shuffled Edges v2 & 2027 & 0.4448 & 0.3156 & 0.1468 & VERIFIED (0/0 overlap)\\
-DB15K & Random Graph ($\alpha=1.0$) & 2027 & 0.3412 & 0.2577 & 0.0475 & VERIFIED (CLIP fallback)\\
-DB15K & No Edges (CLIP-only) & 2027 & 0.3412 & 0.2577 & 0.0475 & VERIFIED (No KGC train)\\
-\midrule
-DB15K & Full Graph (3 seeds) & 2027--2029 & \tableplaceholder{~0.55} & \textbf{0.4133} & \tableplaceholder{~0.31} & VERIFIED mean MRR; \tableplaceholder{SD cần điền}\\
+CLIP (cố định) & 0.257698 & 0.212343 & 0.300164 & 0.341245\\
+AdaMF, seed 2027 & 0.414549 & 0.340150 & 0.498813 & 0.555596\\
+AdaMF, seed 2028 & 0.413316 & 0.340697 & 0.494431 & 0.548475\\
+AdaMF, seed 2029 & 0.412038 & 0.337594 & 0.493153 & 0.551762\\
+AdaMF, trung bình & 0.413301 & 0.339480 & 0.495466 & 0.551944\\
+AdaMF, độ lệch chuẩn & 0.001256 & 0.001656 & 0.002968 & 0.003564\\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table}
 
-\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 1--2); test_protocol.json}{VERIFIED}
-
-\subsection{Hiệu năng trên FB15K-237}
-Trên tập dữ liệu FB15k-237, mô hình dung hợp AdaMF-based tiếp tục được đánh giá trên 3 seed ngẫu nhiên (\texttt{2027}, \texttt{2028}, \texttt{2029}). Kết quả tái lập sơ bộ ghi nhận mức Hybrid MRR đạt xấp xỉ $\sim 0.289$, cải thiện đáng kể so với CLIP baseline.
+\subsection{Kết quả trên FB15K-237-IMG}
+Tập test gồm 33.156 truy vấn. Checkpoint lần lượt ở epoch 7, 13 và 12, với $\alpha_{\mathrm{CLIP}}$ là 0,1 ở cả ba seed.
 
 \begin{table}[H]
 \centering
 \small
-\renewcommand{\arraystretch}{0.95}
-\caption{Kết quả truy vấn trên FB15k-237 (Seed 2027--2029)}
+\setlength{\tabcolsep}{4pt}
+\caption{Kết quả test tổng hợp trên FB15K-237-IMG}
 \label{tab:fb15k-results}
-\begin{tabularx}{\textwidth}{L{2.5cm}L{3.5cm}C{1.8cm}C{1.5cm}C{1.5cm}C{1.5cm}C{1.5cm}}
+\begin{tabular}{lrrrr}
 \toprule
-\textbf{Tập dữ liệu} & \textbf{Cấu hình mô hình} & \textbf{Seed} & \textbf{R@1} & \textbf{R@5} & \textbf{R@10} & \textbf{MRR}\\
+Cấu hình & MRR & R@1 & R@5 & R@10\\
 \midrule
-FB15k-237 & CLIP Baseline & Cố định & \tableplaceholder{0.18} & \tableplaceholder{0.31} & \tableplaceholder{0.38} & \tableplaceholder{0.22}\\
-FB15k-237 & AdaMF Hybrid & 2027 & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & 0.2890\\
-FB15k-237 & AdaMF Hybrid & 2028 & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--}\\
-FB15k-237 & AdaMF Hybrid & 2029 & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--}\\
-\midrule
-\multicolumn{3}{l}{\textbf{FB15k-237 Hybrid (Mean $\pm$ SD)}} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{--} & \tableplaceholder{~0.289 $\pm$ SD}\\
+CLIP (cố định) & 0.099057 & 0.076004 & 0.118078 & 0.139432\\
+AdaMF, seed 2027 & 0.289589 & 0.258897 & 0.321601 & 0.348685\\
+AdaMF, seed 2028 & 0.289663 & 0.258535 & 0.321601 & 0.349077\\
+AdaMF, seed 2029 & 0.288468 & 0.256997 & 0.320877 & 0.349741\\
+AdaMF, trung bình & 0.289240 & 0.258143 & 0.321360 & 0.349168\\
+AdaMF, độ lệch chuẩn & 0.000670 & 0.001009 & 0.000418 & 0.000534\\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table}
 
-\evidencetag{04b2_adamf_fb15k237_seed2027_ablation_shuffled_edges_molab.py; C1 reproduction}{PARTIAL}
+\subsection{So sánh truy vấn trực tiếp và gián tiếp}
 
-\subsection{Phân tích so sánh truy vấn trực tiếp và gián tiếp}
-Điểm nhấn học thuật lớn nhất ở Cấp độ 2 là năng lực giải quyết truy vấn gián tiếp. Bảng~\ref{tab:db15k-results} cho thấy:
-\begin{itemize}
-  \item Ở nhóm \textbf{truy vấn trực tiếp}, CLIP thuần túy đã có khả năng nhận diện tương đối khá.
-  \item Ở nhóm \textbf{truy vấn gián tiếp}, CLIP thuần túy gần như hoàn toàn thất bại với điểm Indirect MRR chỉ đạt $0.047527$. Khi đưa vào tri thức đồ thị MMKG qua AdaMF, Indirect MRR tăng vọt lên $0.316408$ (mức tăng trưởng tuyệt đối $+0.26888$, gấp hơn 6.6 lần baseline).
-\end{itemize}
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{MRR trên từng nhóm truy vấn}
+\label{tab:level2-query-groups}
+\begin{tabular}{llrrr}
+\toprule
+Dữ liệu & Nhóm & Số truy vấn & CLIP & AdaMF (TB $\pm$ ĐLC)\\
+\midrule
+DB15K & Trực tiếp & 2.282 & 0.551956 & $0.551956\pm0.000000$\\
+DB15K & Gián tiếp & 3.195 & 0.047527 & $0.314268\pm0.002153$\\
+FB15K-237-IMG & Trực tiếp & 8.592 & 0.347459 & $0.777029\pm0.001695$\\
+FB15K-237-IMG & Gián tiếp & 24.564 & 0.012171 & $0.118621\pm0.001175$\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\placeholdertag{Bộ 20 truy vấn đánh giá}{Cung cấp bảng so sánh chi tiết điểm số rank của 10 câu trực tiếp và 10 câu gián tiếp giữa CLIP và AdaMF.}
-\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2)}{VERIFIED}
+Trên DB15K, MRR trực tiếp giữ nguyên theo thiết kế, còn MRR gián tiếp tăng từ 0,047527 lên trung bình 0,314268. Trên FB15K-237-IMG, MRR tăng ở cả hai nhóm. Cấu hình trên FB15K-237-IMG đồng thời thay đổi hàm chấm điểm trực tiếp và dùng hàm mất mát truy hồi, nên mức tăng phản ánh hiệu quả của toàn bộ cấu hình. Đánh giá theo nhóm dùng toàn bộ test. Danh mục 20 truy vấn minh họa còn cần nội dung truy vấn, ảnh đích và thứ hạng của từng mô hình.
 
 \subsection{Nghiên cứu triệt tiêu đồ thị}
 \label{sec:level2-graph-ablation}
-Các phát hiện từ phân tích triệt tiêu trên DB15K (Bảng~\ref{tab:db15k-results}) mang ý nghĩa phương pháp luận sâu sắc:
-\begin{enumerate}
-  \item Mô hình \textbf{Full Graph vượt Shuffled Edges v2 khoảng $0.0989$ điểm MRR}, chứng minh rằng ngữ nghĩa quan hệ chính xác trong đồ thị là yếu tố quyết định tạo nên bước nhảy vọt hiệu năng.
-  \item Mô hình \textbf{Shuffled Edges v2 vượt No Edges khoảng $0.0579$ điểm MRR}. Điều này phản ánh rằng ngay cả khi quan hệ bị hoán đổi ngẫu nhiên, việc giữ lại degree distribution của các đỉnh vẫn cung cấp một dạng tiên nghiệm cấu trúc hữu ích.
-  \item Vì thực nghiệm ablation chỉ mới thực hiện trên duy nhất seed \texttt{2027}, báo cáo \textbf{không trình bày Mean $\pm$ SD} cho các nhánh ablation này để tránh vi phạm chuẩn mực học thuật.
-\end{enumerate}
+Trên DB15K seed 2027, bản \texttt{zero\_overlap\_v4} hoán đổi đuôi giữa các bộ ba cùng quan hệ để giữ bậc vào và ra theo quan hệ. Notebook ghi nhận 71.300 cạnh duy nhất và không có cạnh trùng validation/test. Quy trình tạo đồ thị dùng danh sách bộ ba của cả hai tập giữ lại để loại những hoán đổi bị trùng.
 
-\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2); test_metrics.csv}{VERIFIED}
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Các đối chứng cấu trúc đồ thị trên DB15K, seed 2027}
+\label{tab:db15k-ablation}
+\begin{tabular}{lrrrr}
+\toprule
+Cấu hình & $\alpha_{\mathrm{CLIP}}$ & MRR & R@10 & MRR gián tiếp\\
+\midrule
+CLIP & 1,0 & 0.257698 & 0.341245 & 0.047527\\
+Đồ thị gốc & 0,0 & 0.414549 & 0.555596 & 0.316408\\
+Hoán đổi cạnh & 0,2 & 0.315632 & 0.444769 & 0.146839\\
+Bỏ cạnh (No Edges) & 1,0 & 0.257698 & 0.341245 & 0.047527\\
+Đồ thị ngẫu nhiên & 1,0 & 0.257698 & 0.341245 & 0.047527\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Phát hiện chính và giới hạn}
-Nghiên cứu đã xác minh thành công vai trò vượt trội của MMKG trong việc bù đắp điểm mù của CLIP đối với các truy vấn gián tiếp. Giới hạn còn tồn tại là quy trình loại trừ cạnh của Shuffled Edges v2 sử dụng phương pháp test-aware exclusion, do đó cần được diễn giải một cách cẩn trọng.
+Đồ thị gốc cao hơn đồ thị hoán đổi 0,098917 MRR tổng hợp. Kết quả phù hợp với giả thuyết rằng các quan hệ đúng hỗ trợ truy vấn gián tiếp. Mỗi nhánh chọn checkpoint và trọng số riêng trên validation, nên chênh lệch phản ánh các cấu hình đã hiệu chỉnh. Đối chứng hiện có một seed.
+
+No Edges bỏ huấn luyện KGC và đặt $\alpha_{\mathrm{CLIP}}=1$. Với Random Graph, validation cũng chọn $\alpha_{\mathrm{CLIP}}=1$ tại epoch 1, vì vậy điểm đồ thị ngẫu nhiên có trọng số bằng 0 khi xếp hạng test. Cả hai thu được kết quả trùng với CLIP trên các nhóm tổng hợp, trực tiếp và gián tiếp. Riêng Random Graph, kết quả này mô tả cấu hình đã chọn trên validation. Hiệu quả khi buộc dùng điểm đồ thị ngẫu nhiên với $\alpha_{\mathrm{CLIP}}<1$ cần được đo riêng. FB15K-237-IMG còn thiếu kết quả triệt tiêu cạnh.
+
+\evidencetag{CSV tổng hợp No Edges và Random Graph trong src/DB15K}{VERIFIED}
+
+\subsection{Phạm vi so sánh}
+Hai tập dùng cùng khung CLIP, xếp hạng lại top 1.000 và chọn cấu hình trên validation. Mỗi tập có bản chia, truy vấn và ảnh ứng viên riêng. Để đối chiếu trực tiếp với GAT của Cấp độ 1, cần kết quả GAT trên chính các truy vấn, tập ứng viên và bản chia của từng tập.
+
+\evidencetag{Bảng test của notebook 04b1 và 04b2 trong src}{VERIFIED}
 
 \section{Cấp độ 3: Đánh giá khả năng giải thích và chuyển giao}
 \label{sec:level3-results}
@@ -218,10 +244,10 @@ Phân tích tính trung thực chứng minh rằng giải thích dựa trên tr�
 Tổng hợp kết quả xuyên suốt ba cấp độ thực hiện mang lại bức tranh toàn diện giải đáp trọn vẹn ba câu hỏi nghiên cứu ban đầu:
 \begin{enumerate}
   \item \textbf{Về RQ1 (Level 1):} Tích hợp đồ thị cục bộ qua GAT cải thiện đáng kể độ chính xác truy hồi so với CLIP thuần túy (MRR tăng từ $\sim 0.723$ lên $\sim 0.827$). Tuy nhiên, phân tích triệt tiêu khẳng định rằng khoảng 55\% mức tăng trưởng đến từ adapter effect, và 45\% đến từ cấu trúc kết nối cạnh thực sự.
-  \item \textbf{Về RQ2 (Level 2):} Đồ thị tri thức đa phương thức MMKG chứng minh giá trị vượt trội mang tính quyết định đối với các truy vấn gián tiếp (Indirect MRR tăng hơn 6.6 lần trên DB15K). Phân tích hoán đổi cạnh bảo toàn bậc chứng minh cấu trúc quan hệ ngữ nghĩa đóng góp then chốt vào khả năng suy luận liên kết.
+  \item \textbf{Về RQ2 (Level 2):} So với CLIP, AdaMF cải thiện MRR gián tiếp trên cả DB15K và FB15K-237-IMG. Trong đối chứng DB15K seed 2027, cấu hình dùng đồ thị gốc có MRR cao hơn cấu hình hoán đổi cạnh khoảng $0.0989$.
   \item \textbf{Về RQ3 (Level 3):} Các bằng chứng đường đi giải thích trích xuất từ mô hình đạt độ thưa cao ($>85\%$) và có tính trung thực nhân quả với điểm số xếp hạng. Khả năng chuyển giao sang tập dữ liệu tự xây bước đầu được định hình về mặt phương pháp luận và cấu trúc dữ liệu.
 \end{enumerate}
 
-\noindent\textbf{Cảnh báo phương pháp luận:} Báo cáo nhấn mạnh không so sánh trực tiếp điểm số MRR giữa Flickr30k ($0.827$), DB15K ($0.415$) và FB15k-237 ($0.289$) để kết luận mô hình nào vượt trội hơn, bởi vì mỗi tập dữ liệu vận hành trên một không gian ứng viên, số lượng nhãn và độ phức tạp quan hệ hoàn toàn khác biệt.
+\noindent\textbf{Cảnh báo phương pháp luận:} Báo cáo nhấn mạnh không so sánh trực tiếp điểm số MRR giữa Flickr30k ($0.827$), DB15K ($0.413$) và FB15K-237-IMG ($0.289$) để kết luận mô hình nào vượt trội hơn, bởi vì mỗi tập dữ liệu vận hành trên một không gian ứng viên, số lượng nhãn và độ phức tạp quan hệ hoàn toàn khác biệt.
 
 \evidencetag{Project03_Multimodal_XAI.pdf; toàn bộ hệ thống audit}{VERIFIED}

@@ -8,6 +8,9 @@ venv/
 # Local configuration
 .env
 
+# Project-local portable tools
+/.local/
+
 # LaTeX build outputs
 /report/report_compiled/
 /report/main.pdf

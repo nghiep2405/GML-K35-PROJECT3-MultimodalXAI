@@ -8,7 +8,6 @@ Kết quả thực nghiệm trên cả ba cấp độ khẳng định một các
 
 Đối với các câu truy vấn trực tiếp mô tả đối tượng thị giác xuất hiện hiển nhiên trong ảnh, mô hình CLIP tiền huấn luyện trên hàng trăm triệu cặp ảnh--văn bản đã có khả năng tạo ra sự căn chỉnh không gian biểu diễn rất mạnh mẽ. Trong các tình huống này, đồ thị cục bộ chỉ đóng vai trò gia cố thứ hạng nhẹ hoặc thậm chí có thể đưa vào nhiễu nếu các nhãn đối tượng bị phát hiện sai lệch. Ngược lại, đối với các truy vấn gián tiếp -- nơi thông tin thị giác trực tiếp không đủ để định danh đối tượng hoặc đòi hỏi liên kết bắc cầu qua các sự kiện, nhân vật lịch sử và bối cảnh trừu tượng -- đồ thị tri thức đa phương thức đóng vai trò quyết định, biến một tác vụ truy vấn bất khả thi thành một quá trình suy luận có định hướng rõ ràng.
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1--2); DB15K_Shuffled_Edges_v2_Review_Feedback.md}{VERIFIED}
 
 \section{Đóng góp của thông tin cấu trúc đồ thị}
 \label{sec:structural-contribution}
@@ -21,9 +20,6 @@ Các phát hiện thực nghiệm của nhóm trên Flickr30k và DB15K cho th�
   \item \textbf{Hiệu ứng phân phối bậc:} Đồ thị hoán đổi cạnh trên DB15K giữ bậc vào và ra theo từng quan hệ và đạt MRR 0,315632, so với 0,257698 của CLIP. Thực nghiệm này chưa cô lập ảnh hưởng riêng của phân phối bậc.
   \item \textbf{Ngữ nghĩa cạnh thực sự:} Đồ thị gốc cao hơn đồ thị hoán đổi khoảng 0,0989 MRR trên DB15K seed 2027. Hai cấu hình chọn trọng số và checkpoint riêng, nên mức chênh lệch được diễn giải ở cấp cấu hình.
 \end{enumerate}
-
-\evidencetag{audit Flickr30k; DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2)}{VERIFIED}
-
 \section{Độ tin cậy của các giải thích đồ thị}
 \label{sec:xai-reliability}
 
@@ -31,7 +27,6 @@ Khía cạnh xAI của hệ thống giải quyết triệt để vấn đề "h�
 
 Các kiểm thử can thiệp định lượng qua chỉ số Fidelity chứng minh rằng khi người dùng loại bỏ các liên kết được chọn làm giải thích, điểm số của ứng viên bị sụt giảm nghiêm trọng, xác nhận tính nhân quả thực chất. Tuy nhiên, nghiên cứu cũng ghi nhận các trường hợp thất bại định tính: khi mô hình đưa ra dự đoán sai lệch (ví dụ: xếp hạng nhầm một bức ảnh phong cảnh khác), giải thích sinh ra đôi khi vẫn hiển thị một đường đi logic hợp lý bề mặt. Điều này cảnh báo rằng giải thích faithful to model không đồng nghĩa với việc giải thích luôn phản ánh ground-truth validity, đòi hỏi người vận hành phải có chuyên môn khi đánh giá.
 
-\evidencetag{07_db15k_fb15k_adamf_xai_level2.ipynb; Project03_Multimodal_XAI.pdf (Mục 5)}{VERIFIED}
 
 \section{Các giới hạn thực nghiệm}
 \label{sec:limitations}
@@ -43,7 +38,6 @@ Báo cáo thừa nhận một cách thẳng thắn các giới hạn kỹ thuậ
   \item \textbf{Tiến độ nhánh Cấp độ 3 trên dữ liệu tự xây:} Dữ liệu Custom MMKG tiếng Việt mới dừng lại ở giai đoạn thu thập sơ bộ; các artifact huấn luyện và đánh giá định lượng chuyển giao chưa được nghiệm thu chính thức trên các thư mục bàn giao.
 \end{itemize}
 
-\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 3--4)}{VERIFIED}
 
 \section{Ý nghĩa nghiên cứu và hướng phát triển}
 \label{sec:future-directions-discussion}
@@ -56,5 +50,3 @@ Các hướng phát triển tự nhiên tiếp theo bao gồm:
   \item Tích hợp hàm mất mát graph-aware contrastive loss trực tiếp trong quá trình huấn luyện bộ mã hóa.
   \item Mở rộng sang bài toán truy vấn Text-to-Video bằng cách mô hình hóa đồ thị tương tác thời gian giữa các khung hình.
 \end{enumerate}
-
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 5, Cấp độ 4)}{VERIFIED}

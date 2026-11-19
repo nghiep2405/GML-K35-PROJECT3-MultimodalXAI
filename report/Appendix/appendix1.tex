@@ -1,46 +1,92 @@
 \chapter{Phụ lục bổ trợ}
 \label{chap:appendices}
 
-\section{Phụ lục A: Bảng đối chiếu yêu cầu đề bài và tình trạng minh chứng}
-\label{app:requirement-traceability}
+\section{Phụ lục A: Pipeline GAT trên Flickr30k Entities}
+\label{app:flickr30k-pipeline}
 
-Bảng~\ref{tab:app-requirement-traceability} tổng hợp sự đối chiếu chi tiết giữa các yêu cầu chính thức trong đề bài \cite{project03requirement} với các artifact thực nghiệm đã được kiểm chứng độc lập trong hệ thống.
+\subsection{Xây dựng đồ thị}
 
-\begin{table}[H]
+Mỗi ảnh Flickr30k được biểu diễn bằng một đồ thị độc lập gồm một đỉnh ảnh và các đỉnh vùng được tạo từ bounding box của Flickr30k Entities. Đỉnh ảnh dùng embedding 512 chiều của toàn bộ ảnh; mỗi đỉnh vùng dùng embedding 512 chiều của phần ảnh được crop theo bounding box. Các đặc trưng được trích xuất bằng CLIP \texttt{ViT-B-32-quickgelu}, pretrained \texttt{openai}, và được giữ cố định.
+
+Đồ thị sử dụng tám loại cạnh: \texttt{self}, \texttt{contains}, \texttt{in\_image}, \texttt{overlap}, \texttt{left\_of}, \texttt{right\_of}, \texttt{above} và \texttt{below}. Với mỗi vùng, pipeline tạo hai cạnh $v_{\mathrm{image}}\xrightarrow{\mathrm{contains}}v_{\mathrm{region}}$ và $v_{\mathrm{region}}\xrightarrow{\mathrm{in\_image}}v_{\mathrm{image}}$; đồng thời mỗi đỉnh được gán một self-loop.
+
+Quan hệ giữa hai vùng được suy ra từ bounding box. Nếu diện tích giao của hai box lớn hơn 0, hai cạnh \texttt{overlap} ngược chiều được tạo. Nếu hai box không giao nhau và khoảng cách Euclidean giữa hai tâm nhỏ hơn 0.35 trong hệ tọa độ chuẩn hóa, trục có độ lệch lớn hơn quyết định cặp quan hệ \texttt{left\_of}/\texttt{right\_of} hoặc \texttt{above}/\texttt{below}. Không tạo cạnh không gian nếu khoảng cách lớn hơn hoặc bằng 0.35. Ngưỡng 0.35 là heuristic được hard-code trong pipeline, không phải siêu tham số được chọn trên validation. Loại cạnh được biểu diễn bằng vectơ one-hot 8 chiều.
+
+Tập dữ liệu gồm 29\,783 đồ thị huấn luyện, 1\,000 đồ thị validation và 1\,000 đồ thị test. Số đỉnh trung bình tương ứng là 9.691, 9.595 và 9.339; khoảng min--max là $1$--$107$, $2$--$48$ và $1$--$44$. Số cạnh có hướng trung bình, đã bao gồm self-loop và các cạnh hai chiều, lần lượt là 90.543, 85.899 và 84.651; khoảng min--max là $1$--$6\,829$, $4$--$1\,504$ và $1$--$1\,129$.
+
+Tần suất tám loại cạnh trên toàn bộ dữ liệu là: \texttt{overlap} (1\,258\,162), \texttt{self} (307\,558), \texttt{contains} (275\,775), \texttt{in\_image} (275\,775), \texttt{left\_of} (264\,124), \texttt{right\_of} (264\,124), \texttt{above} (110\,837) và \texttt{below} (110\,837).
+
+Ví dụ, đồ thị của ảnh \texttt{1100214449} gồm một đỉnh ảnh và bốn đỉnh vùng tương ứng với \emph{boy}, \emph{fountain}, \emph{building} và \emph{striped shirt}. Đồ thị có 5 self-loop, 8 cạnh ảnh--vùng và 6 cạnh \texttt{overlap} có hướng. Ba cặp vùng giao nhau là \emph{boy--building}, \emph{boy--striped shirt} và \emph{building--striped shirt}, với một cạnh cho mỗi hướng.
+
+\subsection{Kiến trúc GAT và image-root readout}
+
+GAT gồm hai lớp. Lớp thứ nhất ánh xạ đặc trưng từ 512 xuống 256 chiều với hai attention head và \texttt{concat=False}; lớp thứ hai ánh xạ từ 256 về 512 chiều với một attention head. Mô hình không sử dụng dropout và không để GAT tự thêm self-loop vì self-loop đã được tạo trong dữ liệu. Trong một mini-batch, vị trí đỉnh ảnh của mỗi đồ thị được xác định bởi \texttt{batch.ptr[:-1]}. Embedding đỉnh ảnh sau GAT được cộng residual với CLIP image embedding ban đầu $x_i^{\text{image}}$, sau đó áp dụng LayerNorm và chuẩn hóa L2:
+\begin{equation}
+  h_{\text{graph}}^{\text{F30K}}(v_i)
+  = \operatorname{L2Norm}\!\left(
+      \operatorname{LayerNorm}\!\left(H_i^{(2)}[r_i] + x_i^{\text{image}}\right)
+    \right).
+  \label{eq:flickr-root-readout}
+\end{equation}
+
+Khác với Visual Genome, quan hệ trong đồ thị Flickr30k được suy ra từ hình học bounding box thay vì predicate ngữ nghĩa của scene graph. Vì vậy, Visual Genome biểu diễn trực tiếp các quan hệ như \emph{man--holding--microphone}, trong khi Flickr30k chủ yếu biểu diễn quan hệ không gian như \emph{overlap}, \emph{left of} và \emph{above}.
+
+
+\subsection{Kết quả truy hồi}
+
+Trên Flickr30k Entities, CLIP-only đạt R@1 0.6120, R@5 0.8240, R@10 0.8845 và MRR 0.7232. Kết quả CLIP + GAT qua ba seed được trình bày trong Bảng~\ref{tab:flickr30k-results}.
+
+\begin{table*}[!t]
 \centering
-\footnotesize
-\renewcommand{\arraystretch}{0.92}
-\caption{Đối chiếu yêu cầu đề tài Project 03 với artifact và tình trạng kiểm chứng}
-\label{tab:app-requirement-traceability}
-\begin{tabularx}{\textwidth}{L{1.4cm}L{3.2cm}L{4.2cm}C{2.0cm}Y}
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Hiệu năng truy vấn trên Flickr30k Entities}
+\label{tab:flickr30k-results}
+\begin{tabular}{lrrrr}
 \toprule
-\textbf{Cấp độ} & \textbf{Yêu cầu đề bài} & \textbf{Artifact / File nguồn} & \textbf{Tình trạng} & \textbf{Ghi chú học thuật}\\
+Cấu hình & R@1 & R@5 & R@10 & MRR\\
 \midrule
-Level 1 & Baseline CLIP đóng băng & \path{03_3_clip_baseline_retrieval.ipynb} & VERIFIED & Test MRR $\sim 0.7232$ trên Flickr30k\\
-Level 1 & CLIP + GAT (3 seeds) & \path{04a_gat_training_validation.ipynb} & VERIFIED & Mean MRR $\sim 0.8273$ qua seeds 2026--2028\\
-Level 1 & Ablation: No-edge / Random & \path{double-check/flickr30k_ablation.json} & VERIFIED & Xác định vai trò của projection adapter\\
-Level 1 & Phân tích 5 thành công + 5 thất bại & \path{06_flickr30k_gat_xai_level1.ipynb} & PARTIAL & Đã có notebook và đồ thị ví dụ\\
+CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
+CLIP + GAT, seed 2026 & 0.7385 & 0.8920 & 0.9310 & 0.8251\\
+CLIP + GAT, seed 2027 & 0.7410 & 0.8950 & 0.9340 & 0.8290\\
+CLIP + GAT, seed 2028 & 0.7390 & 0.8940 & 0.9330 & 0.8278\\
 \midrule
-Level 2 & MMKG: 2 tập công khai & DB15K và FB15k-237 manifests & VERIFIED & Kế thừa chuẩn MMKB\\
-Level 2 & Phương pháp mới $\ge 2024$ (AdaMF) & \path{src/gml_v2/}; \path{04b2_adamf_*.py} & VERIFIED & AdaMF-based Multimodal Fusion\\
-Level 2 & Phân tách Direct vs. Indirect & \path{DB15K_Shuffled_Edges_v2_Review.md} & VERIFIED & Indirect MRR tăng từ 0.047 lên 0.316\\
-Level 2 & Bộ 20 truy vấn đánh giá chuẩn & \path{test_protocol.json} & PARTIAL & 5.477 queries test; cần trích lọc 20 case\\
-Level 2 & Ablation: Shuffled Edges v2 & \path{test_metrics.csv} & VERIFIED & MRR 0.3156 (overlap 0/0 test-aware)\\
-\midrule
-Level 3 & Đo Fidelity, Validity, Sparsity & \path{07_db15k_fb15k_adamf_xai_level2.ipynb} & PARTIAL & Đã có framework và công thức đo lường\\
-Level 3 & Custom MMKG tiếng Việt & \path{dataset/mmkg_tv} & NOT VERIFIED & Có ảnh và metadata; chưa có test run\\
-\midrule
-Mở rộng & Image-to-Text / Video / Loss & \path{Project03_Multimodal_XAI.pdf} & NOT VERIFIED & Hướng mở rộng tính điểm cộng\\
+Trung bình & 0.7395 & 0.8937 & 0.9327 & 0.8273\\
+Độ lệch chuẩn mẫu & 0.0013 & 0.0015 & 0.0015 & 0.0020\\
 \bottomrule
-\end{tabularx}
-\end{table}
+\end{tabular}
+\end{table*}
+
+\subsection{Ablation}
+
+Hai đối chứng No-edges và Random-edges được đánh giá trên seed \texttt{2026}. No-edges chỉ giữ self-loop, trong khi Random-edges thay thế liên kết đúng bằng liên kết ngẫu nhiên.
+
+\begin{table*}[!t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Ablation trên Flickr30k Entities, seed 2026}
+\label{tab:flickr30k-ablation}
+\begin{tabular}{lrrrr}
+\toprule
+Cấu hình & R@1 & R@5 & R@10 & MRR\\
+\midrule
+CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
+No-edges / Adapter & 0.6840 & 0.8520 & 0.9010 & 0.7810\\
+Random-edges & 0.6380 & 0.8310 & 0.8890 & 0.7450\\
+Full Graph & 0.7385 & 0.8920 & 0.9310 & 0.8251\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Kết quả này cho thấy không thể đồng nhất No-edges với CLIP-only hoặc quy toàn bộ mức tăng cho cấu trúc cạnh.
 
 \section{Phụ lục B: Cấu hình siêu tham số và tài nguyên tính toán}
 \label{app:hyperparameters}
 
 Bảng~\ref{tab:hyperparameters} liệt kê chi tiết các siêu tham số được sử dụng để huấn luyện mô hình ở từng cấp độ thực nghiệm:
 
-\begin{table}[H]
+\begin{table*}[!t]
 \centering
 \small
 \renewcommand{\arraystretch}{0.95}
@@ -62,7 +108,7 @@ Số Epoch tối đa & 50 & 500 (Early stop = 8) & Dừng sớm theo Validation\
 Trọng số kết hợp $\alpha_{\text{CLIP}}$ & 0.6 (trên VG) & 0.2 (trên DB15K) & Khóa trên Validation\\
 \bottomrule
 \end{tabularx}
-\end{table}
+\end{table*}
 
 \section{Phụ lục C: Hướng dẫn tái lập thực nghiệm}
 \label{app:reproduction}
@@ -85,25 +131,26 @@ python src/gml_v1/evaluate_gat.py --seed 2026 --checkpoint model/gat_v1/seed_202
 python src/gml_v2/evaluate_adamf.py --dataset DB15K --seed 2027 --alpha 0.2
 \end{lstlisting}
 
-\section{Phụ lục D: Phân công trách nhiệm và đóng góp của thành viên}
+\section{Phụ lục D: Phân công trách nhiệm của thành viên}
 \label{app:contributions}
 
-Bảng~\ref{tab:contributions} ghi nhận minh bạch vai trò và tỷ lệ đóng góp của từng thành viên trong nhóm đồ án:
+Bảng~\ref{tab:contributions} ghi nhận vai trò chính của từng thành viên trong nhóm đồ án:
 
-\begin{table}[H]
+\begin{table*}[!t]
 \centering
 \small
 \renewcommand{\arraystretch}{0.95}
-\caption{Bảng phân công trách nhiệm và tỷ lệ đóng góp của thành viên}
+\caption{Phân công trách nhiệm của thành viên}
 \label{tab:contributions}
-\begin{tabularx}{\textwidth}{C{1.0cm}L{3.0cm}L{2.5cm}Y C{1.8cm}}
+\begin{tabularx}{\textwidth}{C{1.0cm}L{3.4cm}L{2.5cm}Y}
 \toprule
-\textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Nhiệm vụ chính phụ trách} & \textbf{Đóng góp}\\
+\textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Nhiệm vụ chính phụ trách}\\
 \midrule
-1 & Chung Gia Khánh & 23120282 & Trưởng nhóm, thiết kế kiến trúc tổng thể, audit kỹ thuật, kiểm thử triệt tiêu Level 2 và biên tập báo cáo & 25\%\\
-2 & \textit{[CẦN ĐIỀN: Tên SV 2]} & \textit{[23120xxx]} & Xử lý dữ liệu Visual Genome / Flickr30k, trích xuất CLIP baseline và xây dựng đồ thị Level 1 & 25\%\\
-3 & \textit{[CẦN ĐIỀN: Tên SV 3]} & \textit{[23120xxx]} & Huấn luyện và tối ưu mạng GAT Level 1, phân tích truy vấn định tính 5 thành công + 5 thất bại & 25\%\\
-4 & \textit{[CẦN ĐIỀN: Tên SV 4]} & \textit{[23120xxx]} & Triển khai cơ chế giải thích xAI Level 3, đo lường Fidelity, thu thập tập dữ liệu MMKG tự xây & 25\%\\
+1 & Chung Gia Khánh & 23120282 & Thiết kế kiến trúc tổng thể, audit kỹ thuật, kiểm thử triệt tiêu và biên tập báo cáo\\
+2 & Lê Hoàng Mỹ Hạ & 23120038 & Tiền xử lý dữ liệu, kiểm soát rò rỉ và trích xuất đặc trưng CLIP\\
+3 & Hàn Vũ Phương Uyên & 23120106 & Xây dựng scene graph, triển khai GAT và phân tích Level 1\\
+4 & Trần Gia Hiển & 23120123 & Triển khai AdaMF, DB15K, FB15K-237-IMG và các đối chứng Level 2\\
+5 & Nguyễn An Nghiệp & 23127234 & Triển khai giải thích đồ thị, đánh giá XAI và dữ liệu MMKG tự xây\\
 \bottomrule
 \end{tabularx}
-\end{table}
+\end{table*}

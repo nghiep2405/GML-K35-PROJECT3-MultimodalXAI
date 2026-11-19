@@ -6,13 +6,6 @@
 
 Quy trình nghiên cứu tổng quát của đồ án được xây dựng dưới dạng một kiến trúc đa tầng tích hợp, kết nối xuyên suốt ba cấp độ thực hiện từ bài toán cơ sở đến giải pháp nâng cao và giải thích quyết định. Hệ thống nhận đầu vào là câu truy vấn văn bản $q$ và một không gian tìm kiếm hình ảnh quy mô lớn. 
 
-\begin{figure}[H]
-  \centering
-  \fbox{\parbox[c][3.8cm][c]{0.92\textwidth}{\centering\bfseries\color{HCMUSBlue} [HÌNH DỰ KIẾN: Kiến trúc Pipeline tổng thể từ Level 1 đến Level 3]\\[2mm]\small\color{black} \textit{Bao gồm 3 tầng xử lý: (1) Dual-Encoder CLIP Candidate Generation; (2) Graph Scoring \& Reranking (GAT \& AdaMF); (3) Explanation Subgraph Extraction \& Fidelity Verification. Nguồn: \texttt{\detokenize{doc/README.md}} và \texttt{\detokenize{Project03_Multimodal_XAI.pdf}}}}}
-  \caption{Sơ đồ luồng xử lý tổng thể của hệ thống truy vấn đa phương thức có giải thích bằng đồ thị}
-  \label{fig:overall-pipeline}
-\end{figure}
-
 Khung làm việc bao gồm ba khối chức năng dùng chung và ba nhánh thuật toán tương ứng:
 \begin{enumerate}
   \item \textbf{Khối trích xuất đặc trưng cơ sở:} Sử dụng mô hình CLIP (frozen ViT-B/32) để mã hóa toàn bộ cơ sở dữ liệu ảnh và sinh biểu diễn vectơ cho câu truy vấn đầu vào.
@@ -21,56 +14,273 @@ Khung làm việc bao gồm ba khối chức năng dùng chung và ba nhánh thu
   \item \textbf{Khối giải thích và kiểm chứng độ tin cậy:} Phân rã đường đi và trọng số chú ý để trích xuất đồ thị con chứng minh, sau đó tiến hành kiểm tra fidelity bằng phương pháp can thiệp làm nhiễu đồ thị.
 \end{enumerate}
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 4.2); plan_Nghiep_Khanh.md}{VERIFIED}
 
 \section{Cấp độ 1: Mô hình cơ sở và truy vấn tăng cường đồ thị}
 \label{sec:level1-methodology}
 
-\subsection{Truy vấn cơ sở dựa trên CLIP}
-Ở bước đầu tiên, mô hình frozen backbone CLIP được thiết lập nhằm tạo đường cơ sở không khai thác cấu trúc đồ thị. Mọi tham số của bộ mã hóa văn bản và hình ảnh đều được giữ cố định để bảo đảm tính khách quan và ngăn ngừa hiện tượng data leakage qua quá trình fine-tuning. Với câu truy vấn $q$, mô hình tính điểm cosine similarity $S_{\text{CLIP}}(q, v_i)$ theo phương trình~(\ref{eq:clip-similarity}) cho toàn bộ tập ảnh trong test set. Thứ hạng của các bức ảnh hoàn toàn dựa trên sự tương đồng góc giữa hai vectơ nhúng.
+\subsection{Mô hình cơ sở CLIP (Baseline)}
 
-\evidencetag{notebook/03_3_clip_baseline_retrieval.ipynb; Project03_Multimodal_XAI.pdf}{VERIFIED}
+Trên tập dữ liệu Visual Genome, nhóm sử dụng mô hình CLIP ViT-B/32
+với trọng số tiền huấn luyện từ OpenAI làm mô hình cơ sở (baseline)
+để đánh giá hiệu quả truy vấn khi chưa sử dụng thông tin đồ thị.
+
+Với mỗi câu truy vấn văn bản $q$, CLIP sử dụng bộ mã hóa văn bản
+để tạo vectơ đặc trưng tương ứng. Tương tự, mỗi ảnh $v_i$ trong
+tập dữ liệu được biểu diễn bằng một vectơ đặc trưng thông qua bộ
+mã hóa hình ảnh. Hai vectơ này nằm trong cùng một không gian biểu
+diễn, cho phép tính mức độ tương đồng giữa câu truy vấn và hình
+ảnh bằng cosine similarity theo công thức~\eqref{eq:clip-similarity}.
+Các ảnh sau đó được sắp xếp theo điểm tương đồng giảm dần,
+trong đó ảnh có điểm cao hơn được xem là phù hợp hơn với truy vấn.
+
+Trong quá trình thực nghiệm, toàn bộ tham số của CLIP được giữ
+cố định, không thực hiện huấn luyện bổ sung (fine-tuning).
+Kết quả truy vấn từ mô hình này được sử dụng làm cơ sở so sánh
+với phương pháp kết hợp thông tin đồ thị ở các bước tiếp theo.
+
 
 \subsection{Xây dựng đồ thị tĩnh}
-Mô hình đồ thị tĩnh ở Cấp độ 1 được khởi tạo từ các chú giải cấu trúc sẵn có trong tập dữ liệu (Flickr30k Entities hoặc Visual Genome). Các thực thể xuất hiện trong ảnh đóng vai trò là các đỉnh, được gắn đặc trưng khởi tạo lấy từ vectơ nhúng ngữ cảnh hoặc bounding box features. Các cạnh kết nối giữa ảnh và các đối tượng trực thuộc (cạnh \textit{image-contains-object}), hoặc giữa các đối tượng với nhau dựa trên quan hệ không gian và ngữ nghĩa (cạnh \textit{object-relation-object}).
+\label{sec:static-graph}
 
-\placeholdertag{Chi tiết cấu trúc đồ thị}{Bổ sung số lượng đỉnh trung bình trên mỗi ảnh và danh sách 10 quan hệ phổ biến nhất.}
-\evidencetag{notebook/02_2_graph_construction.ipynb; graph_manifest.json}{VERIFIED}
+Trên tập dữ liệu Visual Genome, nhóm xây dựng đồ thị từ các
+scene graph có sẵn. Mỗi ảnh được biểu diễn bằng một đồ thị
+riêng biệt $G_i=(V_i,E_i)$, trong đó $V_i$ là tập đỉnh và
+$E_i$ là tập cạnh. Các đồ thị được xây dựng độc lập, không
+có cạnh kết nối giữa các ảnh khác nhau.
 
-\subsection{Mạng nơ-ron chú ý đồ thị GAT}
-Mạng GAT được huấn luyện nhằm học cách truyền thông điệp giữa các đỉnh thực thể trong đồ thị ảnh. Nhờ cơ chế self-attention, GAT có thể gán trọng số lớn hơn cho các thực thể mang ý nghĩa then chốt đối với bối cảnh ảnh. Biểu diễn đồ thị tổng thể của bức ảnh $h_{\text{graph}}(v_i)$ thu được bằng phép readout pooling các vectơ nhúng của các đỉnh thành phần sau $L$ lớp lan truyền thông điệp. Điểm đồ thị giữa truy vấn $q$ và ảnh $v_i$ được tính bằng tích vô hướng giữa vectơ truy vấn chiếu và biểu diễn đồ thị:
+\textbf{Biểu diễn các đỉnh.}
+Mỗi đồ thị gồm một đỉnh đại diện cho toàn bộ ảnh và các đỉnh
+đại diện cho những thực thể xuất hiện trong ảnh. Đỉnh ảnh
+được khởi tạo bằng vectơ đặc trưng 512 chiều trích xuất từ
+ảnh gốc. Đối với mỗi đỉnh thực thể, nhóm sử dụng tên thực
+thể đã chuẩn hóa để tạo vectơ đặc trưng văn bản 512 chiều.
+Tất cả các đặc trưng đều được trích xuất bằng CLIP
+\texttt{ViT-B-32}, với trọng số tiền huấn luyện
+\texttt{openai}, và được giữ cố định trong quá trình
+huấn luyện GAT.
+
+\textbf{Xây dựng các cạnh.}
+Các cạnh trong đồ thị được chia thành hai nhóm. Nhóm thứ
+nhất kết nối đỉnh ảnh với các đỉnh thực thể thông qua
+quan hệ \texttt{contains}, thể hiện rằng thực thể đó
+xuất hiện trong ảnh:
+
+\[
+v_{\mathrm{image}}
+\xrightarrow{\mathrm{contains}}
+v_{\mathrm{entity}}.
+\]
+
+Nhóm thứ hai biểu diễn quan hệ giữa các thực thể, được
+lấy trực tiếp từ scene graph của Visual Genome. Chẳng
+hạn, quan hệ \texttt{wearing} mô tả một thực thể đang
+mặc một vật, trong khi \texttt{holding} thể hiện hành
+động cầm hoặc giữ một vật. Các quan hệ khác bao gồm
+\texttt{on}, \texttt{has}, \texttt{in}, v.v.
+
+Các quan hệ trong scene graph ban đầu đều có hướng.
+Chẳng hạn, quan hệ \texttt{holding} nối từ thực thể
+\texttt{man} đến \texttt{ball}, thể hiện một người
+đang cầm quả bóng. Nếu chỉ giữ cạnh này, thông tin
+chỉ được truyền từ \texttt{man} sang \texttt{ball}
+theo hướng của cạnh. Vì vậy, nhóm bổ sung một cạnh
+ngược từ \texttt{ball} về \texttt{man}, giúp GAT
+tổng hợp thông tin từ cả hai phía của quan hệ.
+
+Mỗi cạnh được biểu diễn bằng vectơ đặc trưng 512
+chiều của tên quan hệ, trích xuất bằng bộ mã hóa
+văn bản CLIP. Ngoài ra, biến nhị phân
+\texttt{edge\_is\_reverse} được sử dụng để phân biệt
+cạnh gốc và cạnh được bổ sung. Danh sách các loại
+quan hệ được xác định từ tập huấn luyện; những quan
+hệ chưa từng xuất hiện trong tập này được gán nhãn
+\texttt{UNK\_REL}.
+
+\textbf{Xử lý self-loop.}
+GAT được cấu hình \texttt{add\_self\_loops=False},
+nghĩa là mô hình không tự động bổ sung self-loop.
+Các self-loop ngữ nghĩa có sẵn trong dữ liệu
+Visual Genome vẫn được giữ lại.
+
+\textbf{Ví dụ minh họa.}
+Đối với ảnh có mã định danh \texttt{61512} trong
+Visual Genome, đồ thị gồm một đỉnh ảnh, 18 đỉnh
+thực thể và 27 cạnh gốc. Trong đó, 18 cạnh
+\texttt{contains} kết nối đỉnh ảnh với các thực thể,
+còn những cạnh khác mô tả quan hệ giữa các thực thể,
+chẳng hạn như:
+
+\[
+\begin{aligned}
+\mathrm{horse}_1
+&\xrightarrow{\mathrm{wearing}}
+\mathrm{bridle},\\
+\mathrm{horse}_1
+&\xrightarrow{\mathrm{in}}
+\mathrm{grass},\\
+\mathrm{horse}_2
+&\xrightarrow{\mathrm{nudging}}
+\mathrm{horse}_1,\\
+\mathrm{building}
+&\xrightarrow{\mathrm{has}}
+\mathrm{door}.
+\end{aligned}
+\]
+
+Sau khi bổ sung các cạnh ngược, đồ thị có tổng cộng
+54 cạnh có hướng và được sử dụng làm đầu vào cho mô hình ở phần sau.
+
+\subsection{Biểu diễn đồ thị bằng GAT}
+\label{sec:gat}
+
+Sau khi xây dựng đồ thị cho từng ảnh, nhóm sử dụng
+Graph Attention Network (GAT) để học biểu diễn của
+ảnh từ thông tin các thực thể và quan hệ trong đồ thị.
+
+Trong GAT, mỗi đỉnh cập nhật biểu diễn của mình bằng
+cách tổng hợp thông tin từ các đỉnh lân cận. Cơ chế
+attention cho phép mô hình gán trọng số khác nhau
+cho các thông tin được tổng hợp, thay vì xem tất cả
+các đỉnh lân cận đều quan trọng như nhau. Nhờ đó,
+biểu diễn của đỉnh ảnh có thể kết hợp đặc trưng
+toàn cục của ảnh với thông tin từ các thực thể
+và quan hệ xung quanh.
+
+Mô hình sử dụng hai lớp GAT có xét đặc trưng cạnh.
+Khi tính trọng số chú ý giữa hai đỉnh, mô hình sử dụng
+đồng thời đặc trưng của đỉnh nguồn, đỉnh đích và cạnh
+nối giữa chúng. Đặc trưng đỉnh được chiếu từ 512 xuống
+128 chiều. Đặc trưng cạnh, gồm CLIP text embedding
+512 chiều của tên quan hệ và cờ
+\texttt{edge\_is\_reverse}, được chiếu từ 513 xuống
+128 chiều. Nhờ đó, các quan hệ khác nhau như
+\texttt{holding}, \texttt{wearing} hoặc \texttt{on}
+có thể tạo ra trọng số chú ý khác nhau.
+
+Mỗi lớp GAT gồm bốn attention head, mỗi head có
+32 chiều, cho đầu ra tổng cộng 128 chiều. Sau mỗi lớp,
+mô hình áp dụng hàm kích hoạt ELU, dropout với xác suất
+0.2, kết nối tắt (residual connection) và LayerNorm.
+
+\textbf{Trích xuất đặc trưng đồ thị.}
+Sau hai lớp GAT, biểu diễn của đỉnh ảnh được cập nhật
+thông qua việc tổng hợp thông tin từ các thực thể
+và quan hệ trong đồ thị. Nhóm sử dụng vectơ đã
+cập nhật của đỉnh ảnh làm đặc trưng đại diện
+cho ảnh, sau đó chuẩn hóa vectơ này:
+
 \begin{equation}
-  S_{\text{graph}}(q, v_i) = \phi_T(e_q)^\top h_{\text{graph}}(v_i)
-  \label{eq:gat-graph-score}
+h_{\mathrm{graph}}^{\mathrm{VG}}(v_i)
+= \operatorname{L2Norm}
+\left(H_i^{(2)}[r_i]\right).
+\label{eq:vg-root-readout}
 \end{equation}
 
-\evidencetag{04a_gat_training_validation.ipynb; EdgeAwareGAT module}{VERIFIED}
+Trong đó, $H_i^{(2)}[r_i]$ là vectơ của đỉnh ảnh
+sau hai lớp GAT, còn $\operatorname{L2Norm}$
+là phép chuẩn hóa vectơ về độ dài đơn vị.
 
-\subsection{Kết hợp điểm CLIP--Đồ thị và xếp hạng lại}
-Để xếp hạng lại các ứng viên, điểm số cuối cùng được tính toán bằng phép kết hợp tuyến tính lồi:
+\textbf{Tính điểm truy vấn.}
+Sau khi GAT tạo ra vectơ đặc trưng 128 chiều
+cho mỗi ảnh, nhóm cần so sánh vectơ này với
+vectơ truy vấn 512 chiều từ CLIP. Để đưa hai
+vectơ về cùng không gian biểu diễn, nhóm sử
+dụng một lớp tuyến tính có tham số học được:
+
 \begin{equation}
-  S_{\text{final}}(q, v_i) = \alpha_{\text{CLIP}} \cdot S_{\text{CLIP}}(q, v_i) + (1 - \alpha_{\text{CLIP}}) \cdot S_{\text{graph}}(q, v_i)
-  \label{eq:fusion-formula-detail}
+\phi_T(e_q) = W_T e_q + b_T,
 \end{equation}
-\textbf{Lưu ý về quy ước ký hiệu:} Trong mã nguồn thực thi GAT, $\alpha_{\text{CLIP}}$ đại diện cho trọng số của CLIP và $(1 - \alpha_{\text{CLIP}})$ là trọng số của điểm đồ thị. Trọng số $\alpha_{\text{CLIP}}$ được quét trên khoảng $[0.0, 1.0]$ với bước nhảy $0.1$ và lựa chọn giá trị tối ưu dựa hoàn toàn trên validation set, sau đó đóng băng cố định trước khi suy luận trên test set một lần duy nhất.
 
-\evidencetag{04a_gat_training_validation.ipynb; audit Flickr30k}{VERIFIED}
+trong đó $e_q$ là vectơ truy vấn từ CLIP,
+$W_T \in \mathbb{R}^{128 \times 512}$ là ma trận
+trọng số và $b_T \in \mathbb{R}^{128}$ là vectơ
+bias. Lớp tuyến tính này chuyển vectơ truy vấn
+từ 512 chiều xuống 128 chiều. Kết quả sau đó
+được chuẩn hóa L2:
 
-\subsection{Giải thích đồ thị mức cơ bản}
-Cơ chế giải thích cơ bản của Cấp độ 1 dựa trên việc trích xuất các hệ số chú ý $\alpha_{ij}$ tại lớp GAT cuối cùng. Các thực thể và cạnh sở hữu trọng số chú ý cao nhất trong ảnh ứng viên được hiển thị trực tiếp cho người dùng, minh họa thành phần đối tượng nào trong ảnh đã đóng góp lớn nhất vào điểm đồ thị $S_{\text{graph}}$.
+\begin{equation}
+\tilde{e}_q =
+\operatorname{L2Norm}(\phi_T(e_q)).
+\end{equation}
 
-\figurecallout{Minh họa giải thích đồ thị cục bộ cho một truy vấn thành công trên Flickr30k}{xai_l1_explanation}
+Điểm tương đồng giữa truy vấn $q$ và ảnh $v_i$
+được tính bằng tích vô hướng giữa vectơ truy
+vấn đã chuyển đổi và vectơ ảnh từ GAT:
 
-\subsubsection{Chuyển tiếp sang Cấp độ 2}
-\label{sec:trans-l1-l2}
+\begin{equation}
+S_{\mathrm{graph}}(q,v_i)
+= \tilde{e}_q^\top
+h_{\mathrm{graph}}^{\mathrm{VG}}(v_i).
+\label{eq:gat-graph-score}
+\end{equation}
 
-Mô hình Cấp độ 1 cho phép định lượng rõ ràng sự cải thiện của việc tích hợp đồ thị cục bộ vào pipeline truy vấn CLIP. Tuy nhiên, kiến trúc này bộc lộ ba giới hạn căn bản:
-\begin{enumerate}
-  \item Đồ thị tĩnh của từng ảnh (như Scene Graph) chỉ phản ánh thông tin xuất hiện trực diện trong khung hình, thiếu vắng các tri thức bách khoa mở rộng để liên kết với các khái niệm trừu tượng bên ngoài.
-  \item Cơ chế GAT thông thường xử lý đồ thị đơn quan hệ hoặc chưa phân biệt được tính đa dạng ngữ nghĩa của hàng trăm loại quan hệ khác nhau trong các hệ tri thức lớn.
-  \item Khi đối mặt với các truy vấn gián tiếp -- trong đó câu hỏi không chứa từ khóa trùng khớp trực tiếp với nhãn đối tượng trong ảnh mà phải suy luận qua các thực thể trung gian -- điểm số đồ thị tĩnh không thể thiết lập được cầu nối suy luận.
-\end{enumerate}
-Những giới hạn này tạo ra động lực bắt buộc phải tiến lên \textbf{Cấp độ 2}, nơi hệ thống được nâng cấp để làm việc với MMKG đa quan hệ và áp dụng cơ chế dung hợp đặc trưng thích nghi.
+Do cả hai vectơ đã được chuẩn hóa L2,
+tích vô hướng tương đương với cosine similarity.
+Điểm này được kết hợp với điểm CLIP để
+xếp hạng lại các ảnh ở bước tiếp theo.
+
+\subsection{Kết hợp điểm CLIP và GAT}
+
+Với mỗi câu truy vấn, CLIP tính điểm tương đồng
+trên toàn bộ tập ảnh và chọn 50 ảnh có điểm cao
+nhất làm tập ứng viên. GAT chỉ được sử dụng để
+xếp hạng lại các ảnh trong tập ứng viên này,
+thay vì xếp hạng toàn bộ tập dữ liệu.
+
+Để hạn chế ảnh hưởng của sự khác biệt về thang đo
+giữa điểm CLIP và GAT, nhóm chuẩn hóa riêng hai
+loại điểm bằng z-score trên 50 ảnh ứng viên.
+
+\begin{equation}
+\widetilde{S}_m(q,v_i)
+=
+\frac{S_m(q,v_i)-\mu_{q,m}}
+{\max(\sigma_{q,m},10^{-6})},
+\end{equation}
+
+trong đó $m \in \{\mathrm{CLIP},\mathrm{graph}\}$,
+$\mu_{q,m}$ và $\sigma_{q,m}$ lần lượt là
+trung bình và độ lệch chuẩn của điểm số
+tương ứng trên 50 ảnh ứng viên. Việc chuẩn hóa
+giúp hai loại điểm có thang đo tương đương
+trước khi kết hợp.
+
+Điểm cuối cùng được tính bằng tổng có trọng số
+của hai điểm đã chuẩn hóa:
+
+\begin{equation}
+S_{\mathrm{final}}(q,v_i)
+=
+\alpha_{\mathrm{CLIP}}
+\widetilde{S}_{\mathrm{CLIP}}(q,v_i)
++
+(1-\alpha_{\mathrm{CLIP}})
+\widetilde{S}_{\mathrm{graph}}(q,v_i).
+\label{eq:fusion-formula-detail}
+\end{equation}
+
+Trọng số $\alpha_{\mathrm{CLIP}}$ được lựa chọn
+trên tập validation bằng cách thử các giá trị
+từ 0 đến 1 với bước nhảy 0.1, dựa trên chỉ số
+MRR. Trên Visual Genome, giá trị được chọn là
+$\alpha_{\mathrm{CLIP}}=0.6$, tương ứng với
+trọng số 0.6 cho CLIP và 0.4 cho GAT.
+
+Trọng số này cùng với checkpoint của mô hình
+được giữ cố định khi đánh giá trên tập test.
+Cuối cùng, 50 ảnh ứng viên được sắp xếp lại
+theo điểm $S_{\mathrm{final}}$ giảm dần.
+
+Ở cấp độ 1, mỗi ảnh được biểu diễn bằng một đồ thị
+riêng biệt, gồm các thực thể và quan hệ được trích
+xuất từ nội dung ảnh. Tuy nhiên, các đồ thị này
+chủ yếu phản ánh thông tin trong từng ảnh, chưa
+khai thác được tri thức và quan hệ bên ngoài ảnh.
+Điều này hạn chế khả năng xử lý những truy vấn
+gián tiếp cần liên kết thông tin giữa nhiều
+thực thể. Ở cấp độ 2, nhóm mở rộng
+sang đồ thị tri thức đa phương thức (MMKG)
+để khai thác thông tin quan hệ phong phú hơn.
 
 \section{Cấp độ 2: Truy vấn đa phương thức nâng cao với đồ thị tri thức}
 \label{sec:level2-methodology}
@@ -88,15 +298,16 @@ Hai triển khai sử dụng cơ chế dung hợp và chấm bộ ba dựa trên
 \subsection{Xếp hạng lại và lựa chọn mô hình}
 CLIP tạo thứ hạng ban đầu trên tập ảnh ứng viên. Hệ thống chuẩn hóa z-score từng dãy điểm theo truy vấn và xếp hạng lại tối đa 1.000 ảnh đứng đầu:
 \begin{equation}
-  S(q,i)=\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))
-  +(1-\alpha_{\mathrm{CLIP}})z_q(S_{\mathrm{AdaMF}}(q,i)).
+\begin{aligned}
+  S(q,i)={}&\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))\\
+  &+(1-\alpha_{\mathrm{CLIP}})z_q(S_{\mathrm{AdaMF}}(q,i)).
+\end{aligned}
   \label{eq:mmkg-rerank}
 \end{equation}
 Ảnh ngoài top 1.000 giữ thứ tự CLIP. Nếu top 1.000 thiếu ảnh liên quan, hệ thống giữ hạng ảnh đúng tốt nhất của CLIP. Checkpoint và $\alpha_{\mathrm{CLIP}}$ được chọn bằng MRR tổng hợp trên validation, với lưới trọng số từ 0 đến 1 theo bước 0,1.
 
 Truy vấn trực tiếp tìm ảnh theo mô tả thực thể. Truy vấn gián tiếp tìm một đầu còn thiếu của quan hệ. Giao thức đo khả năng tận dụng quan hệ đã xác định, còn trích xuất thực thể neo và quan hệ từ câu hỏi tự do hoặc suy luận đa chặng cần đánh giá riêng.
 
-\evidencetag{Notebook 04b1 và 04b2 trong src}{VERIFIED}
 
 \subsubsection{Chuyển tiếp sang Cấp độ 3}
 \label{sec:trans-l2-l3}
@@ -111,8 +322,6 @@ Mục tiêu của Cấp độ 3 là mở chiếc hộp đen của mô hình xế
 \subsection{Sinh giải thích dựa trên đồ thị}
 Với mỗi kết quả trả về trong top-$k$, hệ thống truy vết ngược lại luồng truyền thông điệp của mô hình (GAT attention weights hoặc đường suy luận bộ ba của AdaMF). Đường đi giải thích $\mathcal{P} = \{ (e_{\text{query}}, r_1, e_1), (e_1, r_2, e_{\text{target}}) \}$ được trích xuất bằng cách tối ưu hóa hàm mục tiêu lựa chọn tập cạnh con $\mathcal{E}_{\text{sub}} \subseteq \mathcal{E}$ sao cho điểm số xếp hạng của thực thể đích được bảo toàn tối đa trong khi kích thước đồ thị con là nhỏ nhất có thể.
 
-\placeholdertag{Thuật toán trích xuất đồ thị con}{Bổ sung pseudocode của thuật toán trích xuất giải thích đường đi.}
-\evidencetag{notebook/06_flickr30k_gat_xai_level1.ipynb; 07_db15k_fb15k_adamf_xai_level2.ipynb}{PARTIAL}
 
 \subsection{Đánh giá tính trung thực và độ tin cậy của giải thích}
 Quy trình đánh giá giải thích được chuẩn hóa theo ba tiêu chí định lượng khắt khe:
@@ -122,7 +331,6 @@ Quy trình đánh giá giải thích được chuẩn hóa theo ba tiêu chí đ
   \item \textbf{Sparsity:} Đảm bảo đồ thị con giải thích đủ cô đọng để chuyên gia có thể kiểm tra trực quan nhanh chóng.
 \end{enumerate}
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 5, 7)}{VERIFIED}
 
 \subsection{Xây dựng đồ thị tri thức đa phương thức tự xây}
 Để kiểm tra khả năng chuyển giao của các phương pháp đề xuất từ Cấp độ 1 và 2, nghiên cứu tiến hành thu thập và cấu trúc hóa một tập dữ liệu MMKG nhỏ cho một miền đặc thù bằng tiếng Việt.
@@ -131,11 +339,6 @@ Quy trình đánh giá giải thích được chuẩn hóa theo ba tiêu chí đ
   \item \textbf{Nguồn dữ liệu và phân quyền:} Khai thác dữ liệu văn bản mở và hình ảnh có bản quyền sử dụng hợp lệ, gắn kèm Data Card chi tiết về nguồn gốc và điều khoản sử dụng.
 \end{itemize}
 
-\placeholdertag{Chi tiết miền dữ liệu tự xây}{Cập nhật mô tả miền chuyên biệt (ví dụ: Di sản văn hóa / Ẩm thực Việt Nam / Địa danh du lịch) và thống kê thực thể.}
-\evidencetag{dataset/mmkg_tv; 0. final/data/MMKG}{NOT VERIFIED}
 
 \subsection{Chuyển giao mô hình sang miền dữ liệu đặc thù}
 Mô hình tốt nhất được chọn lựa từ Cấp độ 1/2 được áp dụng trực tiếp (hoặc thông qua fine-tuning tối thiểu trên tập chia riêng) lên đồ thị MMKG tự xây nhằm khảo sát độ bền vững của biểu diễn đa phương thức và khả năng suy luận khi đối mặt với hiện tượng domain shift.
-
-\placeholdertag{Giao thức đánh giá chuyển giao}{Ghi rõ giao thức test zero-shot hoặc few-shot trên custom MMKG.}
-\evidencetag{0. final/results/MMKG}{NOT VERIFIED}

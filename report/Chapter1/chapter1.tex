@@ -8,8 +8,6 @@ Trong kỷ nguyên bùng nổ dữ liệu số, nhu cầu tìm kiếm và truy h
 
 Tuy nhiên, trong các tình huống thực tế, thế giới quan không chỉ đơn thuần là các mảng điểm ảnh hay các từ ngữ xuất hiện độc lập, mà luôn mang cấu trúc quan hệ ngữ nghĩa chặt chẽ. Một bức ảnh luôn chứa đựng nhiều thực thể với các mối liên kết không gian, chức năng hoặc hành động tương hỗ (ví dụ: một đứa trẻ đang đá bóng trên sân cỏ). Biểu diễn vectơ dày đặc của CLIP tuy nắm bắt xuất sắc diện mạo tổng thể nhưng thường gặp khó khăn trong việc hiểu rõ cấu trúc cú pháp quan hệ phức tạp và các tri thức suy luận ngầm định không xuất hiện trực tiếp dưới dạng đặc trưng thị giác bề mặt.
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1--2)}{VERIFIED}
-\placeholdertag{Số liệu trích dẫn}{Bổ sung các nghiên cứu gần đây (2024--2026) về giới hạn ngữ nghĩa quan hệ của các mô hình Dual-Encoder.}
 
 \section{Phát biểu bài toán}
 \label{sec:problem-statement}
@@ -19,10 +17,8 @@ Mặc dù mô hình truy hồi dựa trên tương đồng không gian tiềm �
   \item \textbf{Thiếu hụt khả năng mô hình hóa tri thức quan hệ:} Trong các truy vấn gián tiếp đòi hỏi suy luận logic hoặc liên kết đa chặng (ví dụ: truy vấn \textit{"a child playing football"} khi ảnh chỉ nhận diện được hai nhãn đối tượng là \textit{"ball"} và \textit{"field"}), mô hình dựa trên tương đồng vectơ thuần túy thường bỏ sót kết quả đúng do thiếu vắng đường đi kết nối tri thức \textit{child -- plays -- football}.
   \item \textbf{Thiếu vắng tính Explainability:} Mô hình hộp đen chỉ trả về một giá trị tương đồng vô hướng, hoàn toàn không cho người dùng biết vì sao một hình ảnh lại được xếp hạng cao hơn hình ảnh khác, hoặc thành phần tri thức cụ thể nào trong ảnh đã đóng góp vào quyết định xếp hạng.
 \end{enumerate}
-
 Do đó, bài toán đặt ra cho đề tài là: \textit{Xây dựng hệ thống truy hồi đa phương thức kết hợp thông tin quan hệ từ đồ thị (Scene Graph và MMKG) nhằm cải thiện chất lượng xếp hạng kết quả, đồng thời sinh ra các giải thích trực quan dưới dạng quan hệ, đường đi hoặc đồ thị con có tính trung thực cao bắt nguồn từ chính cơ chế tính điểm của mô hình.}
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1, Nhiệm vụ 1--3)}{VERIFIED}
 
 \section{Mục tiêu và câu hỏi nghiên cứu}
 \label{sec:research-objectives}
@@ -37,7 +33,6 @@ Do đó, bài toán đặt ra cho đề tài là: \textit{Xây dựng hệ thố
 
 Mối quan hệ phụ thuộc logic giữa ba câu hỏi nghiên cứu được thể hiện rõ: RQ1 thiết lập nền tảng đo lường hiệu quả của đồ thị và kiểm soát kiểm thử triệt tiêu; RQ2 nâng cấp biểu diễn đồ thị sang không gian đa quan hệ MMKG và giải quyết bài toán truy vấn gián tiếp; RQ3 đi sâu vào bản chất minh bạch của quá trình ra quyết định ở hai cấp độ trước và kiểm tra tính tổng quát hóa trong môi trường dữ liệu mới.
 
-\figurecallout{Sơ đồ liên kết phụ thuộc giữa ba câu hỏi nghiên cứu RQ1, RQ2 và RQ3}{research_questions_flow}
 
 \section{Phạm vi nghiên cứu và đóng góp}
 \label{sec:research-scope}
@@ -54,6 +49,3 @@ Các đóng góp chính của đồ án bao gồm:
   \item Thiết kế giao thức đánh giá giải thích định lượng thông qua ba chỉ số: Fidelity, Validity và Sparsity, kèm theo phân tích định tính trên các trường hợp thành công và thất bại.
   \item Khảo sát khả năng chuyển giao trên tập dữ liệu MMKG tự xây (tiếng Việt miền hẹp) và ghi nhận minh bạch các giới hạn thực nghiệm.
 \end{enumerate}
-
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 3, 5, 8)}{VERIFIED}
-\placeholdertag{Phân công nhóm}{Cập nhật danh sách thành viên và tỷ lệ đóng góp trong Phụ lục D.}

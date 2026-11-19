@@ -18,8 +18,6 @@ Hiệu năng của các hệ thống truy vấn đa phương thức được đo
   \label{eq:mrr-formula}
 \end{equation}
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1, 7); radford2021clip}{VERIFIED}
-\placeholdertag{Chi tiết nDCG}{Bổ sung công thức và lý giải nDCG nếu nhóm quyết định đưa vào phần mở rộng.}
 
 \section{Học biểu diễn đồ thị}
 \label{sec:graph-representation-learning}
@@ -33,7 +31,6 @@ Mạng nơ-ron đồ thị GNN, điển hình là GCN \cite{kipf2017gcn}, GraphS
 \end{equation}
 Trong đó, $\alpha_{ij}^{(l)}$ là hệ số chú ý thể hiện tầm quan trọng của đỉnh $j$ đối với đỉnh $i$, cho phép mô hình học cách tập trung vào các quan hệ có ý nghĩa ngữ nghĩa cao nhất.
 
-\evidencetag{velickovic2018gat; kipf2017gcn; krishna2017visualgenome}{VERIFIED}
 
 \section{Cải thiện truy vấn bằng đồ thị}
 \label{sec:graph-enhanced-retrieval}
@@ -47,23 +44,14 @@ Xu hướng kết hợp đồ thị vào truy hồi đa phương thức khai th�
 \end{equation}
 Hệ số cân bằng $\alpha \in [0, 1]$ được điều chỉnh nghiêm ngặt trên validation set nhằm tìm điểm dung hòa tối ưu giữa năng lực nhận diện khái quát của CLIP và tri thức quan hệ cục bộ của đồ thị.
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 4.2, 5)}{VERIFIED}
 
 \section{Các phương pháp đồ thị tri thức đa phương thức hiện đại}
 \label{sec:advanced-mmkg-methods}
 
 Trong các năm gần đây (2024--2025), lĩnh vực MMKG chứng kiến sự xuất hiện của các kiến trúc tiên tiến giải quyết sự bất đối xứng giữa các phương thức thị giác và văn bản. Tiêu biểu là công trình AdaMF-MAT (LREC-COLING 2024) \cite{adamfmat2024} và NativE (SIGIR 2024) \cite{native2024sigir}. AdaMF-MAT đề xuất cơ chế Adaptive Multimodal Fusion (AdaMF) kết hợp với khối Modality-Aware Transformer (MAT) để hoàn thiện liên kết đa phương thức.
 
-\begin{figure}[H]
-  \centering
-  \fbox{\parbox[c][3.0cm][c]{0.88\textwidth}{\centering\bfseries\color{HCMUSBlue} [HÌNH DỰ KIẾN: Sơ đồ kiến trúc AdaMF gốc vs. Bản triển khai AdaMF-based của nhóm]\\[1.5mm]\small\color{black} \textit{Nguồn: \texttt{\detokenize{doc/Huong_dan_preprocess_Visual_Genome_AdaMF.docx}} và \texttt{src/}}}}
-  \caption{So sánh phạm vi kiến trúc giữa bài báo AdaMF-MAT gốc và phiên bản AdaMF-based của đồ án}
-  \label{fig:adamf-scope-distinction}
-\end{figure}
-
 \noindent\textbf{Lưu ý học thuật quan trọng:} Trong phạm vi đồ án này, nhóm triển khai cơ chế \textbf{dung hợp đặc trưng AdaMF-based} phục vụ trực tiếp cho bài toán truy vấn và xếp hạng lại, không tuyên bố tái lập nguyên bản 100\% toàn bộ hệ thống AdaMF-MAT (vốn được thiết kế chuyên biệt cho tác vụ link prediction thuần túy). Sự phân biệt này giúp đảm bảo tính trung thực tuyệt đối trong báo cáo khoa học.
 
-\evidencetag{adamfmat2024; Project03_Multimodal_XAI.pdf (Mục 2)}{VERIFIED}
 
 \section{Truy vấn đồ thị có khả năng giải thích}
 \label{sec:explainable-retrieval}
@@ -85,7 +73,6 @@ Các chỉ số định lượng đánh giá tính giải thích bao gồm:
   \end{equation}
 \end{itemize}
 
-\evidencetag{ying2019gnnexplainer; yuan2021subgraphx; Project03_Multimodal_XAI.pdf (Mục 5, Nhiệm vụ 3)}{VERIFIED}
 
 \section{Động lực nghiên cứu}
 \label{sec:research-motivation}
@@ -98,5 +85,3 @@ Khoảng trống này dẫn trực tiếp đến động lực thiết kế chu�
   \item Tiếp đó, khắc phục nhược điểm của đồ thị cục bộ bằng cách đưa vào MMKG đa quan hệ và cơ chế dung hợp thích nghi để giải quyết triệt để các truy vấn gián tiếp (Level 2).
   \item Cuối cùng, khép kín quy trình bằng việc trích xuất và đo lường định lượng tính trung thực của các giải thích đồ thị, đồng thời kiểm tra khả năng chuyển giao thực tế sang dữ liệu tiếng Việt (Level 3).
 \end{enumerate}
-
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 1--3)}{VERIFIED}

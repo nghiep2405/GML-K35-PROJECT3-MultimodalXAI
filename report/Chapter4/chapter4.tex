@@ -6,7 +6,7 @@
 
 Nghiên cứu sử dụng nhiều bộ dữ liệu công khai tiêu chuẩn và một tập dữ liệu tự xây nhằm phục vụ các mục tiêu chuyên biệt của từng cấp độ. \textbf{Nguyên tắc học thuật bắt buộc:} Các tập dữ liệu này sở hữu cấu trúc, phân phối và không gian ứng viên hoàn toàn khác nhau; do đó chúng được vận hành trên các giao thức thực nghiệm độc lập và kết quả giữa các tập không được so sánh chéo trực tiếp để rút ra kết luận thắng thua tổng quát.
 
-\begin{table}[H]
+\begin{table*}[!t]
 \centering
 \small
 \renewcommand{\arraystretch}{0.95}
@@ -16,17 +16,76 @@ Nghiên cứu sử dụng nhiều bộ dữ liệu công khai tiêu chuẩn và 
 \toprule
 \textbf{Tập dữ liệu} & \textbf{Cấp độ} & \textbf{Số lượng thực thể / ảnh} & \textbf{Số bộ ba / cạnh đồ thị} & \textbf{Vai trò trong đồ án}\\
 \midrule
-Flickr30k Entities & Level 1 & 31.783 ảnh; 158.915 captions & Đồ thị thực thể--cụm từ cục bộ & Đánh giá baseline CLIP và mô hình GAT cơ sở\\
-Visual Genome & Level 1 / Phụ & 104.426 ảnh; \textit{split\_v2} (80/10/10) & Scene graphs: đối tượng, quan hệ, vùng & Khảo sát mở rộng quy mô đồ thị cảnh lớn\\
+Visual Genome & Level 1 & 104.426 ảnh; \textit{split\_v2} (80/10/10) & Scene graphs: đối tượng, quan hệ, vùng & Thực nghiệm chính của Yêu cầu 1\\
+Flickr30k Entities & Level 1 / Phụ lục & 31.783 ảnh; 158.915 captions & Đồ thị vùng và quan hệ không gian & Thực nghiệm bổ sung trình bày tại Phụ lục~\ref{app:flickr30k-pipeline}\\
 DB15K & Level 2 & 14.708 thực thể; 12.842 ảnh & 99.028 triples; 279 relations & Đánh giá AdaMF-based và truy vấn gián tiếp\\
 FB15K-237-IMG & Level 2 & 14.541 thực thể; ảnh gắn thực thể & 310.116 triples; 237 relations & Đối chứng phương pháp MMKG tiên tiến\\
-Custom MMKG & Level 3 & \tableplaceholder{50--150 entities} & \tableplaceholder{300--1.000 triples} & Đánh giá tính chuyển giao sang tiếng Việt\\
 \bottomrule
 \end{tabularx}
-\end{table}
+\end{table*}
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 10); DB15K_Shuffled_Edges_v2_Review_Feedback.md; plan_Nghiep_Khanh.md}{VERIFIED}
 
+\section{Yêu cầu 1: Thiết kế thực nghiệm trên Visual Genome}
+\label{sec:vg-experimental-design}
+
+\subsection{Phân chia dữ liệu và thống kê đồ thị}
+
+Visual Genome \textit{split\_v2} gồm 104\,426 ảnh, được chia thành 83\,540 ảnh huấn luyện, 10\,443 ảnh validation và 10\,443 ảnh test. Các ảnh trùng SHA-256 hoặc có khoảng cách pHash không vượt quá 6 được đưa vào cùng một split trước khi phân chia nhằm hạn chế rò rỉ hình ảnh giữa các tập. Mỗi ảnh tạo thành một đồ thị độc lập theo quy trình ở Mục~\ref{sec:static-graph}.
+
+\begin{table*}[!t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Thống kê đồ thị trên Visual Genome \textit{split\_v2}}
+\label{tab:vg-graph-stats}
+\begin{tabular}{lrrrr}
+\toprule
+Tập & Số đồ thị & Số đỉnh TB & Cạnh gốc TB & Cạnh model-view TB\\
+\midrule
+Train & 83\,540 & 25.017 & 38.384 & 76.768\\
+Validation & 10\,443 & 24.910 & 38.177 & 76.355\\
+Test & 10\,443 & 24.832 & 38.040 & 76.081\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Số đỉnh nhỏ nhất--lớn nhất lần lượt là $3$--$151$ trên train, $3$--$129$ trên validation và $3$--$116$ trên test. Mười loại cạnh phổ biến nhất trong đồ thị gốc được trình bày ở Bảng~\ref{tab:vg-relations}.
+
+\begin{table*}[!t]
+\centering
+\small
+\caption{Mười loại cạnh phổ biến nhất trên Visual Genome}
+\label{tab:vg-relations}
+\begin{tabular}{lrlr}
+\toprule
+Quan hệ & Số lần & Quan hệ & Số lần\\
+\midrule
+\texttt{contains} & 2\,504\,938 & \texttt{of} & 80\,613\\
+\texttt{on} & 391\,345 & \texttt{with} & 47\,951\\
+\texttt{has} & 180\,513 & \texttt{behind} & 28\,581\\
+\texttt{in} & 134\,479 & \texttt{holding} & 21\,565\\
+\texttt{wearing} & 80\,867 & \texttt{on top of} & 20\,652\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Cấu hình huấn luyện}
+
+Full Graph được huấn luyện độc lập với ba seed \texttt{2026}, \texttt{2027} và \texttt{2028}. Mỗi mini-batch gồm 8 truy vấn; mỗi truy vấn đi kèm một ảnh dương và 50 hard negatives. Trong mỗi epoch, pipeline lấy tối đa 5 truy vấn cho mỗi ảnh để hạn chế việc một ảnh có nhiều mô tả chi phối quá trình tối ưu.
+
+Mô hình sử dụng AdamW với learning rate $10^{-4}$ và weight decay $10^{-4}$. Mỗi run chạy đủ 100 epoch, không dừng sớm tự động. Sau mỗi epoch, pipeline đánh giá trên validation và lưu checkpoint có validation MRR cao nhất. Trọng số dung hợp $\alpha_{\text{CLIP}}$ được chọn trên validation từ tập $\{0,0.1,\ldots,1\}$; test set không tham gia lựa chọn checkpoint hoặc $\alpha_{\text{CLIP}}$.
+
+\subsection{Giao thức đánh giá}
+
+Tập test gồm 523\,347 truy vấn và 10\,443 ảnh ứng viên. Với mỗi truy vấn, CLIP xếp hạng toàn bộ candidate split; GAT sau đó chỉ xếp hạng lại 50 ảnh đứng đầu. Các chỉ số báo cáo gồm Recall@1, Recall@5, Recall@10 và MRR. Checkpoint và $\alpha_{\text{CLIP}}$ được khóa từ validation trước khi suy luận test.
+
+\subsection{Cấu hình đối chứng}
+
+Ngoài CLIP-only và Full Graph, nghiên cứu thực hiện hai ablation trên seed \texttt{2026}:
+\begin{itemize}
+  \item \textbf{No-edge:} giữ nguyên đặc trưng đỉnh, kiến trúc GAT, optimizer và residual path nhưng xóa toàn bộ \texttt{edge\_index} và \texttt{edge\_attr} trước message passing. Vì vậy, đỉnh ảnh không nhận thông tin từ các đỉnh thực thể.
+  \item \textbf{Random-edges:} giữ nguyên số cạnh, đỉnh nguồn, multiset đỉnh đích, đặc trưng cạnh và phân bố bậc, nhưng hoán vị đỉnh đích trong từng đồ thị để phá vỡ quan hệ đúng giữa các đỉnh.
+\end{itemize}
 \section{Tiền xử lý dữ liệu và xây dựng đồ thị}
 \label{sec:preprocessing}
 
@@ -42,7 +101,6 @@ Custom MMKG & Level 3 & \tableplaceholder{50--150 entities} & \tableplaceholder{
   \item \textbf{Đặc trưng ở Cấp độ 2:} Hai pipeline dùng encoder văn bản \texttt{openai/clip-vit-base-patch32} đã khóa revision và cache đặc trưng ảnh có sẵn. Metadata cache ảnh thiếu revision chính xác. Đặc trưng thị giác cấp thực thể trong mô hình được gộp từ ảnh train.
 \end{enumerate}
 
-\evidencetag{plan_Nghiep_Khanh.md (Mục 2); frozen_contract.json; test_protocol.json}{VERIFIED}
 
 \section{Giao thức huấn luyện và đánh giá}
 \label{sec:training-protocol}
@@ -51,7 +109,8 @@ Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để
 \begin{itemize}
   \item \textbf{Kiểm soát tính ngẫu nhiên:} Mọi thực nghiệm chính được chạy trên tối thiểu 3 seed ngẫu nhiên độc lập:
   \begin{itemize}
-    \item Flickr30k (Level 1): Ba seed gồm \texttt{2026}, \texttt{2027}, \texttt{2028}.
+    \item Visual Genome (Level 1): Ba seed gồm \texttt{2026}, \texttt{2027}, \texttt{2028}.
+    \item Flickr30k (Level 1, phụ lục): Ba seed gồm \texttt{2026}, \texttt{2027}, \texttt{2028}.
     \item DB15K / FB15k-237 (Level 2): Ba seed gồm \texttt{2027}, \texttt{2028}, \texttt{2029}.
   \end{itemize}
   Kết quả báo cáo bắt buộc phải thể hiện giá trị $\text{Mean} \pm \text{SD}$.
@@ -59,7 +118,6 @@ Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để
   \item \textbf{Giao thức Frozen Test:} Tập kiểm thử chỉ được suy luận đúng một lần duy nhất sau khi toàn bộ tham số đã được khóa hoàn toàn. Checkpoint và trọng số được khóa trước khi đánh giá. Đối chứng hoán đổi cạnh DB15K có ngoại lệ riêng ở khâu tạo đồ thị, mô tả trong Mục~\ref{sec:level2-graph-ablation}.
 \end{itemize}
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 6); test_protocol.json}{VERIFIED}
 
 \section{Cấu hình cơ sở và kiểm thử triệt tiêu}
 \label{sec:baselines-ablations}
@@ -70,7 +128,7 @@ Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để
   \item \textbf{Full Graph (CLIP + GAT / AdaMF-based):} Mô hình đầy đủ kết hợp thông tin tương đồng bề mặt và cấu trúc quan hệ đồ thị huấn luyện trên tập train.
   \item \textbf{No-edges Control:}
   \begin{itemize}
-    \item Trong pipeline GAT (Flickr30k): Đồ thị loại bỏ hoàn toàn các cạnh quan hệ giữa các đối tượng, chỉ giữ lại các self-loops. Cấu hình này tương đương với một mạng nơ-ron adapter không có cơ chế message passing liên đối tượng.
+    \item Trong pipeline GAT (Visual Genome): Xóa toàn bộ \texttt{edge\_index} và \texttt{edge\_attr} trước message passing nhưng giữ nguyên các phép biến đổi học được và residual path.
     \item Trong pipeline AdaMF (DB15K): Đóng băng hoàn toàn nhánh KGC, mô hình tương đương với CLIP-only thuần túy.
   \end{itemize}
   \item \textbf{Random Graph Control:} Thay thế các cạnh thực tế bằng các cạnh kết nối ngẫu nhiên đồng đều giữa các đỉnh để kiểm tra xem đồ thị có đơn thuần đóng vai trò như một bộ tạo nhiễu chính quy hóa hay không.
@@ -81,7 +139,6 @@ Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để
   \end{itemize}
 \end{enumerate}
 
-\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 2--3); 04b2_adamf_fb15k237_seed2027_ablation_shuffled_edges_molab.py}{VERIFIED}
 
 \section{Thang đo đánh giá}
 \label{sec:metrics}
@@ -102,7 +159,6 @@ Hệ thống đánh giá định lượng sử dụng các chỉ số học thu�
   \end{itemize}
 \end{itemize}
 
-\evidencetag{Project03_Multimodal_XAI.pdf (Mục 7)}{VERIFIED}
 
 \section{Khả năng tái lập và phòng chống rò rỉ dữ liệu}
 \label{sec:reproducibility-leakage}
@@ -112,5 +168,3 @@ Nghiên cứu áp dụng các quy chuẩn phòng chống data leakage tuyệt đ
   \item \textbf{Khóa mã băm:} Toàn bộ tập dữ liệu đã chia, ma trận đặc trưng trích xuất và file checkpoint mô hình đều được lưu kèm chữ ký mã băm SHA-256 trong file \texttt{test\_protocol.json} và \texttt{baseline\_manifest.json}.
   \item \textbf{Kiểm soát chồng lấn cạnh:} Báo cáo công khai và minh bạch kết quả rà soát chồng lấn cạnh. Trên đối chứng hoán đổi cạnh DB15K, quy trình tạo đồ thị bảo đảm \texttt{validation\_overlap = 0} và \texttt{test\_overlap = 0}. Báo cáo ghi nhận rõ ràng đây là phương pháp test-aware exclusion, không tuyên bố là blind-generation thuần túy nhằm giữ vững đạo đức nghiên cứu khoa học.
 \end{itemize}
-
-\evidencetag{DB15K_Shuffled_Edges_v2_Review_Feedback.md (Mục 3); frozen_contract.json}{VERIFIED}

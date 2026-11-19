@@ -71,48 +71,50 @@ Kết quả cho thấy việc đưa scene graph vào bước rerank cải thiệ
 
 \subsection{Kết quả mô hình đầy đủ trên DB15K}
 
+Theo thứ tự seed 2027, 2028 và 2029, checkpoint được chọn tại epoch 54, 359 và 53; $\alpha_{\mathrm{CLIP}}$ tương ứng là 0.0, 0.1 và 0.0.
+
 Bảng kết quả so sánh CLIP baseline với mô hình AdaMF qua ba seed 2027, 2028 và 2029. Epoch và trọng số tương ứng được chọn trên validation. Trung bình và độ lệch chuẩn mẫu chỉ được tính trên ba lượt chạy AdaMF.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{So sánh CLIP và AdaMF trên DB15K, thống kê AdaMF qua ba seed}
 \label{tab:db15k-results}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrrrrr}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
 \toprule
-Cấu hình / seed & Epoch & $\alpha_{\mathrm{CLIP}}$ & MRR & R@1 & R@5 & R@10\\
+Mô hình / seed & MRR & R@1 & R@5 & R@10\\
 \midrule
-CLIP baseline & — & 1.0 & 0.257698 & 0.212343 & 0.300164 & 0.341245\\
+CLIP & 0.2577 & 0.2123 & 0.3002 & 0.3412\\
 \midrule
-AdaMF, seed 2027 & 54 & 0 & 0.414549 & 0.340150 & 0.498813 & 0.555596\\
-AdaMF, seed 2028 & 359 & 0.1 & 0.413316 & 0.340697 & 0.494431 & 0.548475\\
-AdaMF, seed 2029 & 53 & 0 & 0.412038 & 0.337594 & 0.493153 & 0.551762\\
+AdaMF 2027 & 0.4145 & 0.3402 & 0.4988 & 0.5556\\
+AdaMF 2028 & 0.4133 & 0.3407 & 0.4944 & 0.5485\\
+AdaMF 2029 & 0.4120 & 0.3376 & 0.4932 & 0.5518\\
 \midrule
-TB AdaMF (3 seed) & — & — & 0.413301 & 0.339480 & 0.495466 & 0.551944\\
-ĐLC AdaMF (3 seed) & — & — & 0.001256 & 0.001656 & 0.002968 & 0.003564\\
+TB AdaMF (3 seed) & 0.4133 & 0.3395 & 0.4955 & 0.5519\\
+ĐLC AdaMF (3 seed) & 0.0013 & 0.0017 & 0.0030 & 0.0036\\
 \bottomrule
 \end{tabular}%
 }
 \par\smallskip{\footnotesize Trung bình và độ lệch chuẩn mẫu tính trên ba seed AdaMF 2027--2029.}
-\end{table*}
+\end{table}
 
 \begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{MRR theo nhóm truy vấn}
 \label{tab:db15k-query-groups}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrr}
 \toprule
-Nhóm & CLIP & TB AdaMF (3 seed) & ĐLC AdaMF (3 seed)\\
+Nhóm & CLIP & TB AdaMF & ĐLC AdaMF\\
 \midrule
-Trực tiếp & 0.551956 & 0.551956 & 0.000000\\
-Gián tiếp & 0.047527 & 0.314268 & 0.002153\\
-Head & 0.030274 & 0.193253 & 0.002162\\
-Tail & 0.069932 & 0.471413 & 0.002196\\
+Trực tiếp & 0.5520 & 0.5520 & 0.0000\\
+Gián tiếp & 0.0475 & 0.3143 & 0.0022\\
+Head & 0.0303 & 0.1933 & 0.0022\\
+Tail & 0.0699 & 0.4714 & 0.0022\\
 \bottomrule
 \end{tabular}%
 }
@@ -127,48 +129,50 @@ Hai seed 2027 và 2029 chọn $\alpha_{\mathrm{CLIP}}=0$, ở biên của lướ
 
 \subsection{Kết quả mô hình đầy đủ trên FB15K-237-IMG}
 
+Ba seed 2027, 2028 và 2029 chọn checkpoint tại epoch 7, 13 và 12; cả ba dùng $\alpha_{\mathrm{CLIP}}=0.1$.
+
 Bảng kết quả so sánh CLIP baseline với mô hình AdaMF qua ba seed 2027, 2028 và 2029. Epoch và trọng số tương ứng được chọn trên validation. Trung bình và độ lệch chuẩn mẫu chỉ được tính trên ba lượt chạy AdaMF.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{So sánh CLIP và AdaMF trên FB15K-237-IMG, thống kê AdaMF qua ba seed}
 \label{tab:fb15k-results}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrrrrr}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
 \toprule
-Cấu hình / seed & Epoch & $\alpha_{\mathrm{CLIP}}$ & MRR & R@1 & R@5 & R@10\\
+Mô hình / seed & MRR & R@1 & R@5 & R@10\\
 \midrule
-CLIP baseline & — & 1.0 & 0.099057 & 0.076004 & 0.118078 & 0.139432\\
+CLIP & 0.0991 & 0.0760 & 0.1181 & 0.1394\\
 \midrule
-AdaMF, seed 2027 & 7 & 0.1 & 0.289589 & 0.258897 & 0.321601 & 0.348685\\
-AdaMF, seed 2028 & 13 & 0.1 & 0.289663 & 0.258535 & 0.321601 & 0.349077\\
-AdaMF, seed 2029 & 12 & 0.1 & 0.288468 & 0.256997 & 0.320877 & 0.349741\\
+AdaMF 2027 & 0.2896 & 0.2589 & 0.3216 & 0.3487\\
+AdaMF 2028 & 0.2897 & 0.2585 & 0.3216 & 0.3491\\
+AdaMF 2029 & 0.2885 & 0.2570 & 0.3209 & 0.3497\\
 \midrule
-TB AdaMF (3 seed) & — & — & 0.289240 & 0.258143 & 0.321360 & 0.349168\\
-ĐLC AdaMF (3 seed) & — & — & 0.000670 & 0.001009 & 0.000418 & 0.000534\\
+TB AdaMF (3 seed) & 0.2892 & 0.2581 & 0.3214 & 0.3492\\
+ĐLC AdaMF (3 seed) & 0.0007 & 0.0010 & 0.0004 & 0.0005\\
 \bottomrule
 \end{tabular}%
 }
 \par\smallskip{\footnotesize Trung bình và độ lệch chuẩn mẫu tính trên ba seed AdaMF 2027--2029.}
-\end{table*}
+\end{table}
 
 \begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{MRR theo nhóm truy vấn}
 \label{tab:fb15k-query-groups}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrr}
 \toprule
-Nhóm & CLIP & TB AdaMF (3 seed) & ĐLC AdaMF (3 seed)\\
+Nhóm & CLIP & TB AdaMF & ĐLC AdaMF\\
 \midrule
-Trực tiếp & 0.347459 & 0.777029 & 0.001695\\
-Gián tiếp & 0.012171 & 0.118621 & 0.001175\\
-Head & 0.007251 & 0.056594 & 0.001148\\
-Tail & 0.016954 & 0.178915 & 0.003066\\
+Trực tiếp & 0.3475 & 0.7770 & 0.0017\\
+Gián tiếp & 0.0122 & 0.1186 & 0.0012\\
+Head & 0.0073 & 0.0566 & 0.0011\\
+Tail & 0.0170 & 0.1789 & 0.0031\\
 \bottomrule
 \end{tabular}%
 }
@@ -181,28 +185,28 @@ MRR tổng hợp đạt 0.289240 $\pm$ 0.000670 và R@10 đạt 0.349168 $\pm$ 0
 
 \label{sec:level2-graph-ablation}
 
-Các đối chứng được đánh giá ở seed 2027. Đồ thị gốc dùng 71.300 bộ ba train. Random Graph giữ số cạnh theo quan hệ, lấy mẫu đều đầu và đuôi, loại self-loop, cạnh train gốc và cạnh ngẫu nhiên trùng nhau. Shuffled Edges hoán đổi đuôi giữa các bộ ba cùng quan hệ để giữ bậc vào và bậc ra theo quan hệ. Đồ thị hoán đổi gồm 71.300 cạnh duy nhất và không có cạnh trùng validation hoặc test. Quy trình sinh cạnh sử dụng danh sách bộ ba validation và test để loại các hoán đổi bị trùng.
+Các đối chứng được đánh giá ở seed 2027. Đồ thị gốc, Shuffled Edges, No Edges và Random Graph lần lượt dùng epoch 54, 8, 0 và 1; trọng số CLIP tương ứng là 0.0, 0.2, 1.0 và 1.0. Đồ thị gốc dùng 71.300 bộ ba train. Random Graph giữ số cạnh theo quan hệ, lấy mẫu đều đầu và đuôi, loại self-loop, cạnh train gốc và cạnh ngẫu nhiên trùng nhau. Shuffled Edges hoán đổi đuôi giữa các bộ ba cùng quan hệ để giữ bậc vào và bậc ra theo quan hệ. Đồ thị hoán đổi gồm 71.300 cạnh duy nhất và không có cạnh trùng validation hoặc test. Quy trình sinh cạnh sử dụng danh sách bộ ba validation và test để loại các hoán đổi bị trùng.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{Kết quả ablation DB15K seed 2027}
 \label{tab:db15k-ablation}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrrrrr}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrr}
 \toprule
-Cấu hình & Epoch & $\alpha_{\mathrm{CLIP}}$ & MRR & R@10 & MRR trực tiếp & MRR gián tiếp\\
+Cấu hình & MRR & R@10 & MRR GT\\
 \midrule
-Đồ thị gốc & 54 & 0.0 & 0.414549 & 0.555596 & 0.551956 & 0.316408\\
-Hoán đổi cạnh & 8 & 0.2 & 0.315632 & 0.444769 & 0.551956 & 0.146839\\
-No Edges & 0 & 1.0 & 0.257698 & 0.341245 & 0.551956 & 0.047527\\
-Random Graph & 1 & 1.0 & 0.257698 & 0.341245 & 0.551956 & 0.047527\\
+Đồ thị gốc & 0.4145 & 0.5556 & 0.3164\\
+Hoán đổi cạnh & 0.3156 & 0.4448 & 0.1468\\
+No Edges & 0.2577 & 0.3412 & 0.0475\\
+Random Graph & 0.2577 & 0.3412 & 0.0475\\
 \bottomrule
 \end{tabular}%
 }
-\par\smallskip{\footnotesize No Edges bỏ huấn luyện; Random Graph chọn $\alpha_{\mathrm{CLIP}}=1$ trên validation. Hai hàng tương ứng dùng hoàn toàn điểm CLIP khi xếp hạng test.}
-\end{table*}
+\par\smallskip{\footnotesize GT là nhóm gián tiếp. No Edges bỏ huấn luyện; Random Graph chọn $\alpha_{\mathrm{CLIP}}=1$ trên validation. Hai hàng tương ứng dùng hoàn toàn điểm CLIP khi xếp hạng test.}
+\end{table}
 
 MRR của đồ thị gốc cao hơn Shuffled Edges 0.098917 trên toàn bộ test và 0.169569 ở nhóm gián tiếp. Vì nhóm trực tiếp giữ thứ hạng CLIP ở mọi cấu hình, chênh lệch tổng hợp xuất phát từ nhóm gián tiếp. Kết quả hỗ trợ vai trò của các quan hệ đúng trong pipeline DB15K.
 
@@ -212,33 +216,35 @@ Shuffled Edges cao hơn No Edges khoảng 0.057934 MRR, trong đó No Edges là 
 
 \subsection{Đối chứng cấu trúc đồ thị trên FB15K-237-IMG}
 
+Đồ thị gốc, No Edges, Random Graph và Shuffled Edges lần lượt dùng epoch 7, 0, 19 và 14; trọng số CLIP tương ứng là 0.1, 1.0, 0.1 và 0.1.
+
 Các ablation trên FB15K-237-IMG can thiệp vào thực thể neo trong truy vấn train gián tiếp theo hướng head hoặc tail, giữ quan hệ, đích và ảnh liên quan. Truy vấn train trực tiếp được giữ nguyên. Shuffled Edges hoán đổi neo trong từng nhóm quan hệ và hướng, đồng thời giữ phân phối neo và đích trong nhóm. Random Graph lấy mẫu đều neo thay thế trong tập thực thể, loại neo bằng đích, cặp mới bị trùng và cạnh train gốc cùng hướng. Điều kiện loại cạnh train gốc cũng ngăn lấy lại neo thật. Chỉ nhánh Shuffled Edges dùng danh sách bộ ba validation/test để loại cạnh trùng khi biến đổi. Hai tập đánh giá giữ nguyên giữa các cấu hình.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{Kết quả ablation FB15K-237-IMG seed 2027}
 \label{tab:fb15k-ablation}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrrrrr}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
 \toprule
-Cấu hình & Epoch & $\alpha_{\mathrm{CLIP}}$ & MRR & R@1 & R@5 & R@10\\
+Cấu hình & MRR & R@1 & R@5 & R@10\\
 \midrule
-Đồ thị gốc & 7 & 0.1 & 0.289589 & 0.258897 & 0.321601 & 0.348685\\
-No Edges & 0 & 1.0 & 0.099062 & 0.076004 & 0.118078 & 0.139432\\
-Random Graph & 19 & 0.1 & 0.286936 & 0.257812 & 0.317017 & 0.342050\\
-Shuffled Edges & 14 & 0.1 & 0.287907 & 0.260074 & 0.316051 & 0.340572\\
+Đồ thị gốc & 0.2896 & 0.2589 & 0.3216 & 0.3487\\
+No Edges & 0.0991 & 0.0760 & 0.1181 & 0.1394\\
+Random Graph & 0.2869 & 0.2578 & 0.3170 & 0.3421\\
+Shuffled Edges & 0.2879 & 0.2601 & 0.3161 & 0.3406\\
 \bottomrule
 \end{tabular}%
 }
 \par\smallskip{\footnotesize Baseline CLIP của lượt ablation có MRR 0.099062 và MRR tail 0.016968, so với 0.099057 và 0.016954 trong bảng mô hình đầy đủ. Các giá trị được giữ theo từng lượt đánh giá; nguyên nhân sai khác nhỏ cần đối chiếu hạng truy vấn và cấu hình đánh giá.}
-\end{table*}
+\end{table}
 
 \begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \caption{MRR theo nhóm trong ablation FB15K-237-IMG}
 \label{tab:fb15k-ablation-groups}
 \resizebox{\columnwidth}{!}{%
@@ -246,10 +252,10 @@ Shuffled Edges & 14 & 0.1 & 0.287907 & 0.260074 & 0.316051 & 0.340572\\
 \toprule
 Cấu hình & Trực tiếp & Gián tiếp & Head & Tail\\
 \midrule
-Đồ thị gốc & 0.775142 & 0.119752 & 0.055382 & 0.182324\\
-No Edges & 0.347459 & 0.012178 & 0.007251 & 0.016968\\
-Random Graph & 0.786737 & 0.112115 & 0.049173 & 0.173298\\
-Shuffled Edges & 0.790428 & 0.112135 & 0.049575 & 0.172947\\
+Đồ thị gốc & 0.7751 & 0.1198 & 0.0554 & 0.1823\\
+No Edges & 0.3475 & 0.0122 & 0.0073 & 0.0170\\
+Random Graph & 0.7867 & 0.1121 & 0.0492 & 0.1733\\
+Shuffled Edges & 0.7904 & 0.1121 & 0.0496 & 0.1729\\
 \bottomrule
 \end{tabular}%
 }

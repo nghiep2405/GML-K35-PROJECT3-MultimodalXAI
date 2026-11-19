@@ -147,13 +147,13 @@ Trong cấu hình RotatE, dim là chiều embedding quan hệ. Embedding thực 
 
 CLIP ViT-B/32 tạo thứ hạng ban đầu trên tập ảnh ứng viên theo split. Hai dãy điểm được chuẩn hóa z-score riêng theo truy vấn trên top 1000. Điểm kết hợp được tính bằng S = $\alpha_{\mathrm{CLIP}}$ $\times$ z(SCLIP) + (1 - $\alpha_{\mathrm{CLIP}}$) $\times$ z(SAdaMF). Trọng số $\alpha_{\mathrm{CLIP}}$ được chọn trên validation theo lưới từ 0 đến 1 với bước 0.1. Ảnh ngoài top 1000 giữ thứ tự ban đầu. Khi top 1000 thiếu ảnh liên quan, hệ thống giữ hạng ảnh đúng tốt nhất của CLIP.
 
-\begin{table*}[t]
+\begin{table}[H]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
 \caption{Số truy vấn test theo nhóm}
 \label{tab:level2-test-counts}
-\resizebox{\textwidth}{!}{%
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrrrr}
 \toprule
 Bộ dữ liệu & Tổng & Trực tiếp & Gián tiếp & Head & Tail\\
@@ -163,7 +163,7 @@ FB15K-237-IMG & 33156 & 8592 & 24564 & 12108 & 12456\\
 \bottomrule
 \end{tabular}%
 }
-\end{table*}
+\end{table}
 
 MRR được tính bằng trung bình nghịch đảo hạng ảnh liên quan tốt nhất của mỗi truy vấn. R@K là tỷ lệ truy vấn có ít nhất một ảnh liên quan trong top K. Cách tính hạng dùng quy tắc optimistic, đếm số điểm lớn hơn điểm ảnh đúng tốt nhất. Kết quả mô hình đầy đủ được trình bày bằng trung bình và độ lệch chuẩn mẫu trên ba seed, với mẫu số n - 1.
 

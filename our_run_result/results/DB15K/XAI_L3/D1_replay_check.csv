@@ -1,0 +1,4 @@
+dataset,seed,n,reference,match_clip_rank,match_hybrid_rank
+DB15K,2027,70,C1_test_ranks_seed2027.csv,1.0,1.0
+DB15K,2028,70,C1_test_ranks_seed2028.csv,1.0,1.0
+DB15K,2029,70,C1_test_ranks_seed2029.csv,1.0,1.0

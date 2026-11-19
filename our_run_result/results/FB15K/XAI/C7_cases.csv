@@ -1,0 +1,11 @@
+case,query_id,direction,clip_rank,hybrid_rank,top1_row,top1_entity,target_in_topk,query_text,anchor_entity_index,relation_index,target_entity_index,qi
+thanh_cong,q_ddb73cad385ebf35f7137e30,tail,269,1,115306,2896,True,Find an image of the entity that is related to Rick Rubin by nationality.,5679,143,2896,28751
+thanh_cong,q_a0bf025f4dd34598a476354c,tail,20,1,22343,1932,True,Find an image of the entity that is related to Handball by country.,5848,223,1932,20766
+thanh_cong,q_073c81175398d057e8ea54fc,tail,409,1,68779,7666,True,Find an image of the entity that is related to Gran Torino by language.,4383,104,7666,878
+thanh_cong,q_9adcf114103c79868a0d57d8,tail,95,1,66839,5481,True,Find an image of the entity that is related to Demi Moore by profession.,5118,9,5481,20019
+thanh_cong,q_dbf5a485b65e5fc618cd1f17,tail,364,1,96105,1651,True,Find an image of the entity that is related to Magnolia Pictures by citytown.,4922,32,1651,28522
+that_bai_bi_lam_hai,q_bc8a3779d5d27434fc8fac4d,head,1,4,67000,10521,True,Find an image of the entity whose artists relation points to Dave Matthews.,5268,139,9720,24440
+that_bai_bi_lam_hai,q_4ba6706442617b0d185d2f9c,head,2,7,76415,2412,True,Find an image of the entity whose ceremony relation points to 60th Primetime Emmy Awards.,13801,209,7987,9787
+that_bai_bi_lam_hai,q_c5a6595f6b832ef478abab2f,head,5,13,67680,2957,True,Find an image of the entity whose role relation points to Tubular bell.,2493,234,10077,25625
+that_bai_khong_cuu_duoc,q_8985a978b684ff516322ad9b,head,920,158,66561,11667,True,Find an image of the entity whose film release region relation points to Mexico.,9492,190,3800,17813
+that_bai_khong_cuu_duoc,q_7bc9cb9ce8b1f059280a4d39,tail,2,382,42254,12850,True,Find an image of the entity that is related to Minnesota by contains.,10755,231,193,16047

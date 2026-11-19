@@ -1,0 +1,5 @@
+dataset,variant,seed,alpha_clip_val,MRR_combined,MRR_direct,MRR_indirect,R1_indirect,R10_indirect,CLIP_MRR_direct,CLIP_MRR_indirect,gain_kept_direct_pct,gain_kept_indirect_pct
+DB15K,full,2027,0.0000,0.4145,0.5520,0.3164,0.2394,0.4645,0.5520,0.0475,,100.0000
+DB15K,no_edges,2027,1.0000,0.2577,0.5520,0.0475,0.0203,0.0970,0.5520,0.0475,,-0.0000
+DB15K,shuffled_edges,2027,0.2000,0.3156,0.5520,0.1468,0.0876,0.2745,0.5520,0.0475,,36.9000
+DB15K,random_graph,2027,1.0000,0.2577,0.5520,0.0475,0.0203,0.0970,0.5520,0.0475,,-0.0000

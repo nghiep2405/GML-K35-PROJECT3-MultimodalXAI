@@ -1,0 +1,17 @@
+{
+  "dataset": "visual_genome",
+  "split_version": "split_v2",
+  "split_sha256": "6cdc592eb7ee52738adff612d97824bd5b42b61d1d6064d527f9d6ce3f849100",
+  "expected_image_counts": {"train": 83540, "val": 10443, "test": 10443},
+  "train_query_count": 4184397,
+  "queries_per_image_per_epoch": 3,
+  "hard_negatives_per_query": 50,
+  "rerank_top_k": 50,
+  "alpha_grid": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+  "clip_model": "ViT-B-32",
+  "clip_pretrained": "openai",
+  "clip_dim": 512,
+  "original_root_relative_to_project": "dataset/visual_genome",
+  "writable_root_relative_to_project": "experiment_v2",
+  "original_files_are_immutable": true
+}

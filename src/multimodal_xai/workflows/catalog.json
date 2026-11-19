@@ -1,0 +1,1284 @@
+[
+  {
+    "name": "07_db15k_fb15k_adamf_xai_level2",
+    "family": "kg_xai",
+    "original": "07_db15k_fb15k_adamf_xai_level2.ipynb",
+    "sha256": "66681174c819a4c7dc416da708297b8ee7ac2e909a1b9c5569fe0d14cb0203b6",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "XAI Cấp độ 2 — Giải thích kết quả xếp hạng của CLIP + AdaMF trên DB15K và FB15K-237"
+      },
+      {
+        "cell": 2,
+        "file": "02.py",
+        "label": "XAI Cấp độ 2 — Giải thích kết quả xếp hạng của CLIP + AdaMF trên DB15K và FB15K-237"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "XAI Cấp độ 2 — Giải thích kết quả xếp hạng của CLIP + AdaMF trên DB15K và FB15K-237"
+      },
+      {
+        "cell": 5,
+        "file": "05.py",
+        "label": "C1. Tái lập kết quả test từ checkpoint (6 run)"
+      },
+      {
+        "cell": 8,
+        "file": "08.py",
+        "label": "C2. Đồ thị cứu và làm hại bao nhiêu truy vấn"
+      },
+      {
+        "cell": 10,
+        "file": "10.py",
+        "label": "C3. Bộ 20 truy vấn đánh giá mỗi tập (10 trực tiếp + 5 head + 5 tail)"
+      },
+      {
+        "cell": 12,
+        "file": "12.py",
+        "label": "C4–C5. Bộ giải thích"
+      },
+      {
+        "cell": 14,
+        "file": "14.py",
+        "label": "C6. Chọn số bộ ba K trên validation"
+      },
+      {
+        "cell": 16,
+        "file": "16.py",
+        "label": "C7. Chọn ca theo luật cố định (seed chính, mỗi tập 5 thành công + 5 thất bại)"
+      },
+      {
+        "cell": 18,
+        "file": "18.py",
+        "label": "C8. Giải thích và hình cho từng ca"
+      },
+      {
+        "cell": 20,
+        "file": "20.py",
+        "label": "C9. Kiểm chứng giải thích đến từ cơ chế xếp hạng (3 seed)"
+      },
+      {
+        "cell": 22,
+        "file": "22.py",
+        "label": "C10. Demo: nhập truy vấn → top-k kết quả + đồ thị giải thích tương tác"
+      },
+      {
+        "cell": 23,
+        "file": "23.py",
+        "label": "C10. Demo: nhập truy vấn → top-k kết quả + đồ thị giải thích tương tác"
+      }
+    ]
+  },
+  {
+    "name": "04b1_adamf_db15k_seed2027",
+    "family": "db15k",
+    "original": "DB15K/Bản sao của 04b1_adamf_db15k_seed2027.ipynb",
+    "sha256": "3ea1ecc1ecae8a61f885434c39b94b18e25967edac6cc6c826bd0f1c54248a5c",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "DB15K clean — AdaMF KGC và truy hồi ảnh với CLIP"
+      },
+      {
+        "cell": 3,
+        "file": "load_clean_bridge.py",
+        "label": "2. Kiểm tra dữ liệu clean và các file tham chiếu",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 5,
+        "file": "build_validation_clip.py",
+        "label": "3. Tạo cache CLIP cho validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 7,
+        "file": "define_adamf.py",
+        "label": "4. Mô hình AdaMF và loss KGC",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 9,
+        "file": "define_validation.py",
+        "label": "5. Đánh giá retrieval và chọn trọng số kết hợp",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 11,
+        "file": "train_resume.py",
+        "label": "6. Huấn luyện, checkpoint và tự động resume",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 13,
+        "file": "plot_validation.py",
+        "label": "7. Xem kết quả validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 15,
+        "file": "evaluate_locked_test.py",
+        "label": "8. Đánh giá cuối cùng trên tập test",
+        "location": "shared_db15k"
+      }
+    ]
+  },
+  {
+    "name": "04b1_adamf_db15k_seed2027_ablation_no_edges",
+    "family": "db15k",
+    "original": "DB15K/Bản sao của 04b1_adamf_db15k_seed2027_ablation_no_edges.ipynb",
+    "sha256": "593f36d7978debcd18bffd3e2a877f694e635176da7558e81c280f0469704a05",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "DB15K — AdaMF: no_edges"
+      },
+      {
+        "cell": 3,
+        "file": "load_clean_bridge.py",
+        "label": "2. Dữ liệu",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 5,
+        "file": "build_validation_clip_ablation.py",
+        "label": "3. CLIP validation cache",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 7,
+        "file": "07.py",
+        "label": "4. AdaMF và graph ablation"
+      },
+      {
+        "cell": 9,
+        "file": "09.py",
+        "label": "5. Đánh giá validation"
+      },
+      {
+        "cell": 11,
+        "file": "11.py",
+        "label": "6. Đối chứng không có KG"
+      },
+      {
+        "cell": 13,
+        "file": "plot_validation_ablation.py",
+        "label": "7. Kết quả validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 15,
+        "file": "evaluate_locked_test_ablation.py",
+        "label": "8. Đánh giá test",
+        "location": "shared_db15k"
+      }
+    ]
+  },
+  {
+    "name": "04b1_adamf_db15k_seed2027_ablation_random_graph",
+    "family": "db15k",
+    "original": "DB15K/Bản sao của 04b1_adamf_db15k_seed2027_ablation_random_graph.ipynb",
+    "sha256": "724adddee9b8d835ff078d73592ffc47d9406a94a8a7d8c20478e8be585e7ad5",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "DB15K — AdaMF: random_graph"
+      },
+      {
+        "cell": 3,
+        "file": "load_clean_bridge.py",
+        "label": "2. Dữ liệu",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 5,
+        "file": "build_validation_clip_ablation.py",
+        "label": "3. CLIP validation cache",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 7,
+        "file": "07.py",
+        "label": "4. AdaMF và graph ablation"
+      },
+      {
+        "cell": 9,
+        "file": "define_validation.py",
+        "label": "5. Đánh giá validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 11,
+        "file": "11.py",
+        "label": "6. Huấn luyện và checkpoint"
+      },
+      {
+        "cell": 13,
+        "file": "plot_validation_ablation.py",
+        "label": "7. Kết quả validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 15,
+        "file": "evaluate_locked_test_ablation.py",
+        "label": "8. Đánh giá test",
+        "location": "shared_db15k"
+      }
+    ]
+  },
+  {
+    "name": "04b1_adamf_db15k_seed2027_ablation_shuffled_edges_zero_overlap_v4",
+    "family": "db15k",
+    "original": "DB15K/Bản sao của 04b1_adamf_db15k_seed2027_ablation_shuffled_edges_zero_overlap_v4.ipynb",
+    "sha256": "b2d1e6cb4b087b8f0e0bb2321096900d9eb25513c9df2e4b4af95f69da8b2832",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "DB15K Shuffled Edges v4"
+      },
+      {
+        "cell": 3,
+        "file": "load_clean_bridge.py",
+        "label": "2. Dữ liệu",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 5,
+        "file": "build_validation_clip_ablation.py",
+        "label": "3. CLIP validation cache",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 7,
+        "file": "07.py",
+        "label": "4. AdaMF và graph ablation"
+      },
+      {
+        "cell": 9,
+        "file": "define_validation.py",
+        "label": "5. Đánh giá validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 11,
+        "file": "11.py",
+        "label": "6. Huấn luyện và checkpoint"
+      },
+      {
+        "cell": 13,
+        "file": "plot_validation_ablation.py",
+        "label": "7. Kết quả validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 15,
+        "file": "evaluate_locked_test_ablation.py",
+        "label": "8. Đánh giá test",
+        "location": "shared_db15k"
+      }
+    ]
+  },
+  {
+    "name": "04b1_adamf_db15k_seed2028",
+    "family": "db15k",
+    "original": "DB15K/Bản sao của 04b1_adamf_db15k_seed2028.ipynb",
+    "sha256": "bdfd5c211aa5ca1fe7e02bd54b12e7aa25223253c4c6858f9c5cd64e2e60c65e",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "DB15K clean — AdaMF KGC và truy hồi ảnh với CLIP"
+      },
+      {
+        "cell": 3,
+        "file": "load_clean_bridge.py",
+        "label": "2. Kiểm tra dữ liệu clean và các file tham chiếu",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 5,
+        "file": "build_validation_clip.py",
+        "label": "3. Tạo cache CLIP cho validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 7,
+        "file": "define_adamf.py",
+        "label": "4. Mô hình AdaMF và loss KGC",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 9,
+        "file": "define_validation.py",
+        "label": "5. Đánh giá retrieval và chọn trọng số kết hợp",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 11,
+        "file": "train_resume.py",
+        "label": "6. Huấn luyện, checkpoint và tự động resume",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 13,
+        "file": "plot_validation.py",
+        "label": "7. Xem kết quả validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 15,
+        "file": "evaluate_locked_test.py",
+        "label": "8. Đánh giá cuối cùng trên tập test",
+        "location": "shared_db15k"
+      }
+    ]
+  },
+  {
+    "name": "04b1_adamf_db15k_seed2029",
+    "family": "db15k",
+    "original": "DB15K/Bản sao của 04b1_adamf_db15k_seed2029.ipynb",
+    "sha256": "a96e0f60aea31e600e22986c8cfb0ec3829cdbae4b22a92929c1c6bb21f47797",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "DB15K clean — AdaMF KGC và truy hồi ảnh với CLIP"
+      },
+      {
+        "cell": 3,
+        "file": "load_clean_bridge.py",
+        "label": "2. Kiểm tra dữ liệu clean và các file tham chiếu",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 5,
+        "file": "build_validation_clip.py",
+        "label": "3. Tạo cache CLIP cho validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 7,
+        "file": "define_adamf.py",
+        "label": "4. Mô hình AdaMF và loss KGC",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 9,
+        "file": "define_validation.py",
+        "label": "5. Đánh giá retrieval và chọn trọng số kết hợp",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 11,
+        "file": "train_resume.py",
+        "label": "6. Huấn luyện, checkpoint và tự động resume",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 13,
+        "file": "plot_validation.py",
+        "label": "7. Xem kết quả validation",
+        "location": "shared_db15k"
+      },
+      {
+        "cell": 15,
+        "file": "evaluate_locked_test.py",
+        "label": "8. Đánh giá cuối cùng trên tập test",
+        "location": "shared_db15k"
+      }
+    ]
+  },
+  {
+    "name": "compare_no_edges_random_graph",
+    "family": "db15k",
+    "original": "DB15K/compare_no_edges_random_graph.ipynb",
+    "sha256": "c5a3005f0def9b8a53a21c682eaff8db55d7b97854d394375aac2b533a042881",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "DB15K — No Edges và Random Graph"
+      },
+      {
+        "cell": 2,
+        "file": "02.py",
+        "label": "DB15K — No Edges và Random Graph"
+      }
+    ]
+  },
+  {
+    "name": "04b2_adamf_fb15k237_seed2027",
+    "family": "fb15k237",
+    "original": "FB15K/Bản sao của 04b2_adamf_fb15k237_seed2027.ipynb",
+    "sha256": "f08adb057fbb6ca5192b58522700869c7fc05717b8394deb98f0986cfdfbb37f",
+    "stages": [
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "1. Drive, GPU và cấu hình"
+      },
+      {
+        "cell": 5,
+        "file": "pin_source_and_artifacts.py",
+        "label": "2. Source AdaMF và artifact manifest",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 7,
+        "file": "load_canonical_features.py",
+        "label": "3. Kiểm tra adapter và features canonical",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 9,
+        "file": "build_retrieval_tables.py",
+        "label": "4. Retrieval tables và entity visual features chỉ từ train",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 11,
+        "file": "build_clip_cache.py",
+        "label": "5. Cache CLIP text features cho train/validation",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 13,
+        "file": "mine_candidates.py",
+        "label": "6. CLIP hard negatives và validation top-k cache",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 15,
+        "file": "define_scorer.py",
+        "label": "7. AdaMF retrieval scorer",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 17,
+        "file": "define_validation.py",
+        "label": "8. Validation — CLIP, CLIP + AdaMF và alpha grid",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 19,
+        "file": "train_resume.py",
+        "label": "9. Khóa identity và train 50 epoch với validation mỗi epoch",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 21,
+        "file": "plot_validation.py",
+        "label": "10. Biểu đồ loss, validation MRR và bảng CLIP vs AdaMF",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 24,
+        "file": "evaluate_locked_test.py",
+        "label": "11. Đánh giá cuối cùng trên tập test",
+        "location": "shared_fb15k237"
+      }
+    ]
+  },
+  {
+    "name": "04b2_adamf_fb15k237_seed2028",
+    "family": "fb15k237",
+    "original": "FB15K/Bản sao của 04b2_adamf_fb15k237_seed2028.ipynb",
+    "sha256": "67d2ddf57e3f63410525abcee6ab9e36a106434aa7f494756b15be3cde6971e3",
+    "stages": [
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "1. Drive, GPU và cấu hình"
+      },
+      {
+        "cell": 5,
+        "file": "05.py",
+        "label": "2. Source AdaMF và artifact manifest"
+      },
+      {
+        "cell": 7,
+        "file": "load_canonical_features.py",
+        "label": "3. Kiểm tra adapter và features canonical",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 9,
+        "file": "build_retrieval_tables.py",
+        "label": "4. Retrieval tables và entity visual features chỉ từ train",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 11,
+        "file": "build_clip_cache.py",
+        "label": "5. Cache CLIP text features cho train/validation",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 13,
+        "file": "mine_candidates.py",
+        "label": "6. CLIP hard negatives và validation top-k cache",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 15,
+        "file": "define_scorer.py",
+        "label": "7. AdaMF retrieval scorer",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 17,
+        "file": "define_validation.py",
+        "label": "8. Validation — CLIP, CLIP + AdaMF và alpha grid",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 19,
+        "file": "train_resume.py",
+        "label": "9. Khóa identity và train 50 epoch với validation mỗi epoch",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 21,
+        "file": "plot_validation.py",
+        "label": "10. Biểu đồ loss, validation MRR và bảng CLIP vs AdaMF",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 24,
+        "file": "evaluate_locked_test.py",
+        "label": "11. Đánh giá cuối cùng trên tập test",
+        "location": "shared_fb15k237"
+      }
+    ]
+  },
+  {
+    "name": "04b2_adamf_fb15k237_seed2029",
+    "family": "fb15k237",
+    "original": "FB15K/Bản sao của 04b2_adamf_fb15k237_seed2029.ipynb",
+    "sha256": "686969fe639ed6fd721e02530063141c3c0f88cb918c3cafccd4daa420c435e8",
+    "stages": [
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "1. Drive, GPU và cấu hình"
+      },
+      {
+        "cell": 5,
+        "file": "pin_source_and_artifacts.py",
+        "label": "2. Source AdaMF và artifact manifest",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 7,
+        "file": "load_canonical_features.py",
+        "label": "3. Kiểm tra adapter và features canonical",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 9,
+        "file": "build_retrieval_tables.py",
+        "label": "4. Retrieval tables và entity visual features chỉ từ train",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 11,
+        "file": "build_clip_cache.py",
+        "label": "5. Cache CLIP text features cho train/validation",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 13,
+        "file": "mine_candidates.py",
+        "label": "6. CLIP hard negatives và validation top-k cache",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 15,
+        "file": "define_scorer.py",
+        "label": "7. AdaMF retrieval scorer",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 17,
+        "file": "define_validation.py",
+        "label": "8. Validation — CLIP, CLIP + AdaMF và alpha grid",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 19,
+        "file": "train_resume.py",
+        "label": "9. Khóa identity và train 50 epoch với validation mỗi epoch",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 21,
+        "file": "plot_validation.py",
+        "label": "10. Biểu đồ loss, validation MRR và bảng CLIP vs AdaMF",
+        "location": "shared_fb15k237"
+      },
+      {
+        "cell": 24,
+        "file": "evaluate_locked_test.py",
+        "label": "11. Đánh giá cuối cùng trên tập test",
+        "location": "shared_fb15k237"
+      }
+    ]
+  },
+  {
+    "name": "06_flickr30k_gat_xai_level1",
+    "family": "flickr30k",
+    "original": "Flickr30k/06_flickr30k_gat_xai_level1.ipynb",
+    "sha256": "b0c4232ec592535c21d80eae15c77044cf1f59d4ea06c878435099436128821d",
+    "stages": [
+      {
+        "cell": 2,
+        "file": "02.py",
+        "label": "0. Cài đặt và cấu hình"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "0. Cài đặt và cấu hình"
+      },
+      {
+        "cell": 4,
+        "file": "04.py",
+        "label": "0. Cài đặt và cấu hình"
+      },
+      {
+        "cell": 6,
+        "file": "06.py",
+        "label": "B1. Đóng băng đầu vào"
+      },
+      {
+        "cell": 8,
+        "file": "08.py",
+        "label": "B2. Tái lập kết quả test"
+      },
+      {
+        "cell": 10,
+        "file": "10.py",
+        "label": "B3. Bảng thứ hạng theo từng truy vấn (test)"
+      },
+      {
+        "cell": 12,
+        "file": "12.py",
+        "label": "B4. Lõi XAI: điểm đồ thị có mặt nạ cạnh + attention"
+      },
+      {
+        "cell": 14,
+        "file": "14.py",
+        "label": "B5. Bộ giải thích trung thực (occlusion theo quan hệ)"
+      },
+      {
+        "cell": 16,
+        "file": "16.py",
+        "label": "B6. Chọn K (số quan hệ trong giải thích) trên validation"
+      },
+      {
+        "cell": 18,
+        "file": "18.py",
+        "label": "B7. Gắn tên vùng từ Flickr30k Entities"
+      },
+      {
+        "cell": 20,
+        "file": "20.py",
+        "label": "B7b. Ảnh gốc Flickr30k (chỉ để hiển thị)"
+      },
+      {
+        "cell": 22,
+        "file": "22.py",
+        "label": "B8. Chọn ca theo quy tắc cố định (trên bảng thứ hạng B3, mô hình chính seed 2026)"
+      },
+      {
+        "cell": 24,
+        "file": "24.py",
+        "label": "B9. Phân tích chi tiết 10 ca (+ 10 truy vấn ngẫu nhiên)"
+      },
+      {
+        "cell": 25,
+        "file": "25.py",
+        "label": "B9. Phân tích chi tiết 10 ca (+ 10 truy vấn ngẫu nhiên)"
+      },
+      {
+        "cell": 27,
+        "file": "27.py",
+        "label": "B10. Kiểm chứng: bỏ quan hệ được giải thích so với bỏ quan hệ ngẫu nhiên (3 seed)"
+      },
+      {
+        "cell": 29,
+        "file": "29.py",
+        "label": "Tổng kết đầu ra"
+      },
+      {
+        "cell": 31,
+        "file": "31.py",
+        "label": "C1. Demo: nhập truy vấn bất kỳ → top-k kết quả + đồ thị giải thích tương tác"
+      },
+      {
+        "cell": 32,
+        "file": "32.py",
+        "label": "C1. Demo: nhập truy vấn bất kỳ → top-k kết quả + đồ thị giải thích tương tác"
+      }
+    ]
+  },
+  {
+    "name": "08a_mmkg_collect",
+    "family": "viheritage",
+    "original": "MMKG/08a_mmkg_collect.ipynb",
+    "sha256": "860165d670f460413d319d68283ecf3454fda2d2832c7538c15d331c4e9dc12d",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "08a — Thu thập MMKG di sản – danh thắng Việt Nam (ViHeritage-MMKG)"
+      },
+      {
+        "cell": 2,
+        "file": "02.py",
+        "label": "08a — Thu thập MMKG di sản – danh thắng Việt Nam (ViHeritage-MMKG)"
+      },
+      {
+        "cell": 4,
+        "file": "04.py",
+        "label": "A1. Kiểm tra độ phủ (mục 4.0)"
+      },
+      {
+        "cell": 6,
+        "file": "06.py",
+        "label": "A2. Xếp hạng ứng viên (mục 4.1)"
+      },
+      {
+        "cell": 8,
+        "file": "08.py",
+        "label": "A3. Ảnh từ Commons (mục 4.4)"
+      },
+      {
+        "cell": 10,
+        "file": "10.py",
+        "label": "A4. Lọc bằng CLIP, khử trùng, chọn ảnh (mục 4.4)"
+      },
+      {
+        "cell": 12,
+        "file": "12.py",
+        "label": "A5. Chốt thực thể có ảnh, thêm thực thể không ảnh (mục 4.1)"
+      },
+      {
+        "cell": 13,
+        "file": "13.py",
+        "label": "A5. Chốt thực thể có ảnh, thêm thực thể không ảnh (mục 4.1)"
+      },
+      {
+        "cell": 15,
+        "file": "15.py",
+        "label": "A6. Triple (mục 4.2)"
+      },
+      {
+        "cell": 17,
+        "file": "17.py",
+        "label": "A7. Văn bản (mục 4.3)"
+      },
+      {
+        "cell": 19,
+        "file": "19.py",
+        "label": "A8. Lưu file, kiểm quy mô, phiếu kiểm tra 100 ảnh (mục 4.5)"
+      },
+      {
+        "cell": 20,
+        "file": "20.py",
+        "label": "A8. Lưu file, kiểm quy mô, phiếu kiểm tra 100 ảnh (mục 4.5)"
+      }
+    ]
+  },
+  {
+    "name": "08b_mmkg_split_features",
+    "family": "viheritage",
+    "original": "MMKG/08b_mmkg_split_features.ipynb",
+    "sha256": "279be8d90ff46190b0e308808f8a1d7539f4313b825f94a661a1c8e3214a6d1f",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "08b — Kiểm tra ảnh, chia split, khung truy vấn, đặc trưng, data card (ViHeritage-MMKG)"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "B1. Kiểm tra liên kết ảnh – thực thể (việc tay 1)"
+      },
+      {
+        "cell": 5,
+        "file": "05.py",
+        "label": "B2. Chia triple (70/15/15, chia tầng theo quan hệ)"
+      },
+      {
+        "cell": 7,
+        "file": "07.py",
+        "label": "B3. Chia ảnh theo thực thể và pool"
+      },
+      {
+        "cell": 9,
+        "file": "09.py",
+        "label": "B4. Truy vấn, relevance, danh sách lọc"
+      },
+      {
+        "cell": 11,
+        "file": "11.py",
+        "label": "B5. Khung câu truy vấn gián tiếp (việc tay 2)"
+      },
+      {
+        "cell": 13,
+        "file": "13.py",
+        "label": "B6. Đặc trưng (đóng băng, trích một lần)"
+      },
+      {
+        "cell": 15,
+        "file": "15.py",
+        "label": "B7. Ghi file, mã tạo split, data card, giấy phép"
+      },
+      {
+        "cell": 16,
+        "file": "16.py",
+        "label": "B7. Ghi file, mã tạo split, data card, giấy phép"
+      }
+    ]
+  },
+  {
+    "name": "10a_xai_quant_db15k_fb15k",
+    "family": "kg_xai",
+    "original": "MMKG/10a_xai_quant_db15k_fb15k.ipynb",
+    "sha256": "bae89f68322185bb161b9961ffb9667fc411810b6a398a410ceda8284ae7692b",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.py",
+        "label": "10a — XAI định lượng cấp 3 trên DB15K và FB15K-237 (fidelity, validity, sparsity)"
+      },
+      {
+        "cell": 2,
+        "file": "02.py",
+        "label": "10a — XAI định lượng cấp 3 trên DB15K và FB15K-237 (fidelity, validity, sparsity)"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "10a — XAI định lượng cấp 3 trên DB15K và FB15K-237 (fidelity, validity, sparsity)"
+      },
+      {
+        "cell": 4,
+        "file": "04.py",
+        "label": "10a — XAI định lượng cấp 3 trên DB15K và FB15K-237 (fidelity, validity, sparsity)"
+      },
+      {
+        "cell": 5,
+        "file": "05.py",
+        "label": "10a — XAI định lượng cấp 3 trên DB15K và FB15K-237 (fidelity, validity, sparsity)"
+      },
+      {
+        "cell": 7,
+        "file": "07.py",
+        "label": "Q1. Truy vấn dùng để đo và kiểm tra tái lập"
+      },
+      {
+        "cell": 9,
+        "file": "09.py",
+        "label": "Q2. K\\* — số bộ ba trong một giải thích"
+      },
+      {
+        "cell": 11,
+        "file": "11.py",
+        "label": "Q3. Đo fidelity cho từng giải thích"
+      },
+      {
+        "cell": 12,
+        "file": "12.py",
+        "label": "Q3. Đo fidelity cho từng giải thích"
+      },
+      {
+        "cell": 14,
+        "file": "14.py",
+        "label": "Q4. Fidelity tại K\\*: trung bình mỗi seed, rồi trung bình ± độ lệch chuẩn qua 3 seed"
+      },
+      {
+        "cell": 16,
+        "file": "16.py",
+        "label": "Q5. Sparsity và đường cong theo K (seed chính)"
+      },
+      {
+        "cell": 18,
+        "file": "18.py",
+        "label": "Q6. Validity"
+      }
+    ]
+  },
+  {
+    "name": "visual_genome_evaluate_test",
+    "family": "visual_genome",
+    "original": "VisualGenome/notebooks/evaluate_test.ipynb",
+    "sha256": "29834c487669abcc76d6c63594e2cc67880325e7997e230ba7f79a9d9cd20142",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.ipy",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      },
+      {
+        "cell": 2,
+        "file": "configure_local_artifacts.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      },
+      {
+        "cell": 4,
+        "file": "04.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      },
+      {
+        "cell": 5,
+        "file": "05.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      },
+      {
+        "cell": 6,
+        "file": "06.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      },
+      {
+        "cell": 7,
+        "file": "07.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      },
+      {
+        "cell": 8,
+        "file": "08.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      },
+      {
+        "cell": 9,
+        "file": "09.py",
+        "label": "GML — FINAL held-out v2 GAT test (RUN ONCE)"
+      }
+    ]
+  },
+  {
+    "name": "visual_genome_prepare_training_data",
+    "family": "visual_genome",
+    "original": "VisualGenome/notebooks/prepare_training_data.ipynb",
+    "sha256": "d46e26f5f1ecd20d85bec3caf5cd18f2ff21f4a52e09634d518c63b7c4f56c6d",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "01.ipy",
+        "label": "GML — Training Data Preparation v2 (ISOLATED)"
+      },
+      {
+        "cell": 2,
+        "file": "configure_local_artifacts.py",
+        "label": "GML — Training Data Preparation v2 (ISOLATED)",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "GML — Training Data Preparation v2 (ISOLATED)"
+      },
+      {
+        "cell": 5,
+        "file": "05.py",
+        "label": "1. Build 20-query train pool"
+      },
+      {
+        "cell": 7,
+        "file": "07.py",
+        "label": "2. Reuse and encode text features"
+      },
+      {
+        "cell": 9,
+        "file": "09.py",
+        "label": "3. Mine train-only hard negatives"
+      },
+      {
+        "cell": 11,
+        "file": "11.py",
+        "label": "Verify hard negative"
+      },
+      {
+        "cell": 12,
+        "file": "12.py",
+        "label": "Verify hard negative"
+      },
+      {
+        "cell": 13,
+        "file": "13.py",
+        "label": "Verify hard negative"
+      },
+      {
+        "cell": 15,
+        "file": "15.py",
+        "label": "4. Final input and sampling audits"
+      },
+      {
+        "cell": 16,
+        "file": "16.py",
+        "label": "4. Final input and sampling audits"
+      }
+    ]
+  },
+  {
+    "name": "visual_genome_ablation_no_edge_seed2026",
+    "family": "visual_genome",
+    "original": "VisualGenome/notebooks/ablation_no_edge_seed2026.ipynb",
+    "sha256": "bdd26d0ca246e05c29cde8e2379a0d9e2628f9a37415ee073d8084958d550b90",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "install_molab_dependencies.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 2,
+        "file": "authenticate_drive.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "Molab Drive sync and training"
+      },
+      {
+        "cell": 4,
+        "file": "download_artifacts.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 5,
+        "file": "verify_inputs.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 6,
+        "file": "download_resume.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 7,
+        "file": "launch_and_sync.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      }
+    ]
+  },
+  {
+    "name": "visual_genome_ablation_random_edges_seed2026",
+    "family": "visual_genome",
+    "original": "VisualGenome/notebooks/ablation_random_edges_seed2026.ipynb",
+    "sha256": "d42aac35ced138cb7a492fc528b9d3015137298e68f0a1afe5959a61eea5d403",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "install_molab_dependencies.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 2,
+        "file": "authenticate_drive.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "Molab Drive sync and training"
+      },
+      {
+        "cell": 4,
+        "file": "download_artifacts.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 5,
+        "file": "verify_inputs.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 6,
+        "file": "download_resume.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 7,
+        "file": "launch_and_sync.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      }
+    ]
+  },
+  {
+    "name": "visual_genome_main_seed2026",
+    "family": "visual_genome",
+    "original": "VisualGenome/notebooks/main_seed2026.ipynb",
+    "sha256": "8dd6fcbbb7f566a2a72978f350705e1893a930c9522fb449189db87fb99faeee",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "install_molab_dependencies.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 2,
+        "file": "authenticate_drive.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "Molab Drive sync and training"
+      },
+      {
+        "cell": 4,
+        "file": "download_artifacts.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 5,
+        "file": "verify_inputs.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 6,
+        "file": "download_resume.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 7,
+        "file": "launch_and_sync.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      }
+    ]
+  },
+  {
+    "name": "visual_genome_main_seed2027",
+    "family": "visual_genome",
+    "original": "VisualGenome/notebooks/main_seed2027.ipynb",
+    "sha256": "7bb23fccaf4c766ce926fdb19b1662bc76dd296b121ea70d383575255d9531bb",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "install_molab_dependencies.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 2,
+        "file": "authenticate_drive.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "Molab Drive sync and training"
+      },
+      {
+        "cell": 4,
+        "file": "download_artifacts.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 5,
+        "file": "verify_inputs.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 6,
+        "file": "download_resume.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 7,
+        "file": "launch_and_sync.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      }
+    ]
+  },
+  {
+    "name": "visual_genome_main_seed2028",
+    "family": "visual_genome",
+    "original": "VisualGenome/notebooks/main_seed2028.ipynb",
+    "sha256": "f51c97ced4f66d12ecf758d64d58fdbbd97fd3a08b04afce0f7939a138716037",
+    "stages": [
+      {
+        "cell": 1,
+        "file": "install_molab_dependencies.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 2,
+        "file": "authenticate_drive.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 3,
+        "file": "03.py",
+        "label": "Molab Drive sync and training"
+      },
+      {
+        "cell": 4,
+        "file": "download_artifacts.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 5,
+        "file": "verify_inputs.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 6,
+        "file": "download_resume.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      },
+      {
+        "cell": 7,
+        "file": "launch_and_sync.py",
+        "label": "Molab Drive sync and training",
+        "location": "shared_visual_genome"
+      }
+    ]
+  }
+]

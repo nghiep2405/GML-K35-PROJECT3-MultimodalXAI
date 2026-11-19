@@ -1,0 +1,13 @@
+{
+  "root": "our_run_result",
+  "evidence": {
+    "results/Flickr30k/final_test_summary.json": "a6687289a7ae42fb816ae616cef0c91a0d83e589c69288b482ff733c5f955110",
+    "results/Flickr30k/XAI/B2_reproduction_check.csv": "39bcfb1a36cc1cf3d13f70c10a4085e21ced31f33ad41bb8799f146b2ae3a846",
+    "results/DB15K/XAI/C1_reproduction.csv": "fb61994578dfe1c396836442854d7852b787bc07c564a5dda4febf5e53eff7e9",
+    "results/FB15K/XAI/C1_reproduction.csv": "cfbce49a853f2f12a6d403b548a95b3e4bb71ced312bfb799ca9f155cf1bd778",
+    "results/DB15K/XAI_L3/D1_replay_check.csv": "263807a234ca9456e95eb2f7da904002318e19664175f9779c9e95a55eb6c70f",
+    "results/FB15K/XAI_L3/D1_replay_check.csv": "5aa5a615c563dd691c1e058839cf011735dcaf3143b7db821c0a1d90e59a8c17",
+    "data/MMKG/processed/split_manifest.json": "0ecb6e1c27533236b1607c2ff2c47eda1f2302ea0e938f64097ad8fd3bf41912"
+  },
+  "note": "Reference files from existing runs. This inventory does not record fresh model replay."
+}

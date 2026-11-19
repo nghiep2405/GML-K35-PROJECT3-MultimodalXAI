@@ -1,0 +1,22 @@
+{
+  "epochs": 0,
+  "seed": 2027,
+  "dim": 250,
+  "margin": 12.0,
+  "lr": 0.0001,
+  "batch_size": 256,
+  "negative_count": 128,
+  "adv_temperature": 2.0,
+  "mu": 0.0,
+  "freeze_features": true,
+  "topk": 1000,
+  "alpha_grid": [
+    1.0
+  ],
+  "session_hours": 8.0,
+  "visual_policy": "train_image_CLIP_mean_L2",
+  "direct_policy": "CLIP_only",
+  "selection": "combined_validation_retrieval_MRR",
+  "ablation": "no_edges",
+  "checkpoint_every_epochs": 30
+}

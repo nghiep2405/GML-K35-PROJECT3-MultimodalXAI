@@ -1,0 +1,71 @@
+{
+  "created": "2026-11-11 15:21:57",
+  "dataset": "Flickr30k Entities (test 1000 ảnh / 5000 truy vấn; val 1000 / 5000)",
+  "main_run": "seed_2026",
+  "score_formula": "S = (1 - alpha_graph) * CLIP + alpha_graph * Graph (raw cosine, như evaluate_test.py)",
+  "checkpoints": {
+    "seed_2026": {
+      "path": "results/Flickr30k/3SEED/seed_2026/best_model.pt",
+      "sha256": "fe3d904619659723d41ad40aa0ef75bc5b190c1383a8d1b1c8572b6b2efa88b5",
+      "edge_mode": "real_edges",
+      "seed": 2026,
+      "epoch": 15,
+      "alpha_graph_from_validation": 0.2,
+      "validation_mrr": 0.8212606310844421
+    },
+    "seed_2027": {
+      "path": "results/Flickr30k/3SEED/seed_2027/best_model.pt",
+      "sha256": "a6e22d8894b49a1b7e098a7ea6d56a80be4f5d82710aaef576a7d1d3ccc3f648",
+      "edge_mode": "real_edges",
+      "seed": 2027,
+      "epoch": 14,
+      "alpha_graph_from_validation": 0.2,
+      "validation_mrr": 0.8229156732559204
+    },
+    "seed_2028": {
+      "path": "results/Flickr30k/3SEED/seed_2028/best_model.pt",
+      "sha256": "179d906651bc0d666a3ea78227ea8c5931bf33c54624d7cafe2c91d99ea2b2cf",
+      "edge_mode": "real_edges",
+      "seed": 2028,
+      "epoch": 8,
+      "alpha_graph_from_validation": 0.2,
+      "validation_mrr": 0.8223919868469238
+    },
+    "no_edge": {
+      "path": "results/Flickr30k/ABLATION/no_edge/best_model.pt",
+      "sha256": "15edf57833e4f9bfb33512331652eda4b3256756afaffe87743ed9f9f680a2dc",
+      "edge_mode": "no_edge",
+      "seed": 2026,
+      "epoch": 3,
+      "alpha_graph_from_validation": 0.2,
+      "validation_mrr": 0.7958640456199646
+    },
+    "random_edges": {
+      "path": "results/Flickr30k/ABLATION/random_edges/best_model.pt",
+      "sha256": "4b77aade2b13327c84e2b551844ca5ac9021d52db46e170cb3eba7b7d72bdafe",
+      "edge_mode": "random_edges",
+      "seed": 2026,
+      "epoch": 10,
+      "alpha_graph_from_validation": 0.2,
+      "validation_mrr": 0.8110435605049133
+    }
+  },
+  "source_sha256": {
+    "run_gat.py": "141b99ea2facf484e122b5e9baf34e39f7fc1b738dc64dd95b1f380a93a67820",
+    "prepare_retrieval.py": "d9567b4189eb7b22d16b8802ae6839068d7960d6cf844fb52ff80ba5ae697a3b",
+    "evaluate_test.py": "b8fab5782f50268e9c2aa0d386c80dc9b05a398b06b5f37e5001525ebc93880a"
+  },
+  "versions": {
+    "torch": "2.14.1+cu130",
+    "torch_geometric": "2.8.1"
+  },
+  "selection_seed": 2026,
+  "explainer": {
+    "unit": "quan hệ vô hướng (cặp cạnh 2 chiều)",
+    "score": "Δ = S_full − S_without_relation",
+    "K": 8,
+    "chosen_on": "validation, 300 truy vấn, trung vị comprehensiveness ≥ 0.8",
+    "share_val_queries_structure_positive": 0.7833333333333333,
+    "median_positive_relations_per_val_query": 12.0
+  }
+}

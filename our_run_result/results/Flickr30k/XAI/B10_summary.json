@@ -1,0 +1,60 @@
+{
+  "K": 8,
+  "n_random_repeats": 20,
+  "queries": "5 success + 5 failure + 10 random (B8)",
+  "excluded_queries_without_positive_relation_or_all_relations": 0,
+  "mean_sd_over_3_seeds": {
+    "n_queries": {
+      "mean": 20.0,
+      "sd": 0.0
+    },
+    "drop_graph_exp": {
+      "mean": 0.04980631267341475,
+      "sd": 0.012668185653828693
+    },
+    "drop_graph_rand": {
+      "mean": 0.004429701178378309,
+      "sd": 0.002498211917676261
+    },
+    "drop_fused_exp": {
+      "mean": 0.009961262534682951,
+      "sd": 0.002533637130765739
+    },
+    "drop_fused_rand": {
+      "mean": 0.000885940235675662,
+      "sd": 0.0004996423835352523
+    },
+    "rank_change_exp": {
+      "mean": 5.433333333333334,
+      "sd": 1.4145081595145832
+    },
+    "rank_change_rand": {
+      "mean": -0.22000000000000006,
+      "sd": 0.2971531591620725
+    },
+    "win_rate": {
+      "mean": 0.9833333333333334,
+      "sd": 0.028867513459481315
+    },
+    "sufficiency": {
+      "mean": 1.1763694945617864,
+      "sd": 0.03294606136911636
+    },
+    "comprehensiveness": {
+      "mean": 0.9728109671944689,
+      "sd": 0.026808323272857485
+    },
+    "share_spatial_in_exp": {
+      "mean": 0.43517871697800947,
+      "sd": 0.023592704593711027
+    },
+    "top_spatial_delta": {
+      "mean": 0.0021300419621790453,
+      "sd": 0.00015185612495988978
+    },
+    "top_star_delta": {
+      "mean": 0.012958523429309329,
+      "sd": 0.0030646840312684425
+    }
+  }
+}

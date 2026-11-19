@@ -1,0 +1,6 @@
+{
+  "max_err_full_mask": 1.7881393432617188e-07,
+  "max_err_attention_path": 1.4156103134155273e-07,
+  "queries_changed_when_all_relations_removed": 50,
+  "n_checked": 50
+}

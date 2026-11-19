@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-10-24T16:32:29.161761+00:00",
+  "status": "TECHNICAL_PASS_AWAITING_C_WP3_HUMAN_REVIEW",
+  "marker": "DB15K_CLEAN_RETRIEVAL_BRIDGE_PASS",
+  "protocol_id": "db15k_clean_from_train_v1",
+  "retrieval_protocol_id": "db15k_clean_retrieval_v2",
+  "membership_content_sha256": "0816865ecedd0203a5fac56c0550570303fadc1e4efa5abfb242989a41053ba2",
+  "canonical_run": "db15k_image_retrieval/runs/db15k_v1",
+  "canonical_reference_sha256": "8cb187e23b48e0e6bc9728024003901dc11e85b0e970e219098656f2ee98447d",
+  "artifacts": {
+    "queries": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_clean_v1/processed/queries.parquet",
+      "bytes": 4970681,
+      "sha256": "56f4ee3523ad38a0ad147a3ba514554738fd510ad439144ce9bf014dfd15905c"
+    },
+    "relevance": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_clean_v1/processed/relevance.parquet",
+      "bytes": 3314578,
+      "sha256": "e2414a6add6882189b7730cf8f7767110a60226c60833558ec6733f16297bbd6"
+    },
+    "candidate_pools": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_clean_v1/processed/candidate_pools.parquet",
+      "bytes": 455184,
+      "sha256": "7d1b0802b54c9e5e420d485167d1f6e82d0ec677890bb1f5eb3689fe3a11e009"
+    },
+    "retrieval_protocol": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_clean_v1/processed/retrieval_protocol.json",
+      "bytes": 2058,
+      "sha256": "c830fb00dfc480443ebf9f7b0e09f410e1ce8c5e549a52a3b8c216271d866ed7"
+    },
+    "canonical_references": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_clean_v1/processed/canonical_references.json",
+      "bytes": 2759,
+      "sha256": "8cb187e23b48e0e6bc9728024003901dc11e85b0e970e219098656f2ee98447d"
+    },
+    "query_review_sample": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_clean_v1/reports/query_review_sample.csv",
+      "bytes": 23247,
+      "sha256": "1e1860bad1a90cc02af690ae1e0d86f12c997a01342e81a5f6d6606c55858131"
+    },
+    "query_validation": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_clean_v1/reports/query_validation.json",
+      "bytes": 6603,
+      "sha256": "c4aba16c03056475d35770df594db01caa312eb095b45543bb20f26e16b8a0ec"
+    }
+  },
+  "counts": {
+    "queries": 141488,
+    "relevance_rows": 290087,
+    "candidate_rows": 25925,
+    "query_by_split": {
+      "train": 130988,
+      "test": 5477,
+      "val": 5023
+    },
+    "query_by_type": {
+      "indirect": 126253,
+      "direct": 15235
+    },
+    "query_by_direction": {
+      "head": 63691,
+      "tail": 62562,
+      "direct": 15235
+    },
+    "test_cold_start_queries": 17,
+    "reverse_edge_sensitivity_queries": 52,
+    "review_sample_rows": 90
+  },
+  "raw_images_copied": false,
+  "clip_features_copied": false,
+  "raw_image_redistribution_allowed": false
+}

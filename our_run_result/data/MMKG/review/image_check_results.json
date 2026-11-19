@@ -1,0 +1,56 @@
+{
+  "n_items": 100,
+  "raters": [
+    "A"
+  ],
+  "rater_names": {
+    "A": "Claude (AI, Anthropic) – chấm 17/11/2026 theo yêu cầu nhóm; không độc lập với bộ lọc ảnh"
+  },
+  "kappa": null,
+  "drop_depth1": true,
+  "n_dropped": 12,
+  "dropped_image_ids": [
+    "img0049",
+    "img0050",
+    "img0051",
+    "img0052",
+    "img0092",
+    "img0151",
+    "img0203",
+    "img0250",
+    "img0310",
+    "img0312",
+    "img0313",
+    "img0411"
+  ],
+  "accuracy": [
+    {
+      "link_method": "P18",
+      "n": 17,
+      "acc_A": 1.0,
+      "khong_ro_A": 1,
+      "acc_mean": 1.0
+    },
+    {
+      "link_method": "P373_d0",
+      "n": 76,
+      "acc_A": 0.9285714285714286,
+      "khong_ro_A": 6,
+      "acc_mean": 0.9285714285714286
+    },
+    {
+      "link_method": "P373_d1",
+      "n": 7,
+      "acc_A": 0.8333333333333334,
+      "khong_ro_A": 1,
+      "acc_mean": 0.8333333333333334
+    },
+    {
+      "link_method": "tất cả",
+      "n": 100,
+      "acc_A": 0.9347826086956522,
+      "khong_ro_A": 8,
+      "acc_mean": 0.9347826086956522
+    }
+  ]
+}

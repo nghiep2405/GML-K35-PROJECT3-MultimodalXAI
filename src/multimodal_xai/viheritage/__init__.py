@@ -1,0 +1,1 @@
+"""ViHeritage-MMKG snapshot verification."""

@@ -1,0 +1,11 @@
+case,query_id,direction,clip_rank,hybrid_rank,top1_row,top1_entity,target_in_topk,query_text,anchor_entity_index,relation_index,target_entity_index,qi
+thanh_cong,q_6f081eb3d974c9508fe6ab34,tail,105,1,6920,3361,True,"Find an image of the entity that is related to Ronald Ernest ""Ron"" Paul by party.",2367,7,3361,2384
+thanh_cong,q_ffbbb7ed71136914b34d1caf,head,55,1,1578,3093,True,Find an image of the entity whose influenced by relation points to Richard Dawkins.,1190,14,3093,5475
+thanh_cong,q_04726fae7096a9c43e1691dd,head,624,1,5284,7353,True,"Find an image of the entity whose associated band relation points to Missy ""Misdemeanor"" Elliot.",7352,90,7353,111
+thanh_cong,q_919aeff1938ffdb3111bd4a7,tail,106,1,11335,3710,True,Find an image of the entity that is related to Iraklis 1908 Thessaloniki F.C. by ground.,11387,152,3710,3149
+thanh_cong,q_e6accc926397a1bd8e4067cc,tail,117,1,17645,4278,True,Find an image of the entity that is related to Oklahoma! (1955 film) by music composer.,7145,104,4278,4952
+that_bai_bi_lam_hai,q_668a536d1098095bb788a0b9,head,1,70,1083,8355,True,Find an image of the entity whose see also relation points to Streamline Moderne.,245,0,244,2220
+that_bai_bi_lam_hai,q_4db1993eb9b24bd0c441f766,head,1,4,15139,6905,True,Find an image of the entity whose starring relation points to Rock Hudson.,6903,73,6904,1702
+that_bai_bi_lam_hai,q_7aff36a270190fc77bfc4c72,tail,1,4,23787,396,True,Find an image of the entity that is related to Soul music by music fusion genre.,1042,99,1874,2647
+that_bai_khong_cuu_duoc,q_49422bb19033699e0e281b9d,head,361,170,21239,5151,True,"Find an image of the entity whose death place relation points to Danbury, Connecticut.",6703,5,8170,1596
+that_bai_khong_cuu_duoc,q_ecfc6d0600ab8e1ebda614fa,tail,19,366,14814,1288,True,Find an image of the entity that is related to Arthur C. Clarke by influenced.,1288,27,4558,5082

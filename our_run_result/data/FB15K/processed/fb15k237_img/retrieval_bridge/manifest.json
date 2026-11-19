@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-10-21T12:15:59.814336+00:00",
+  "status": "FB15K237_IMAGE_RETRIEVAL_READY_WITH_COURSEWORK_LICENSE_LIMITATION",
+  "phase_status": "PHASE2_DATASET2_COMPLETE",
+  "dataset": "FB15K-237-IMG",
+  "version": "fb15k237_img_v1",
+  "canonical_root": "fb15k237_image_retrieval/runs/fb15k237_v1",
+  "storage_policy": "REFERENCE_CANONICAL_RUN_NO_RAW_OR_LARGE_ARTIFACT_DUPLICATION",
+  "promoted_reproduction": "processed/fb15k237_img/reproduction",
+  "artifacts": {
+    "entities": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/entities.parquet",
+      "size_bytes": 660488,
+      "sha256": "f215574c997e0e130573e8259b7d65f7b180122aeafd11c0c54ee3fb67833852",
+      "rows": 14541
+    },
+    "images": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/images.parquet",
+      "size_bytes": 40456532,
+      "sha256": "67870e8d40d91a3a41944f4ae3c5cfd24cbc7a08c7f622e3a68b65e449c65f6b",
+      "rows": 139814
+    },
+    "entity_image": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/entity_image.parquet",
+      "size_bytes": 3676587,
+      "sha256": "e53bde87851f360ff7c1e74179099a0f3b33259ff7c9291004473455c1099e09",
+      "rows": 139814
+    },
+    "retrieval_image_splits": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/retrieval_image_splits.parquet",
+      "size_bytes": 14317712,
+      "sha256": "dac44c7d798d7945d670af3296c90620b735d1fcd0c025d82ab8ffe5db66bcd3",
+      "rows": 139814
+    },
+    "queries": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/queries.parquet",
+      "size_bytes": 20336713,
+      "sha256": "9e5ffaef664ab4b5a7dba741ba74226f8258cce6ac6fddc2944179f7658508f4",
+      "rows": 604084
+    },
+    "relevance": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/relevance.parquet",
+      "size_bytes": 60955276,
+      "sha256": "69c33b79f743cdda3bdc9545a32227ba2c6f9e87d36a8e8cfc0e01faf3423c6e",
+      "rows": 4392803
+    },
+    "candidate_pools": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/candidate_pools.parquet",
+      "size_bytes": 2060846,
+      "sha256": "e339d8333b9edb211c806dfce490a1a574d1249a4182eaaf39dfa752343bc2bb",
+      "rows": 139814
+    },
+    "retrieval_protocol": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/processed_stage/retrieval_protocol.json",
+      "size_bytes": 1959,
+      "sha256": "46080fcca3500f6af5ae28a4a457db49262f8be9d96c35cced4c92dc6689da34"
+    },
+    "clip_image_features": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/clip_image_features.npy",
+      "size_bytes": 286339200,
+      "sha256": "2abd3e04112ea0ae627701f90cd380da336bb7b58e61ff1885722d1bf81190f3",
+      "shape": [
+        139814,
+        512
+      ],
+      "dtype": "float32"
+    },
+    "image_feature_index": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/image_feature_index.parquet",
+      "size_bytes": 15110528,
+      "sha256": "c1545be72d7e3de3f2557f7012cb3cc59fbb0993628655d46b420a65374c5e95",
+      "rows": 139814
+    },
+    "entity_visual": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/FB15K237-IMG-visual.pth",
+      "size_bytes": 29781629,
+      "sha256": "620d3886a358f0527d54e59ee5e867435a525f3f121d807eceee37c5fcd5043a",
+      "shape": [
+        14541,
+        512
+      ],
+      "dtype": "torch.float32"
+    },
+    "entity_textual": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/FB15K237-IMG-textual.pth",
+      "size_bytes": 29781636,
+      "sha256": "f3dcb107b15103d45c21ff6389342d199b68f55fa4d089a5eae0ba9157be0c86",
+      "shape": [
+        14541,
+        512
+      ],
+      "dtype": "torch.float32"
+    },
+    "entity_feature_index": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/entity_feature_index.parquet",
+      "size_bytes": 814992,
+      "sha256": "cb4d5ba79878f140b47471b986235554554c444da6508c9b8e968f5dc49619fd",
+      "rows": 14541
+    },
+    "modality_mask": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/modality_mask.parquet",
+      "size_bytes": 98929,
+      "sha256": "51007aa150269bba0cb9972f4d22053311b66a92cec25a810910706ad5719f40",
+      "rows": 14541
+    },
+    "clip_feature_metadata": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/clip_feature_metadata.json",
+      "size_bytes": 9419,
+      "sha256": "d469467683accb73fa83103a81c997b50dea6e7be536d6bf3ce42b1153fa723c"
+    },
+    "entity_feature_metadata": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/features/entity_feature_metadata.json",
+      "size_bytes": 2088,
+      "sha256": "266446df229f2dd957923a36d0f2258cfca887d36ab93feb4558f212310cf719"
+    },
+    "queries_report": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/reports/queries.json",
+      "size_bytes": 2682,
+      "sha256": "ddb189788508589f3f7d4603b490b1236eb7ee04b5498d231105d0280582bcde"
+    },
+    "kg_adapter_validation": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/reports/kg_adapter_validation.json",
+      "size_bytes": 5456,
+      "sha256": "47a00c3f8d286774ceda297147b9b3fc0985f74515e2b08806208c96184ff749"
+    },
+    "retrieval_split_validation": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/reports/retrieval_split_validation.json",
+      "size_bytes": 1813,
+      "sha256": "63e49c96822f1e3b07695f3f98fdd3e1f6994fb1c77dd83213559d81343d1193"
+    },
+    "feature_alignment_validation": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/reports/feature_alignment_validation.json",
+      "size_bytes": 2728,
+      "sha256": "a2e4a48d3ce4296c6d8778b11ef5cf3071abec088496299d46615c5d936c6cb7"
+    },
+    "loader_smoke": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/reports/fb15k237_loader_smoke.json",
+      "size_bytes": 3407,
+      "sha256": "868a6ab631721958ecb904268d05094ac57422a03ef8186e350cc4994c91f314"
+    },
+    "model_batch_smoke": {
+      "phase2_relative_path": "fb15k237_image_retrieval/runs/fb15k237_v1/reports/fb15k237_model_batch_smoke.json",
+      "size_bytes": 2529,
+      "sha256": "031372bf35a2ff5f3f7a490654923c6216847df32756b706a85e25d5d522eea2"
+    },
+    "human_review": {
+      "phase2_relative_path": "fb15k237_image_retrieval/reviews/dataset2_review.json",
+      "size_bytes": 19363,
+      "sha256": "6a67f0c046d7f3b6b53e29173ed7b64efc5f530e24929319509149409ad2fae5"
+    },
+    "config": {
+      "phase2_relative_path": "fb15k237_image_retrieval/config/retrieval_config.json",
+      "size_bytes": 8324,
+      "sha256": "594839496b35e75c0fd9fe38c61392099fad9d44cb2b2f6f9bde2f70bcdac4d6"
+    },
+    "source_manifest": {
+      "phase2_relative_path": "sources/source_manifest.json",
+      "size_bytes": 28917,
+      "sha256": "2b0586b17af880b3fb13da145905bf1dfb204f6ae5bc53ef094e359c85496cb8"
+    }
+  },
+  "counts": {
+    "entities": 14541,
+    "entities_with_images": 14261,
+    "entities_without_images": 280,
+    "images": 139814,
+    "images_by_split": {
+      "train": 111906,
+      "val": 13971,
+      "test": 13937
+    },
+    "queries": 604084,
+    "queries_by_split": {
+      "train": 541840,
+      "test": 33156,
+      "val": 29088
+    },
+    "queries_by_direction": {
+      "head": 289622,
+      "tail": 283033,
+      "direct": 31429
+    },
+    "relevance_rows": 4392803,
+    "candidate_rows": 139814,
+    "clip_shape": [
+      139814,
+      512
+    ],
+    "entity_visual_shape": [
+      14541,
+      512
+    ],
+    "entity_textual_shape": [
+      14541,
+      512
+    ]
+  },
+  "contract": {
+    "kg_split": "official transductive FB15K-237 train/dev/test",
+    "image_split": "80/10/10 image-disjoint by exact duplicate cluster; not entity-disjoint",
+    "protocol_version": "fb15k237_query_v1",
+    "directions": [
+      "direct",
+      "head",
+      "tail"
+    ],
+    "positive_policy": "all eligible target-entity images in the query split",
+    "candidate_policy": "all canonical images in the query split",
+    "ranking_contract": {
+      "tail_kg_score": "F(h,r,entity(image))",
+      "head_kg_score": "F(entity(image),r,t)",
+      "final_score": "alpha*normalize(S_KG)+(1-alpha)*normalize(S_CLIP)",
+      "alpha_selection_split": "validation_only",
+      "multi_entity_image_aggregation": "max_over_linked_entity_scores",
+      "require_model_team_approval": true
+    },
+    "modality_mask_required_before_fusion": true
+  },
+  "consumer_smoke": {
+    "status": "PASS",
+    "scope": "interface_and_feature_lookup_only_not_model_metrics",
+    "samples": {
+      "direct": {
+        "query_id": "q_00034cbc78fef84a2bace395",
+        "split": "test",
+        "positive_images": 2,
+        "candidate_images": 13937,
+        "feature_lookup_pass": true,
+        "score_interface": "PASS_WITH_DETERMINISTIC_MOCK_SCORES_NOT_A_METRIC"
+      },
+      "indirect_head": {
+        "query_id": "q_00021a0d9c87e879362de09f",
+        "split": "test",
+        "positive_images": 1,
+        "candidate_images": 13937,
+        "feature_lookup_pass": true,
+        "score_interface": "PASS_WITH_DETERMINISTIC_MOCK_SCORES_NOT_A_METRIC"
+      },
+      "indirect_tail": {
+        "query_id": "q_00002dc77c499b7eec9d2baf",
+        "split": "test",
+        "positive_images": 1,
+        "candidate_images": 13937,
+        "feature_lookup_pass": true,
+        "score_interface": "PASS_WITH_DETERMINISTIC_MOCK_SCORES_NOT_A_METRIC"
+      }
+    }
+  },
+  "limitations": [
+    "Coursework-only image use; raw images and the source archive must not be redistributed.",
+    "Individual image-content rights are unresolved; repository licenses do not clear them.",
+    "The image split is exact-duplicate-disjoint but not entity-disjoint.",
+    "The accepted CLIP model provenance has resolved_commit=null; generated outputs are frozen by SHA-256.",
+    "Loader/model evidence is a CPU compatibility smoke test, not AdaMF paper-metric reproduction or convergence evidence.",
+    "Query bridge and deterministic score-interface smoke do not constitute trained retrieval metrics."
+  ],
+  "raw_image_redistribution_allowed": false
+}

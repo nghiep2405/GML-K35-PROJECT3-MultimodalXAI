@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-10-24T16:57:33.899757+00:00",
+  "status": "DB15K_CLEAN_PROTOCOL_READY_FOR_TRAINING",
+  "dataset": "DB15K",
+  "protocol_id": "db15k_clean_from_train_v1",
+  "retrieval_protocol_id": "db15k_clean_retrieval_v2",
+  "paths": {
+    "kg_data_root": "processed/db15k/experimental_clean_v1/reproduction",
+    "train": "processed/db15k/experimental_clean_v1/reproduction/train2id.txt",
+    "validation": "processed/db15k/experimental_clean_v1/reproduction/valid2id.txt",
+    "test": "processed/db15k/experimental_clean_v1/reproduction/test2id.txt",
+    "entity_mapping": "processed/db15k/experimental_clean_v1/reproduction/entity2id.txt",
+    "relation_mapping": "processed/db15k/experimental_clean_v1/reproduction/relation2id.txt",
+    "type_constraints": "processed/db15k/experimental_clean_v1/reproduction/type_constrain.txt",
+    "visual_features": "processed/db15k/reproduction/DB15K-visual.pth",
+    "textual_features": "processed/db15k/reproduction/DB15K-textual.pth",
+    "test_views": "processed/db15k/experimental_clean_v1/test_evaluation_views.parquet",
+    "split_membership": "processed/db15k/experimental_clean_v1/split_membership.parquet",
+    "retrieval_run": "db15k_image_retrieval/runs/db15k_clean_v1",
+    "checkpoint_selection_split": "clean_valid",
+    "hyperparameter_selection_split": "clean_valid",
+    "retrieval_alpha_selection_split": "clean_validation_queries_only",
+    "official_validation_usage": "PROHIBITED",
+    "official_test_release": "AFTER_CONFIGURATION_FREEZE_ONLY"
+  },
+  "counts": {
+    "entities": 12842,
+    "relations": 279,
+    "clean_train": 71300,
+    "clean_validation": 7922,
+    "official_test": 9902,
+    "test_seen_only": 9818,
+    "test_cold_start": 84,
+    "queries": 141488,
+    "relevance_rows": 290087,
+    "candidate_rows": 25925,
+    "query_by_split": {
+      "train": 130988,
+      "test": 5477,
+      "val": 5023
+    }
+  },
+  "metric_views": [
+    "official_test_full",
+    "test_seen_only",
+    "test_cold_start",
+    "head",
+    "tail",
+    "combined"
+  ],
+  "training_rules": {
+    "retrain_all_models_from_scratch": true,
+    "same_clean_train_validation_for_all_models": true,
+    "official_validation_prohibited": true,
+    "test_after_configuration_freeze_only": true,
+    "development_seed": 2027,
+    "recommended_final_seeds": [
+      2027,
+      2028,
+      2029
+    ]
+  },
+  "storage_policy": {
+    "copy_raw_images": false,
+    "copy_clip_tensor": false,
+    "copy_entity_features": false,
+    "reuse_by_reference_and_sha256": true,
+    "raw_image_redistribution_allowed": false
+  },
+  "limitations": [
+    "The replay proves data, loader and handoff compatibility; it is not model convergence or AdaMF paper-metric reproduction.",
+    "All compared models must be retrained from scratch on the same clean split.",
+    "Feature row provenance remains PASS_WITH_PROVENANCE_LIMITATION.",
+    "Web images remain coursework-only and raw-image redistribution is prohibited."
+  ]
+}

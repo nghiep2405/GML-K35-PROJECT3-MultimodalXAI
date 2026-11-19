@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0.0",
+  "policy": "REFERENCE_CANONICAL_FEATURES_NO_LARGE_TENSOR_DUPLICATION",
+  "visual": {
+    "path": "processed/db15k/reproduction/DB15K-visual.pth",
+    "bytes": 210404088,
+    "sha256": "d9cd551878b053195a42620d6c9c9e6b16ade258aee862fadd5ab07fb6e4ac36",
+    "shape": [
+      12842,
+      4096
+    ],
+    "dtype": "torch.float32"
+  },
+  "textual": {
+    "path": "processed/db15k/reproduction/DB15K-textual.pth",
+    "bytes": 39451384,
+    "sha256": "912b08f8548e517b5f469330e15b1f6dde0ef345864aa0f412eb39f281459ce1",
+    "shape": [
+      12842,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "runtime_instruction": "Create a temporary local runtime view for AdaMF when feature files must share a directory with clean triples. Do not overwrite canonical tensors."
+}

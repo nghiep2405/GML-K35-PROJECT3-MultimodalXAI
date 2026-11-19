@@ -1,0 +1,36 @@
+{
+  "ablation": "shuffled_edges",
+  "graph_sha256": "69430262b2ac8e1d8bef66979d18d11f959a3eb3b3c80150c7389408edf7395b",
+  "checkpoint": "/content/drive/.shortcut-targets-by-id/1bw_Q84zSzcJ0dHJsVdI3x4ESvlrYcG_l/MLGs - Project/dataset/adamf/model/adamf_v1/db15k_clean_kgc_to_retrieval_seed2027_ablation_shuffled_edges_zero_overlap_v4/seed_2027/checkpoints/best_adamf.pt",
+  "checkpoint_sha256": "7b77fb2a72d3cd0fc73cc20b3d79cc9d261d2c16a22abd9a44976d017a151a8d",
+  "selected_validation_epoch": 8,
+  "locked_alpha_clip": 0.2,
+  "seed": 2027,
+  "topk": 1000,
+  "encoder": {
+    "name": "openai/clip-vit-base-patch32",
+    "revision": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268",
+    "image_metadata_sha256": "507f3308ec80b75837b3a515147d1d36b4aecc10843ff0cf0dddb50690c6384e",
+    "image_revision_exactly_known": false
+  },
+  "input_hashes": {
+    "canonical_references": "8cb187e23b48e0e6bc9728024003901dc11e85b0e970e219098656f2ee98447d",
+    "queries": "56f4ee3523ad38a0ad147a3ba514554738fd510ad439144ce9bf014dfd15905c",
+    "relevance": "e2414a6add6882189b7730cf8f7767110a60226c60833558ec6733f16297bbd6",
+    "candidate_pools": "7d1b0802b54c9e5e420d485167d1f6e82d0ec677890bb1f5eb3689fe3a11e009",
+    "entity_image": "bb43b3b39005a084ba8d3eff5fb4e3bf2d9e74c3e0cd9f63994baa8094d85a5b",
+    "image_feature_index": "408dd1e78df0fe27d74bf4cbad6e94faa15a27be819dd8ce9ab549bb1be605bb",
+    "clip_image_features": "d1a21e14bba308f6e9db16d81937f7a68d7bdb1ad8a5d59a0f84a912a7a463f9",
+    "clip_feature_metadata": "507f3308ec80b75837b3a515147d1d36b4aecc10843ff0cf0dddb50690c6384e",
+    "textual": "912b08f8548e517b5f469330e15b1f6dde0ef345864aa0f412eb39f281459ce1",
+    "training_interface.json": "f89bc4e20c9fbd170d6998f65f63e0d3e4af1ea9ead2556a1dd6f7da4d867e4a",
+    "feature_references.json": "282466b687184b35eac9b7593e4c2eeac9e35e13939a76d8d06defaf36a279aa",
+    "entity2id.txt": "7f316dc359c55292bc7d616f00409093db27e054d50f35bb478b660e0fcdd769",
+    "relation2id.txt": "053c946194d79046afe6d17ceeb7f20e103900da6759830decf4ffd3c14eeb3a",
+    "train": "e2fc1e09d04b5751baa4880f19e08a63a4bba15062ac2dae8da5e0c0cf119239",
+    "valid": "94a7fc235191c52627ee6bc90e4b7a7be6a03847a1546498dcbf31038e7c2196"
+  },
+  "num_queries": 5477,
+  "num_candidates": 2506,
+  "protocol": "Same optimistic rank / best-positive / top-k fallback as validation; direct uses CLIP."
+}

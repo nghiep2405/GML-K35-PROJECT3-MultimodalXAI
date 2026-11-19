@@ -1,0 +1,34 @@
+{
+  "notebook": "10a_xai_quant_db15k_fb15k",
+  "K_star": {
+    "DB15K": 2,
+    "FB15K": 8
+  },
+  "seeds": [
+    2027,
+    2028,
+    2029
+  ],
+  "main_seed": 2027,
+  "n_random": 5,
+  "mimic": {
+    "steps": 300,
+    "lr": 0.01,
+    "n_neg": 16,
+    "max_facts": 256
+  },
+  "M": 24,
+  "K_grid": [
+    1,
+    2,
+    3,
+    5,
+    8
+  ],
+  "topk": 1000,
+  "selection_seed": 2026,
+  "n_queries": {
+    "DB15K": 70,
+    "FB15K": 70
+  }
+}

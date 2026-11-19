@@ -1,0 +1,8 @@
+,số truy vấn / 5000
+CLIP đúng top-1,3069 (61.4%)
+seed_2026 đúng top-1,3738 (74.8%)
+CLIP sai → GAT đúng (đồ thị cứu),879 (17.6%)
+  trong đó no_edge cũng đúng,638 (12.8%)
+  trong đó cần quan hệ thật (no_edge & random sai),97 (1.9%)
+CLIP đúng → GAT sai (đồ thị làm hại),210 (4.2%)
+Cả hai cùng sai,1052 (21.0%)

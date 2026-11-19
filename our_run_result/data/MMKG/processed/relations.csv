@@ -1,0 +1,16 @@
+relation_index,pid,label_vi,label_en,applies_to,n_triples
+0,P31,là một,instance of,place,86
+1,P131,nằm ở tỉnh,located in province,place,78
+2,P1435,danh hiệu di sản,heritage designation,place,18
+3,P140,tôn giáo,religion,place,19
+4,P361,thuộc quần thể,part of,place,11
+5,P825,thờ / dành cho,dedicated to,place,4
+6,P149,phong cách kiến trúc,architectural style,place,6
+7,P706,nằm trên địa hình,located on terrain feature,place,1
+8,P84,kiến trúc sư,architect,place,5
+9,P177,bắc qua,crosses,place,3
+10,P708,thuộc giáo phận,diocese,place,4
+11,NEARBY,ở gần,near (≤ 5 km),derived,122
+12,CENTURY,xây dựng vào,built in century,derived,29
+13,P47,giáp ranh,shares border with,province,35
+14,P279,loại con của,subclass of,concept,6

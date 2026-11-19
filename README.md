@@ -7,6 +7,8 @@ Nhóm thực hiện: **Nhóm 02** (5 thành viên)
 
 ---
 
+Xem [cấu trúc repo và cách chạy từng pipeline](structure_instruction__repo.md) để cài package, chạy notebook và kiểm thử.
+
 ## 1. Cấu trúc thư mục dự án
 
 | Thư mục | Nội dung |

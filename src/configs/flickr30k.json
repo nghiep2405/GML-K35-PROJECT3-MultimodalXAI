@@ -1,0 +1,27 @@
+{
+  "dataset": "Flickr30k Entities",
+  "task": "text-to-image retrieval",
+  "clip": {
+    "model": "ViT-B-32-quickgelu",
+    "pretrained": "openai",
+    "frozen": true
+  },
+  "training": {
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "max_epochs": 50,
+    "query_batch_size": 32,
+    "hard_negatives_per_query": 50,
+    "alpha_graph_grid": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+    "selection_metric": "validation MRR",
+    "score_formula": "(1-alpha_graph)*clip_score + alpha_graph*graph_score"
+  },
+  "runs": [
+    {"name": "seed_2026", "edge_mode": "real_edges", "seed": 2026},
+    {"name": "seed_2027", "edge_mode": "real_edges", "seed": 2027},
+    {"name": "seed_2028", "edge_mode": "real_edges", "seed": 2028},
+    {"name": "no_edge", "edge_mode": "no_edge", "seed": 2026},
+    {"name": "random_edges", "edge_mode": "random_edges", "seed": 2026}
+  ]
+}
+

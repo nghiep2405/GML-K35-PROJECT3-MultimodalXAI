@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "policy": "REFERENCE_CANONICAL_DB15K_V1_NO_IMAGE_OR_CLIP_COPY",
+  "canonical_run": "db15k_image_retrieval/runs/db15k_v1",
+  "canonical_final_status": "PASS_WITH_COURSEWORK_LICENSE_LIMITATION",
+  "artifacts": {
+    "entities": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/processed/entities.parquet",
+      "bytes": 346229,
+      "sha256": "8d74735eac30b8d94b51f37306833c0bcc8070a8ba6ac4d159f656e7a6e15b4f"
+    },
+    "images": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/processed/images.parquet",
+      "bytes": 5211886,
+      "sha256": "bbf449fe1f07b2228387f801950fdedf66d84aa73808d85a8f089c0d222ef068"
+    },
+    "entity_image": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/processed/entity_image.parquet",
+      "bytes": 447560,
+      "sha256": "bb43b3b39005a084ba8d3eff5fb4e3bf2d9e74c3e0cd9f63994baa8094d85a5b"
+    },
+    "retrieval_image_splits": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/processed/retrieval_image_splits.parquet",
+      "bytes": 2199245,
+      "sha256": "05550644259d01c06bb3a27b4544a101fb6acd7edae21fc1e06ef1d5bbabb4ec"
+    },
+    "candidate_pools": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/processed/candidate_pools.parquet",
+      "bytes": 455184,
+      "sha256": "7d1b0802b54c9e5e420d485167d1f6e82d0ec677890bb1f5eb3689fe3a11e009"
+    },
+    "retrieval_protocol": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/processed/retrieval_protocol.json",
+      "bytes": 1445,
+      "sha256": "bfdd3377423bbc04b99f45b3383f02eda4a91c4cce4f7eef0341849b8828a3c2"
+    },
+    "clip_image_features": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/features/clip_image_features.npy",
+      "bytes": 53094528,
+      "sha256": "d1a21e14bba308f6e9db16d81937f7a68d7bdb1ad8a5d59a0f84a912a7a463f9"
+    },
+    "image_feature_index": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/features/image_feature_index.parquet",
+      "bytes": 524791,
+      "sha256": "408dd1e78df0fe27d74bf4cbad6e94faa15a27be819dd8ce9ab549bb1be605bb"
+    },
+    "clip_feature_metadata": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/features/clip_feature_metadata.json",
+      "bytes": 620,
+      "sha256": "507f3308ec80b75837b3a515147d1d36b4aecc10843ff0cf0dddb50690c6384e"
+    },
+    "final_validation": {
+      "phase2_relative_path": "db15k_image_retrieval/runs/db15k_v1/reports/final_validation.json",
+      "bytes": 1736,
+      "sha256": "6e503211866dcf7c24fd662b1f6cce6e42b9187f43e1677431d22470d553a26e"
+    }
+  },
+  "large_artifacts_copied": false,
+  "raw_images_copied": false,
+  "raw_image_redistribution_allowed": false
+}

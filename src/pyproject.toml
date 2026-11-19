@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multimodal-xai"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+flickr = ["torch>=2.6,<3", "torch-geometric>=2.6,<3", "numpy>=2,<3"]
+adamf = ["torch>=2.6,<3", "numpy>=1.26", "pandas>=2.1", "pyarrow>=14", "transformers", "huggingface-hub", "scikit-learn", "matplotlib", "tqdm", "ipykernel"]
+visual-genome = ["torch>=2.6,<3", "torch-geometric>=2.6,<3", "numpy>=1.26", "pandas>=2.1", "pyarrow>=14", "duckdb>=1", "tqdm>=4.66", "open-clip-torch", "gdrive-fsspec"]
+xai = ["torch>=2.6,<3", "torch-geometric>=2.6,<3", "numpy>=2,<3", "pandas>=2.2", "scipy", "pyarrow", "transformers", "huggingface-hub", "scikit-learn", "pillow", "matplotlib", "networkx", "open-clip-torch", "gradio", "ipykernel", "datasets"]
+viheritage = ["requests", "pandas", "numpy", "pyarrow", "pillow", "imagehash", "torch>=2.6,<3", "sentence-transformers", "ipykernel"]
+test = ["pytest", "numpy"]
+
+[project.scripts]
+multimodal-xai = "multimodal_xai.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["multimodal_xai*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"multimodal_xai.workflows" = ["catalog.json", "stages/*/*.py", "stages/*/*.ipy"]

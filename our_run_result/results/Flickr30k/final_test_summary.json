@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "dataset": "Flickr30k Entities",
+  "split": "test",
+  "selection_policy": "best checkpoint and graph alpha selected on validation; no test tuning",
+  "score_formula": "(1-alpha_graph)*clip_score + alpha_graph*graph_score",
+  "candidate_images": 1000,
+  "test_queries": 5000,
+  "runs": [
+    {
+      "run": "seed_2026",
+      "edge_mode": "real_edges",
+      "seed": 2026,
+      "checkpoint_epoch": 15,
+      "alpha_graph_locked_from_validation": 0.2,
+      "alpha_clip": 0.8,
+      "validation_metrics_at_checkpoint": {
+        "alpha": 0.2,
+        "Recall@1": 0.7405999898910522,
+        "Recall@5": 0.9253999590873718,
+        "Recall@10": 0.9595999717712402,
+        "Recall@50": 0.9925999641418457,
+        "MRR": 0.8212606310844421
+      },
+      "test_clip_only": {
+        "Recall@1": 0.6137999892234802,
+        "Recall@5": 0.8596000075340271,
+        "Recall@10": 0.917199969291687,
+        "Recall@50": 0.9817999601364136,
+        "MRR": 0.7231659889221191
+      },
+      "test_clip_plus_graph": {
+        "Recall@1": 0.7475999593734741,
+        "Recall@5": 0.9287999868392944,
+        "Recall@10": 0.9598000049591064,
+        "Recall@50": 0.9945999979972839,
+        "MRR": 0.827662467956543
+      }
+    },
+    {
+      "run": "seed_2027",
+      "edge_mode": "real_edges",
+      "seed": 2027,
+      "checkpoint_epoch": 14,
+      "alpha_graph_locked_from_validation": 0.2,
+      "alpha_clip": 0.8,
+      "validation_metrics_at_checkpoint": {
+        "alpha": 0.2,
+        "Recall@1": 0.7437999844551086,
+        "Recall@5": 0.9275999665260315,
+        "Recall@10": 0.9603999853134155,
+        "Recall@50": 0.9909999966621399,
+        "MRR": 0.8229156732559204
+      },
+      "test_clip_only": {
+        "Recall@1": 0.6137999892234802,
+        "Recall@5": 0.8596000075340271,
+        "Recall@10": 0.917199969291687,
+        "Recall@50": 0.9817999601364136,
+        "MRR": 0.7231659889221191
+      },
+      "test_clip_plus_graph": {
+        "Recall@1": 0.746999979019165,
+        "Recall@5": 0.9275999665260315,
+        "Recall@10": 0.9598000049591064,
+        "Recall@50": 0.9941999912261963,
+        "MRR": 0.8269513249397278
+      }
+    },
+    {
+      "run": "seed_2028",
+      "edge_mode": "real_edges",
+      "seed": 2028,
+      "checkpoint_epoch": 8,
+      "alpha_graph_locked_from_validation": 0.2,
+      "alpha_clip": 0.8,
+      "validation_metrics_at_checkpoint": {
+        "alpha": 0.2,
+        "Recall@1": 0.7439999580383301,
+        "Recall@5": 0.9251999855041504,
+        "Recall@10": 0.960599958896637,
+        "Recall@50": 0.9914000034332275,
+        "MRR": 0.8223919868469238
+      },
+      "test_clip_only": {
+        "Recall@1": 0.6137999892234802,
+        "Recall@5": 0.8596000075340271,
+        "Recall@10": 0.917199969291687,
+        "Recall@50": 0.9817999601364136,
+        "MRR": 0.7231659889221191
+      },
+      "test_clip_plus_graph": {
+        "Recall@1": 0.746999979019165,
+        "Recall@5": 0.9283999800682068,
+        "Recall@10": 0.9609999656677246,
+        "Recall@50": 0.9937999844551086,
+        "MRR": 0.8271812200546265
+      }
+    },
+    {
+      "run": "no_edge",
+      "edge_mode": "no_edge",
+      "seed": 2026,
+      "checkpoint_epoch": 3,
+      "alpha_graph_locked_from_validation": 0.2,
+      "alpha_clip": 0.8,
+      "validation_metrics_at_checkpoint": {
+        "alpha": 0.2,
+        "Recall@1": 0.7085999846458435,
+        "Recall@5": 0.9067999720573425,
+        "Recall@10": 0.9469999670982361,
+        "Recall@50": 0.988599956035614,
+        "MRR": 0.7958640456199646
+      },
+      "test_clip_only": {
+        "Recall@1": 0.6137999892234802,
+        "Recall@5": 0.8596000075340271,
+        "Recall@10": 0.917199969291687,
+        "Recall@50": 0.9817999601364136,
+        "MRR": 0.7231659889221191
+      },
+      "test_clip_plus_graph": {
+        "Recall@1": 0.7143999934196472,
+        "Recall@5": 0.9133999943733215,
+        "Recall@10": 0.9501999616622925,
+        "Recall@50": 0.9911999702453613,
+        "MRR": 0.8018262386322021
+      }
+    },
+    {
+      "run": "random_edges",
+      "edge_mode": "random_edges",
+      "seed": 2026,
+      "checkpoint_epoch": 10,
+      "alpha_graph_locked_from_validation": 0.2,
+      "alpha_clip": 0.8,
+      "validation_metrics_at_checkpoint": {
+        "alpha": 0.2,
+        "Recall@1": 0.7263999581336975,
+        "Recall@5": 0.9231999516487122,
+        "Recall@10": 0.9557999968528748,
+        "Recall@50": 0.9905999898910522,
+        "MRR": 0.8110435605049133
+      },
+      "test_clip_only": {
+        "Recall@1": 0.6137999892234802,
+        "Recall@5": 0.8596000075340271,
+        "Recall@10": 0.917199969291687,
+        "Recall@50": 0.9817999601364136,
+        "MRR": 0.7231659889221191
+      },
+      "test_clip_plus_graph": {
+        "Recall@1": 0.7361999750137329,
+        "Recall@5": 0.9210000038146973,
+        "Recall@10": 0.9545999765396118,
+        "Recall@50": 0.9927999973297119,
+        "MRR": 0.8181033730506897
+      }
+    }
+  ],
+  "main_three_seed_mean_std": {
+    "Recall@1": {
+      "mean": 0.7471999724706014,
+      "std_sample": 0.0003463988190688356,
+      "values": [
+        0.7475999593734741,
+        0.746999979019165,
+        0.746999979019165
+      ]
+    },
+    "Recall@5": {
+      "mean": 0.9282666444778442,
+      "std_sample": 0.0006110204356680044,
+      "values": [
+        0.9287999868392944,
+        0.9275999665260315,
+        0.9283999800682068
+      ]
+    },
+    "Recall@10": {
+      "mean": 0.9601999918619791,
+      "std_sample": 0.0006927976381376711,
+      "values": [
+        0.9598000049591064,
+        0.9598000049591064,
+        0.9609999656677246
+      ]
+    },
+    "Recall@50": {
+      "mean": 0.9941999912261963,
+      "std_sample": 0.0004000067710876465,
+      "values": [
+        0.9945999979972839,
+        0.9941999912261963,
+        0.9937999844551086
+      ]
+    },
+    "MRR": {
+      "mean": 0.8272650043169657,
+      "std_sample": 0.00036289936560023506,
+      "values": [
+        0.827662467956543,
+        0.8269513249397278,
+        0.8271812200546265
+      ]
+    }
+  }
+}

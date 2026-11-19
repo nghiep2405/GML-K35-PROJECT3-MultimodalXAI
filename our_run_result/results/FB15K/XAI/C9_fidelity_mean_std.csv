@@ -1,0 +1,4 @@
+,n,n,co_bang_chung,co_bang_chung,e3_top_dscore,e3_top_dscore,e3_rand_dscore,e3_rand_dscore,e3_top_drank,e3_top_drank,e3_rand_drank,e3_rand_drank,win_rate,win_rate,struct_w,struct_w,struct_delta,struct_delta,mat_hang1_khi_che_cau_truc,mat_hang1_khi_che_cau_truc
+,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std
+dataset,,,,,,,,,,,,,,,,,,,,
+FB15K,60.0,0.0,60.0,0.0,0.030211691558361,0.0053389787861487445,0.0033813312980863638,0.0018202651704957676,47.388888888888886,18.33924399669655,5.46,2.0743600083988416,0.9888888888888889,0.01924500897298754,0.3910828394194444,0.003892818224794633,0.1409794403447045,0.007113935665545034,1.0,0.0

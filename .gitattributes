@@ -1,0 +1,16 @@
+# Preserve exact bytes of frozen datasets, manifests and experiment results.
+our_run_result/** -text
+
+# Store oversized artifacts with Git LFS.
+our_run_result/data/FB15K/fb15k237_image_retrieval/runs/fb15k237_v1/features/clip_image_features.npy filter=lfs diff=lfs merge=lfs -text
+our_run_result/results/DB15K/3SEED/seed_2027/last_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+our_run_result/results/DB15K/3SEED/seed_2028/last_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+our_run_result/results/DB15K/3SEED/seed_2029/last_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+our_run_result/results/DB15K/ABLATION/random_graph_s2027/last_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+our_run_result/results/DB15K/ABLATION/random_graph_s2027/previous_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+our_run_result/results/DB15K/ABLATION/shuffled_edges_s2027/last_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+our_run_result/results/DB15K/ABLATION/shuffled_edges_s2027/previous_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.npy filter=lfs diff=lfs merge=lfs -text
+*.parquet filter=lfs diff=lfs merge=lfs -text

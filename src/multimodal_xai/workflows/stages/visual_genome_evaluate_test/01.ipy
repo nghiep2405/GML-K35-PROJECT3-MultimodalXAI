@@ -1,0 +1,1 @@
+!pip -q install duckdb pyarrow torch-geometric pandas tqdm

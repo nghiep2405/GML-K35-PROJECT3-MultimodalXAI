@@ -1,0 +1,21 @@
+query_id,query_text,prediction_direction,clip_rank,hybrid_rank_seed2027,hybrid_rank_seed2028,hybrid_rank_seed2029
+q_0463725018e687b905351033,An image of Transformers (film).,direct,2,2,2,2
+q_0cce9c39e1c661807f3a8b2f,An image of Ian Holm.,direct,45,45,45,45
+q_1d0417e511ed3f7a876b0081,"An image of Hilo, Hawaii.",direct,1,1,1,1
+q_422cee7c35c973c18c13f6c4,An image of Kilmarnock.,direct,20,20,20,20
+q_43a0e41430716a4c9f2edd4c,An image of Cole Porter.,direct,925,925,925,925
+q_44e1e3b6453b0bf191480d21,An image of Bob Clampett.,direct,1,1,1,1
+q_598a411f672500df1de796a2,An image of All That Jazz (film).,direct,230,230,230,230
+q_87b681b4483fc4fc6350af64,An image of Pain.,direct,8,8,8,8
+q_87fe87dd2b19dd00a9e88c5b,"An image of Fayetteville, North Carolina.",direct,42,42,42,42
+q_c37a1cbd45a2da972c5a7988,An image of Art Deco.,direct,3,3,3,3
+q_0d7c588651c1b60fcbc72a79,Find an image of the entity whose birth place relation points to Wigan.,head,1157,1157,1157,1157
+q_1adb11845ae94579ddb0c31d,Find an image of the entity whose type relation points to Island.,head,956,554,597,531
+q_5e8b91af65cc3fb302bd23cc,Find an image of the entity whose associated band relation points to David Bowie.,head,469,5,4,4
+q_a2d700a1138520684a1c45a9,Find an image of the entity whose record label relation points to Sanctuary Records Group.,head,443,5,5,6
+q_b7f9a1f9c54be944e187b9d6,Find an image of the entity whose starring relation points to Nicole Kidman.,head,725,33,35,41
+q_06c70629f087025284d6cc44,Find an image of the entity that is related to Cinderella (1950 film) by producer.,tail,97,1,1,1
+q_29d0854d8e83e8dbfb6c9096,Find an image of the entity that is related to The Other Boleyn Girl (2008 film) by record label.,tail,1988,1988,1988,1988
+q_3f5b39264de68ac2510e7b2b,Find an image of the entity that is related to Pride & Prejudice (2005 film) by starring.,tail,249,70,428,80
+q_406be27d1ee6be4a38c76ca4,Find an image of the entity that is related to Angelina Jolie by spouse.,tail,363,2,2,2
+q_67a4cc6f542d70be92a09d4e,Find an image of the entity that is related to Robert Byrd by successor.,tail,242,1,1,1

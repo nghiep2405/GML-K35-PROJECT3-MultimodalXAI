@@ -1,0 +1,8 @@
+{
+  "image_encoder": "clip-ViT-B-32",
+  "text_encoder": "sentence-transformers/clip-ViT-B-32-multilingual-v1",
+  "dim": 512,
+  "normalized": "L2",
+  "entity_text": "label_vi. desc_vi. wiki_intro_vi",
+  "visual_policy": "train_image_CLIP_mean_L2 (tính ở 09)"
+}

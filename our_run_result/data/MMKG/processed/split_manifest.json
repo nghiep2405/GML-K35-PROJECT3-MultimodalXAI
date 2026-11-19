@@ -1,0 +1,133 @@
+{
+  "stage": "08b_split_features",
+  "created": "2026-11-17T09:40:40+07:00",
+  "snapshot_date": "2026-11-15",
+  "split_seed": 2025,
+  "split_frac": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "symmetric": [
+    "NEARBY",
+    "P47"
+  ],
+  "image_encoder": "clip-ViT-B-32",
+  "text_encoder": "sentence-transformers/clip-ViT-B-32-multilingual-v1",
+  "counts": {
+    "entities": 150,
+    "relations": 15,
+    "triples": 427,
+    "train": 318,
+    "valid": 53,
+    "test": 56,
+    "images": 438,
+    "queries": {
+      "test/direct": 88,
+      "test/indirect": 54,
+      "val/direct": 86,
+      "val/indirect": 50
+    },
+    "text_groups_to_write": 62,
+    "derived_triples": 151
+  },
+  "image_check": {
+    "kappa": null,
+    "drop_depth1": true,
+    "n_dropped": 12
+  },
+  "text_leak_rate": {
+    "test": 0.389,
+    "val": 0.42
+  },
+  "text_leak_by_relation": {
+    "CENTURY": 0.0,
+    "NEARBY": 0.06,
+    "P131": 0.95,
+    "P140": 0.83,
+    "P1435": 0.0,
+    "P149": 0.0,
+    "P31": 0.61,
+    "P361": 0.12,
+    "P708": 1.0,
+    "P825": 0.0
+  },
+  "artifacts": {
+    "processed/entities.parquet": {
+      "path": "processed/entities.parquet",
+      "sha256": "066a67c2094047dbc832823708442c6553701f894b7a87541766ebf3a452e9ca"
+    },
+    "processed/queries.parquet": {
+      "path": "processed/queries.parquet",
+      "sha256": "a346f0b3a9152c70939e01c930696eb4e51fdb78a07c52cefd2131ca1b02007e"
+    },
+    "processed/relevance.parquet": {
+      "path": "processed/relevance.parquet",
+      "sha256": "b72fe7d4981385fcc81a1d26fcb21b7455b312c68436dab4f02eec74bacf03d2"
+    },
+    "processed/query_filter.parquet": {
+      "path": "processed/query_filter.parquet",
+      "sha256": "e486323bffb1bc767045c6a52ac9d120ad51075ed7cc7b29047d16a1d2bf7a3c"
+    },
+    "processed/candidate_pools.parquet": {
+      "path": "processed/candidate_pools.parquet",
+      "sha256": "44e8513a19aa5169c275dc0551485b59117b5390df67ceb5ce13debdbbdeef07"
+    },
+    "processed/image_feature_index.parquet": {
+      "path": "processed/image_feature_index.parquet",
+      "sha256": "7ad30b3baffc42e20e206c69481a827b24cd0bfd691a0f118a9feefb95bf5483"
+    },
+    "processed/entity_image.parquet": {
+      "path": "processed/entity_image.parquet",
+      "sha256": "2f8419dfa0f92758fcc07f73ad94d45f38d53a3d392fb1c164b25b435a3bdaeb"
+    },
+    "processed/images.parquet": {
+      "path": "processed/images.parquet",
+      "sha256": "9c20ee86d0283a285435157b283ebffc3f53844762200cdea81250d3143133d1"
+    },
+    "processed/clip_image_features.npy": {
+      "path": "processed/clip_image_features.npy",
+      "sha256": "4e3f6b6dfd10d42d5a820f54584eff5cc9a93d4a2e43b15019bf671b3f94ed5e"
+    },
+    "processed/textual.pt": {
+      "path": "processed/textual.pt",
+      "sha256": "ff7c4b71556b14ec40f10867e05846a8ef18cc1933ef9d76523edcbd856f96d0"
+    },
+    "processed/clip_feature_metadata.json": {
+      "path": "processed/clip_feature_metadata.json",
+      "sha256": "983253a92d1c5bcaac05e9bbbb61423e42d004cc08a156ebd1c57b9d0b053688"
+    },
+    "processed/triples_split.tsv": {
+      "path": "processed/triples_split.tsv",
+      "sha256": "2c84e827cd31600388f6ee7443cb6c89bf071cce3f018dc1d5f81abf17dfde5a"
+    },
+    "processed/reproduction/entity2id.txt": {
+      "path": "processed/reproduction/entity2id.txt",
+      "sha256": "e3ab96bd26bcd9a7ef3a55507330aee5e9895aae9267f937688fc786acb01a1c"
+    },
+    "processed/reproduction/relation2id.txt": {
+      "path": "processed/reproduction/relation2id.txt",
+      "sha256": "40d36e406e466a55d7f9597b8dadb54dc98891aa33074c37e664004234b6dc4c"
+    },
+    "processed/reproduction/train2id.txt": {
+      "path": "processed/reproduction/train2id.txt",
+      "sha256": "538c911d6546b6d148f0e17eac18659d154c9fd6a6d9173a663853a666f4f242"
+    },
+    "processed/reproduction/valid2id.txt": {
+      "path": "processed/reproduction/valid2id.txt",
+      "sha256": "865dd1524024d3f75e2be88460ec18daad576d26b7613bc8437a82a6d2e3fa5c"
+    },
+    "processed/reproduction/test2id.txt": {
+      "path": "processed/reproduction/test2id.txt",
+      "sha256": "3192817a36257ee8244150a53e210f9b7d720743f8a3a4f45e389e10bafb6cf7"
+    },
+    "DATA_CARD.md": {
+      "path": "DATA_CARD.md",
+      "sha256": "35cbc82650fa9e630716765bf97de6bbb73b9ddfa12ed1270b8f89af573c89f5"
+    },
+    "LICENSES.md": {
+      "path": "LICENSES.md",
+      "sha256": "1729b0fc5e5502404abd0c89d897dbd783511ca0af98fcc282f6c2927553dffb"
+    }
+  }
+}

@@ -32,3 +32,11 @@ venv/
 /slide/*.toc
 /slide/*.synctex.gz
 /slide/*.xdv
+
+*.egg-info/
+.pytest_cache/
+/src/build/
+/src/dist/
+
+# Generated experiment outputs
+/runs/

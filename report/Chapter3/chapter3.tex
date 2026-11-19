@@ -282,37 +282,33 @@ thực thể. Ở cấp độ 2, nhóm mở rộng
 sang đồ thị tri thức đa phương thức (MMKG)
 để khai thác thông tin quan hệ phong phú hơn.
 
-\section{Cấp độ 2: Truy vấn đa phương thức nâng cao với đồ thị tri thức}
+\section{Cấp độ 2 Truy vấn đa phương thức với đồ thị tri thức}
 \label{sec:level2-methodology}
 
-\subsection{Biểu diễn thực thể và quan hệ}
-Mỗi ảnh ứng viên gắn với một thực thể trong DB15K hoặc FB15K-237-IMG. Mô hình dung hợp embedding cấu trúc học được, đặc trưng văn bản lưu sẵn và đặc trưng thị giác tổng hợp từ ảnh train. Trọng số dung hợp được chuẩn hóa bằng softmax sau khi che các phương thức bị thiếu. Với truy vấn gián tiếp, mô hình điền thực thể của ảnh ứng viên vào vị trí đầu hoặc đuôi còn thiếu và chấm bộ ba bằng RotatE. Thực thể neo và quan hệ có sẵn trong bản ghi truy vấn. Nhãn đích dùng để xác định ảnh liên quan khi đánh giá.
+\subsection{Biểu diễn thực thể đa phương thức}
 
-\subsection{Thích nghi AdaMF cho truy hồi ảnh}
-Hai triển khai sử dụng cơ chế dung hợp và chấm bộ ba dựa trên AdaMF-MAT \cite{adamfmat2024}, với $\mu=0$ cho thành phần huấn luyện đối kháng đa phương thức.
-\begin{itemize}
-  \item \textbf{DB15K.} Huấn luyện hoàn thiện đồ thị tri thức trên bộ ba train với SigmoidLoss và 128 mẫu âm mỗi bộ ba. Truy vấn trực tiếp giữ thứ hạng CLIP. Truy vấn gián tiếp được xếp hạng lại bằng điểm bộ ba.
-  \item \textbf{FB15K-237-IMG.} Huấn luyện với cross-entropy trên từng truy vấn, một ảnh dương lấy mẫu và 50 ảnh âm khó từ 200 ứng viên CLIP đứng đầu. Truy vấn gián tiếp dùng điểm bộ ba. Với truy vấn trực tiếp, mô hình chiếu đặc trưng văn bản truy vấn và chấm độ tương đồng với biểu diễn thực thể đã dung hợp.
-\end{itemize}
+Mỗi ảnh ứng viên liên kết với một thực thể. Mô hình kết hợp embedding cấu trúc học được, đặc trưng văn bản lưu sẵn và đặc trưng thị giác cấp thực thể. Đặc trưng thị giác dùng trong huấn luyện được gộp từ ảnh thuộc tập train. Cơ chế chú ý tính trọng số cho từng phương thức, che phương thức bị thiếu trước softmax và lấy tổng có trọng số để tạo biểu diễn thực thể.
 
-\subsection{Xếp hạng lại và lựa chọn mô hình}
-CLIP tạo thứ hạng ban đầu trên tập ảnh ứng viên. Hệ thống chuẩn hóa z-score từng dãy điểm theo truy vấn và xếp hạng lại tối đa 1.000 ảnh đứng đầu:
+Với truy vấn gián tiếp, thực thể neo và quan hệ được cung cấp trong bản ghi truy vấn. Mô hình điền thực thể của ảnh ứng viên vào vị trí đầu hoặc đuôi còn thiếu và dùng điểm RotatE để đánh giá bộ ba. Nhãn thực thể đích dùng khi tạo ảnh liên quan và tính chỉ số đánh giá.
+
+\subsection{Hai giao thức huấn luyện}
+
+Ban đầu, nhóm xây dựng pipeline dựa trên GAT ở Cấp độ 1 và dùng cross-entropy để tối ưu truy hồi ảnh. Sau đợt huấn luyện ban đầu, nhóm điều chỉnh cách triển khai trên DB15K theo mục tiêu học từ bộ ba và sử dụng SigmoidLoss, đồng thời giữ các thực nghiệm FB15K-237-IMG đã hoàn tất với cross-entropy. Hai hàm mất mát phản ánh quá trình phát triển pipeline. Nhóm chưa thực hiện đối chứng hai loss trên cùng bộ dữ liệu với các điều kiện còn lại được kiểm soát, nên lựa chọn này cần được xem là một giới hạn của thiết kế thực nghiệm.
+
+Trên DB15K, mô hình được huấn luyện bằng SigmoidLoss trên các bộ ba train với 128 mẫu âm cho mỗi bộ ba. Đặc trưng đầu vào được đóng băng, trong khi embedding cấu trúc, lớp chiếu và cơ chế dung hợp được học. Truy vấn trực tiếp giữ thứ hạng CLIP. Truy vấn gián tiếp được xếp hạng lại bằng điểm bộ ba.
+
+Trên FB15K-237-IMG, mô hình được thích nghi cho bài toán truy hồi bằng cross-entropy. Mỗi truy vấn huấn luyện sử dụng một ảnh dương lấy mẫu từ tập ảnh liên quan và 50 ảnh âm khó từ 200 ứng viên CLIP đứng đầu. Truy vấn trực tiếp dùng độ tương đồng giữa văn bản đã chiếu và biểu diễn thực thể dung hợp. Truy vấn gián tiếp dùng điểm bộ ba. Hai triển khai đặt hệ số huấn luyện đối kháng đa phương thức $\mu$ bằng 0.
+
+\subsection{Xếp hạng lại kết quả CLIP}
+CLIP tạo thứ hạng ban đầu trên tập ảnh ứng viên. Với các truy vấn được xếp hạng lại, điểm kết hợp trên top 1.000 được tính bằng
 \begin{equation}
 \begin{aligned}
-  S(q,i)={}&\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))\\
-  &+(1-\alpha_{\mathrm{CLIP}})z_q(S_{\mathrm{AdaMF}}(q,i)).
+S(q,i)={}&\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))\\
+&+(1-\alpha_{\mathrm{CLIP}})z_q(S_{\mathrm{AdaMF}}(q,i)).
 \end{aligned}
-  \label{eq:mmkg-rerank}
+\label{eq:mmkg-rerank}
 \end{equation}
-Ảnh ngoài top 1.000 giữ thứ tự CLIP. Nếu top 1.000 thiếu ảnh liên quan, hệ thống giữ hạng ảnh đúng tốt nhất của CLIP. Checkpoint và $\alpha_{\mathrm{CLIP}}$ được chọn bằng MRR tổng hợp trên validation, với lưới trọng số từ 0 đến 1 theo bước 0,1.
-
-Truy vấn trực tiếp tìm ảnh theo mô tả thực thể. Truy vấn gián tiếp tìm một đầu còn thiếu của quan hệ. Giao thức đo khả năng tận dụng quan hệ đã xác định, còn trích xuất thực thể neo và quan hệ từ câu hỏi tự do hoặc suy luận đa chặng cần đánh giá riêng.
-
-
-\subsubsection{Chuyển tiếp sang Cấp độ 3}
-\label{sec:trans-l2-l3}
-Cấp độ 3 khảo sát cách giải thích các thay đổi thứ hạng và khả năng chuyển sang đồ thị của một miền khác.
-
+Trong đó $z_q$ chuẩn hóa điểm theo từng truy vấn và trọng số được chọn trên validation. DB15K giữ nguyên thứ hạng CLIP cho truy vấn trực tiếp. FB15K-237-IMG xếp hạng lại cả truy vấn trực tiếp và gián tiếp. Các triển khai dựa trên cơ chế dung hợp và chấm bộ ba của AdaMF-MAT~\cite{adamfmat2024}.
 \section{Cấp độ 3: Khả năng giải thích và chuyển giao tri thức}
 \label{sec:level3-methodology}
 

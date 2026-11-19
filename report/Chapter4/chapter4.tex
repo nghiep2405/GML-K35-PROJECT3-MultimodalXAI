@@ -105,19 +105,69 @@ Ngoài CLIP-only và Full Graph, nghiên cứu thực hiện hai ablation trên 
 \section{Giao thức huấn luyện và đánh giá}
 \label{sec:training-protocol}
 
-Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để bảo đảm tính khách quan tuyệt đối:
+Giao thức huấn luyện và đánh giá được thiết lập như sau:
 \begin{itemize}
-  \item \textbf{Kiểm soát tính ngẫu nhiên:} Mọi thực nghiệm chính được chạy trên tối thiểu 3 seed ngẫu nhiên độc lập:
+  \item \textbf{Kiểm soát tính ngẫu nhiên:} Các mô hình đầy đủ được đánh giá qua ba seed:
   \begin{itemize}
     \item Visual Genome (Level 1): Ba seed gồm \texttt{2026}, \texttt{2027}, \texttt{2028}.
-    \item Flickr30k (Level 1, phụ lục): Ba seed gồm \texttt{2026}, \texttt{2027}, \texttt{2028}.
-    \item DB15K / FB15k-237 (Level 2): Ba seed gồm \texttt{2027}, \texttt{2028}, \texttt{2029}.
+    \item DB15K / FB15K-237-IMG (Level 2): Ba seed gồm \texttt{2027}, \texttt{2028}, \texttt{2029}.
   \end{itemize}
-  Kết quả báo cáo bắt buộc phải thể hiện giá trị $\text{Mean} \pm \text{SD}$.
+  Trung bình và độ lệch chuẩn mẫu được tính trên ba lượt chạy mô hình đầy đủ. Các ablation DB15K và FB15K-237-IMG hiện có seed 2027, được báo cáo từng cấu hình và chưa có độ lệch chuẩn giữa các seed.
   \item \textbf{Quy tắc lựa chọn mô hình và siêu tham số:} Trọng số dung hợp $\alpha$, best checkpoint và các siêu tham số huấn luyện (learning rate, weight decay, số lớp GNN) chỉ được tối ưu hóa dựa trên chỉ số MRR của validation set.
-  \item \textbf{Giao thức Frozen Test:} Tập kiểm thử chỉ được suy luận đúng một lần duy nhất sau khi toàn bộ tham số đã được khóa hoàn toàn. Checkpoint và trọng số được khóa trước khi đánh giá. Đối chứng hoán đổi cạnh DB15K có ngoại lệ riêng ở khâu tạo đồ thị, mô tả trong Mục~\ref{sec:level2-graph-ablation}.
+  \item \textbf{Giao thức Frozen Test:} Tập kiểm thử chỉ được suy luận đúng một lần duy nhất sau khi toàn bộ tham số đã được khóa hoàn toàn. Checkpoint và trọng số được khóa trước khi đánh giá. Đối chứng Shuffled Edges của DB15K và FB15K-237-IMG dùng danh sách bộ ba validation/test để loại cạnh trùng ở khâu tạo đồ thị, mô tả trong Mục~\ref{sec:level2-graph-ablation}.
 \end{itemize}
 
+
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Cấu hình huấn luyện trên DB15K và FB15K-237-IMG}
+\label{tab:level2-training-config}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrr}
+\toprule
+Tham số & DB15K & FB15K-237-IMG\\
+\midrule
+Seed mô hình đầy đủ & 2027, 2028, 2029 & 2027, 2028, 2029\\
+dim của embedding quan hệ RotatE & 250 & 64\\
+Learning rate & 0.0001 & 0.0001\\
+Batch size & 256 bộ ba & 8 truy vấn\\
+Mẫu âm & 128 mỗi bộ ba & 50 mỗi truy vấn\\
+Giới hạn epoch & 500 & 50\\
+Chọn mô hình & MRR validation & MRR validation\\
+Top ảnh xếp hạng lại & 1000 & 1000\\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Trong cấu hình RotatE, dim là chiều embedding quan hệ. Embedding thực thể và biểu diễn dung hợp có chiều 2 $\times$ dim, tương ứng 500 trên DB15K và 128 trên FB15K-237-IMG.
+
+CLIP ViT-B/32 tạo thứ hạng ban đầu trên tập ảnh ứng viên theo split. Hai dãy điểm được chuẩn hóa z-score riêng theo truy vấn trên top 1000. Điểm kết hợp được tính bằng S = $\alpha_{\mathrm{CLIP}}$ $\times$ z(SCLIP) + (1 - $\alpha_{\mathrm{CLIP}}$) $\times$ z(SAdaMF). Trọng số $\alpha_{\mathrm{CLIP}}$ được chọn trên validation theo lưới từ 0 đến 1 với bước 0.1. Ảnh ngoài top 1000 giữ thứ tự ban đầu. Khi top 1000 thiếu ảnh liên quan, hệ thống giữ hạng ảnh đúng tốt nhất của CLIP.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Số truy vấn test theo nhóm}
+\label{tab:level2-test-counts}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+Bộ dữ liệu & Tổng & Trực tiếp & Gián tiếp & Head & Tail\\
+\midrule
+DB15K & 5477 & 2282 & 3195 & 1805 & 1390\\
+FB15K-237-IMG & 33156 & 8592 & 24564 & 12108 & 12456\\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+MRR được tính bằng trung bình nghịch đảo hạng ảnh liên quan tốt nhất của mỗi truy vấn. R@K là tỷ lệ truy vấn có ít nhất một ảnh liên quan trong top K. Cách tính hạng dùng quy tắc optimistic, đếm số điểm lớn hơn điểm ảnh đúng tốt nhất. Kết quả mô hình đầy đủ được trình bày bằng trung bình và độ lệch chuẩn mẫu trên ba seed, với mẫu số n - 1.
+
+Checkpoint và trọng số kết hợp được chọn bằng validation trước khi chạy test. Mỗi bộ dữ liệu có tập ảnh ứng viên và bản chia riêng. Thực nghiệm đo truy vấn theo quan hệ và thực thể neo đã xác định. Các bảng dưới đây cho phép so sánh cấu hình trong từng bộ dữ liệu.
 
 \section{Cấu hình cơ sở và kiểm thử triệt tiêu}
 \label{sec:baselines-ablations}
@@ -129,13 +179,12 @@ Quy trình thực nghiệm tuân thủ tiêu chuẩn khoa học khắt khe để
   \item \textbf{No-edges Control:}
   \begin{itemize}
     \item Trong pipeline GAT (Visual Genome): Xóa toàn bộ \texttt{edge\_index} và \texttt{edge\_attr} trước message passing nhưng giữ nguyên các phép biến đổi học được và residual path.
-    \item Trong pipeline AdaMF (DB15K): Đóng băng hoàn toàn nhánh KGC, mô hình tương đương với CLIP-only thuần túy.
+    \item Trong hai pipeline AdaMF (DB15K và FB15K-237-IMG): Bỏ huấn luyện mô hình và đặt $\alpha_{\mathrm{CLIP}}=1$, nên kết quả xếp hạng bằng CLIP baseline.
   \end{itemize}
-  \item \textbf{Random Graph Control:} Thay thế các cạnh thực tế bằng các cạnh kết nối ngẫu nhiên đồng đều giữa các đỉnh để kiểm tra xem đồ thị có đơn thuần đóng vai trò như một bộ tạo nhiễu chính quy hóa hay không.
+  \item \textbf{Random Graph Control:} Trên DB15K, giữ số cạnh theo từng quan hệ và lấy mẫu đều hai thực thể đầu--đuôi; loại self-loop, bộ ba trùng đồ thị train gốc và bộ ba trùng trong đồ thị ngẫu nhiên. Trên FB15K-237-IMG, lấy mẫu đều neo thay thế trong tập thực thể cho truy vấn train gián tiếp, giữ quan hệ, đích và ảnh liên quan. Neo phải khác đích; cặp neo--đích mới phải chưa được lấy mẫu trong nhóm quan hệ và khác các cạnh train gốc cùng hướng. Nhánh Random Graph của hai tập dùng thông tin train khi tạo đối chứng, không áp dụng bước loại cạnh theo validation/test của Shuffled Edges.
   \item \textbf{Shuffled Edges Control:}
   \begin{itemize}
-    \item Hoán đổi các thực thể neo/đích trong cùng một loại quan hệ nhằm bảo toàn degree distribution của các đỉnh nhưng phá hủy hoàn toàn ngữ nghĩa thực tế của bộ ba.
-    \item \textbf{Ghi chú audit quan trọng:} Nghiên cứu phân biệt rõ hai phiên bản Shuffled Edges trên DB15K: bản v1 (tồn tại 172 cạnh trùng tập validation và 171 cạnh trùng tập test) và bản có kiểm tra chồng lấn (notebook \texttt{zero\_overlap\_v4}, dùng danh sách bộ ba validation/test để loại cạnh trùng).
+    \item Trên DB15K, hoán đổi đuôi bộ ba trong cùng quan hệ để giữ bậc theo quan hệ. Trên FB15K-237-IMG, hoán đổi thực thể neo trong nhóm quan hệ và hướng truy vấn train, giữ thực thể đích và ảnh liên quan.
   \end{itemize}
 \end{enumerate}
 
@@ -148,7 +197,7 @@ Hệ thống đánh giá định lượng sử dụng các chỉ số học thu�
   \item \textbf{Chỉ số truy hồi:}
   \begin{itemize}
     \item $\text{Recall@}K$ ($K \in \{1, 5, 10\}$): Tỷ lệ phần trăm số câu truy vấn tìm thấy kết quả đúng trong top-$K$.
-    \item $\text{MRR}$ (Mean Reciprocal Rank): Nghịch đảo vị trí trung bình của kết quả đúng.
+    \item $\text{MRR}$ (Mean Reciprocal Rank): Trung bình nghịch đảo hạng của ảnh liên quan tốt nhất trên các truy vấn.
     \item $\text{Indirect MRR}$: Điểm MRR tính riêng trên tập con các truy vấn gián tiếp nhằm xác định năng lực suy luận của đồ thị.
   \end{itemize}
   \item \textbf{Chỉ số giải thích:}
@@ -166,5 +215,5 @@ Hệ thống đánh giá định lượng sử dụng các chỉ số học thu�
 Nghiên cứu áp dụng các quy chuẩn phòng chống data leakage tuyệt đối:
 \begin{itemize}
   \item \textbf{Khóa mã băm:} Toàn bộ tập dữ liệu đã chia, ma trận đặc trưng trích xuất và file checkpoint mô hình đều được lưu kèm chữ ký mã băm SHA-256 trong file \texttt{test\_protocol.json} và \texttt{baseline\_manifest.json}.
-  \item \textbf{Kiểm soát chồng lấn cạnh:} Báo cáo công khai và minh bạch kết quả rà soát chồng lấn cạnh. Trên đối chứng hoán đổi cạnh DB15K, quy trình tạo đồ thị bảo đảm \texttt{validation\_overlap = 0} và \texttt{test\_overlap = 0}. Báo cáo ghi nhận rõ ràng đây là phương pháp test-aware exclusion, không tuyên bố là blind-generation thuần túy nhằm giữ vững đạo đức nghiên cứu khoa học.
+  \item \textbf{Kiểm soát chồng lấn cạnh:} Shuffled Edges trên DB15K và FB15K-237-IMG dùng danh sách bộ ba validation và test để loại phép hoán đổi tạo cạnh trùng. Trên DB15K, kiểm tra thực hiện trên bộ ba train đã biến đổi. Trên FB15K-237-IMG, kiểm tra thực hiện trên bộ ba được khôi phục từ neo, đích, quan hệ và hướng truy vấn. Cơ chế này chỉ áp dụng cho Shuffled Edges trong các kết quả báo cáo.
 \end{itemize}

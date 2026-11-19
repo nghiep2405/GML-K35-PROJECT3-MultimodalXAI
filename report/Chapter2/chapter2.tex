@@ -18,7 +18,6 @@ Hiệu năng của các hệ thống truy vấn đa phương thức được đo
   \label{eq:mrr-formula}
 \end{equation}
 
-
 \section{Học biểu diễn đồ thị}
 \label{sec:graph-representation-learning}
 
@@ -31,7 +30,6 @@ Mạng nơ-ron đồ thị GNN, điển hình là GCN \cite{kipf2017gcn}, GraphS
 \end{equation}
 Trong đó, $\alpha_{ij}^{(l)}$ là hệ số chú ý thể hiện tầm quan trọng của đỉnh $j$ đối với đỉnh $i$, cho phép mô hình học cách tập trung vào các quan hệ có ý nghĩa ngữ nghĩa cao nhất.
 
-
 \section{Cải thiện truy vấn bằng đồ thị}
 \label{sec:graph-enhanced-retrieval}
 
@@ -39,19 +37,59 @@ Xu hướng kết hợp đồ thị vào truy hồi đa phương thức khai th�
 
 Điểm xếp hạng cuối cùng được kết hợp theo dạng hàm tuyến tính có trọng số:
 \begin{equation}
-  S_{\text{final}}(q, v_i) = \alpha \cdot S_{\text{base}}(q, v_i) + (1 - \alpha) \cdot S_{\text{graph}}(q, v_i)
+\begin{aligned}
+S_{\text{final}}(q,v_i)={}&\alpha S_{\text{base}}(q,v_i)\\
+&+(1-\alpha)S_{\text{graph}}(q,v_i).
+\end{aligned}
   \label{eq:score-fusion}
 \end{equation}
-Hệ số cân bằng $\alpha \in [0, 1]$ được điều chỉnh nghiêm ngặt trên validation set nhằm tìm điểm dung hòa tối ưu giữa năng lực nhận diện khái quát của CLIP và tri thức quan hệ cục bộ của đồ thị.
+Trong thực nghiệm, hai dãy điểm được chuẩn hóa z-score riêng theo truy vấn trên tập ứng viên xếp hạng lại trước khi áp dụng phép kết hợp ở phương trình~(\ref{eq:score-fusion}). Hệ số cân bằng $\alpha \in [0, 1]$ được điều chỉnh nghiêm ngặt trên validation set nhằm tìm điểm dung hòa tối ưu giữa năng lực nhận diện khái quát của CLIP và tri thức quan hệ cục bộ của đồ thị.
 
-
-\section{Các phương pháp đồ thị tri thức đa phương thức hiện đại}
+\section{Đồ thị tri thức đa phương thức và công trình liên quan}
 \label{sec:advanced-mmkg-methods}
 
-Trong các năm gần đây (2024--2025), lĩnh vực MMKG chứng kiến sự xuất hiện của các kiến trúc tiên tiến giải quyết sự bất đối xứng giữa các phương thức thị giác và văn bản. Tiêu biểu là công trình AdaMF-MAT (LREC-COLING 2024) \cite{adamfmat2024} và NativE (SIGIR 2024) \cite{native2024sigir}. AdaMF-MAT đề xuất cơ chế Adaptive Multimodal Fusion (AdaMF) kết hợp với khối Modality-Aware Transformer (MAT) để hoàn thiện liên kết đa phương thức.
+\subsection{Biểu diễn thực thể và quan hệ}
+Đồ thị tri thức biểu diễn sự kiện bằng bộ ba $(h,r,t)$, trong đó $h$ và $t$ là thực thể, còn $r$ là quan hệ có hướng. Trong đồ thị tri thức đa phương thức, thực thể còn gắn với ảnh và mô tả văn bản. Hoàn thiện đồ thị tri thức đa phương thức dự đoán thực thể còn thiếu trong $(h,r,?)$ hoặc $(?,r,t)$ bằng cách kết hợp thông tin cấu trúc, thị giác và ngôn ngữ~\cite{liu2019mmkg,adamfmat2024}. Trong bài toán truy hồi của nhóm, thực thể dự đoán được liên kết với ảnh ứng viên để hỗ trợ xếp hạng.
 
-\noindent\textbf{Lưu ý học thuật quan trọng:} Trong phạm vi đồ án này, nhóm triển khai cơ chế \textbf{dung hợp đặc trưng AdaMF-based} phục vụ trực tiếp cho bài toán truy vấn và xếp hạng lại, không tuyên bố tái lập nguyên bản 100\% toàn bộ hệ thống AdaMF-MAT (vốn được thiết kế chuyên biệt cho tác vụ link prediction thuần túy). Sự phân biệt này giúp đảm bảo tính trung thực tuyệt đối trong báo cáo khoa học.
+\subsection{Chấm điểm bộ ba bằng RotatE}
+RotatE~\cite{sun2019rotate} biểu diễn thực thể trong không gian số phức và mô hình hóa quan hệ như phép quay theo từng chiều. Với các embedding $\mathbf{h},\mathbf{r},\mathbf{t}$, khoảng cách và điểm bộ ba có dạng
+\begin{equation}
+\begin{aligned}
+d_r(h,t)&=\|\mathbf{h}\circ\mathbf{r}-\mathbf{t}\|,\\
+s(h,r,t)&=\gamma-d_r(h,t).
+\end{aligned}
+ \label{eq:rotate-score}
+\end{equation}
+trong đó $\circ$ là tích từng phần tử, $|r_j|=1$ và $\gamma$ là tham số biên. Bộ ba có khoảng cách nhỏ nhận điểm cao. Khi đã biết thực thể neo và quan hệ, điểm này giúp đánh giá thực thể của từng ảnh ứng viên. Trong triển khai, embedding thực thể được lưu bằng phần thực và phần ảo, nên có chiều thực gấp đôi tham số chiều quan hệ.
 
+\subsection{Dung hợp thích nghi với AdaMF}
+AdaMF-MAT của Zhang và cộng sự~\cite{adamfmat2024} gồm dung hợp đa phương thức thích nghi (Adaptive Multi-modal Fusion) và huấn luyện đối kháng theo phương thức (Modality Adversarial Training). AdaMF học trọng số cho thông tin cấu trúc, ảnh và văn bản để tạo biểu diễn thực thể chung. MAT sinh mẫu đối kháng nhằm hỗ trợ xử lý sự mất cân bằng thông tin giữa các phương thức. Nhóm sử dụng cơ chế dung hợp và bộ chấm điểm cho truy hồi, với hệ số thành phần MAT bằng 0.
+
+NativE~\cite{native2024sigir} cũng nghiên cứu hoàn thiện đồ thị đa phương thức trong điều kiện thông tin không cân bằng và thiếu phương thức. Phương pháp dùng dung hợp thích nghi có hướng dẫn bởi quan hệ và huấn luyện đối kháng theo phương thức. Hai công trình cung cấp cơ sở cho việc học biểu diễn thực thể từ nhiều nguồn thông tin. Thực nghiệm của nhóm tập trung vào cách thích nghi AdaMF cho DB15K và FB15K-237-IMG.
+
+\subsection{Mục tiêu huấn luyện}
+Với mục tiêu học từ bộ ba, SigmoidLoss tăng điểm bộ ba đúng và giảm điểm bộ ba âm được lấy mẫu. Trong cơ chế lấy mẫu âm tự đối kháng, các mẫu âm đang có điểm cao được gán trọng số lớn hơn~\cite{sun2019rotate}. Với một bộ ba dương có điểm $s^+$ và các mẫu âm có điểm $s_j^-$, loss có dạng
+\begin{equation}
+\begin{aligned}
+\mathcal{L}_{\mathrm{KGC}}=-\frac{1}{2}\Bigl[&\log\sigma(s^+)\\
+&+\sum_jw_j\log\sigma(-s_j^-)\Bigr],\\
+w_j={}&\operatorname{softmax}_j(\tau s_j^-).
+\end{aligned}
+ \label{eq:kgc-sigmoid-loss}
+\end{equation}
+trong đó $\tau$ điều chỉnh độ tập trung trọng số. Trong triển khai, trọng số $w_j$ được tách khỏi đồ thị gradient khi tối ưu.
+
+Với mục tiêu truy hồi, cross-entropy khuyến khích ảnh dương nhận điểm cao hơn các ảnh âm trong cùng nhóm ứng viên:
+\begin{equation}
+ \mathcal{L}_{\mathrm{ret}}
+ =-\log\frac{\exp(\ell(q,i^+))}
+ {\sum_{i\in\mathcal{C}(q)}\exp(\ell(q,i))},
+ \label{eq:retrieval-ce-loss}
+\end{equation}
+trong đó $\ell$ là logit sau điều chỉnh thang điểm và $\mathcal{C}(q)$ gồm ảnh dương cùng các ảnh âm lấy mẫu. DB15K dùng mục tiêu bộ ba, còn FB15K-237-IMG dùng mục tiêu truy hồi kế thừa pipeline GAT. Sự khác nhau về mục tiêu học cần được xét khi diễn giải kết quả ablation.
+
+\subsection{Vai trò của các đối chứng}
+CLIP cung cấp đường cơ sở cho độ tương đồng văn bản--ảnh. Shuffled Edges và Random Graph thay đổi quan hệ train để kiểm tra mức nhạy của mô hình với cấu trúc. No Edges trong hai pipeline của nhóm dùng CLIP thuần và bỏ huấn luyện mô hình, nên khoảng cách với cấu hình đầy đủ bao gồm cả ảnh hưởng của học biểu diễn. Đánh giá riêng truy vấn trực tiếp và gián tiếp giúp nhận diện các thay đổi có thể bị bù trừ khi tính chỉ số tổng hợp.
 
 \section{Truy vấn đồ thị có khả năng giải thích}
 \label{sec:explainable-retrieval}
@@ -72,7 +110,6 @@ Các chỉ số định lượng đánh giá tính giải thích bao gồm:
     \label{eq:sparsity-formula}
   \end{equation}
 \end{itemize}
-
 
 \section{Động lực nghiên cứu}
 \label{sec:research-motivation}

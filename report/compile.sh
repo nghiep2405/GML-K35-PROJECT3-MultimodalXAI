@@ -3,18 +3,26 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-LOCAL_TEX_BIN="${SCRIPT_DIR}/../.local/TinyTeX/bin/universal-darwin"
+# Use Windows short paths through the native runner for Unicode repository names.
+case "${OSTYPE:-}" in
+  msys*|cygwin*)
+    exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "${SCRIPT_DIR}/compile.ps1")"
+    ;;
+esac
 BUILD_SUBDIR="report_compiled/build"
 BUILD_DIR="${SCRIPT_DIR}/${BUILD_SUBDIR}"
 MAIN_TEX="main.tex"
 PUBLISHED_PDF="${SCRIPT_DIR}/Project03_Report.pdf"
 
-if [[ -x "${LOCAL_TEX_BIN}/pdflatex" ]]; then
-  export PATH="${LOCAL_TEX_BIN}:${PATH}"
-fi
+for LOCAL_TEX_BIN in "${SCRIPT_DIR}"/../.local/TinyTeX/bin/*; do
+  if [[ -x "${LOCAL_TEX_BIN}/pdflatex" || -x "${LOCAL_TEX_BIN}/pdflatex.exe" ]]; then
+    export PATH="${LOCAL_TEX_BIN}:${PATH}"
+    break
+  fi
+done
 
 if ! command -v pdflatex >/dev/null 2>&1; then
-  echo "Lỗi: không tìm thấy pdflatex. Hãy cài TinyTeX/MacTeX trước khi biên dịch." >&2
+  echo "Lỗi: không tìm thấy pdflatex. Hãy cài TinyTeX/TeX Live trước khi biên dịch." >&2
   exit 1
 fi
 

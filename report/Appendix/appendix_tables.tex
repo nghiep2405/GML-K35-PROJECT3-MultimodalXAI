@@ -1,0 +1,43 @@
+% Hai bảng toàn khổ của phụ lục. Được \input trước tài liệu tham khảo (main.tex) để LaTeX đặt chúng ở đầu
+% trang phụ lục; nếu khai báo trong phụ lục, bảng toàn khổ bị đẩy sang một trang riêng.
+\begin{table*}[!t]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.95}
+\caption{Siêu tham số huấn luyện}
+\label{tab:hyperparameters}
+\begin{tabularx}{\textwidth}{L{3.4cm}YYYY}
+\toprule
+Tham số & Visual Genome (GAT) & DB15K (AdaMF) & FB15K-237-IMG (AdaMF) & ViHeritage (AdaMF / GAT)\\
+\midrule
+Bộ mã hóa đóng băng & CLIP ViT-B/32 (OpenAI) & CLIP ViT-B/32 & CLIP ViT-B/32 & CLIP ViT-B/32; CLIP đa ngôn ngữ cho văn bản\\
+Bộ mã hóa đồ thị & 2 tầng GAT có đặc trưng cạnh, 4 head $\times$ 32 chiều, dropout 0.2 & AdaMF (cấu trúc, ảnh, văn bản), MAT tắt & AdaMF, MAT tắt & AdaMF / GAT 2 tầng có đặc trưng cạnh\\
+Bộ chấm điểm đồ thị & Cosine với nút ảnh & RotatE, \texttt{dim} 250, margin 12 & RotatE, \texttt{dim} 64 & RotatE, \texttt{dim} 50 / 100, margin 6\\
+Hàm mất mát & Cross-entropy, 50 âm khó & Sigmoid tự đối kháng, 128 âm & Cross-entropy, 50 âm khó & Sigmoid tự đối kháng, 32 âm\\
+Learning rate & $10^{-4}$ (AdamW, weight decay $10^{-4}$) & $10^{-4}$ & $10^{-4}$ & $5\times10^{-4}$ / $2\times10^{-3}$\\
+Batch & 8 truy vấn & 256 bộ ba & 8 truy vấn & 64 bộ ba\\
+Số epoch tối đa & 100 & 500 & 50 & 1\,500, patience 12\\
+Tập ứng viên xếp hạng lại & Top-50 CLIP & Top-1\,000 CLIP & Top-1\,000 CLIP & Toàn bộ 88 ảnh test\\
+$\alpha_{\mathrm{CLIP}}$ & 0.6 & 0.0 hoặc 0.1 & 0.1 & 0.0 / 0.0 hoặc 0.1\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\begin{table*}[!t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{Phân công trách nhiệm của thành viên}
+\label{tab:contributions}
+\begin{tabularx}{\textwidth}{lL{5.2cm}Y}
+\toprule
+STT & Họ tên, MSSV & Nhiệm vụ chính\\
+\midrule
+1 & Chung Gia Khánh, 23120282 & Thiết kế kiến trúc tổng thể, audit kỹ thuật, kiểm thử triệt tiêu, biên tập báo cáo\\
+2 & Lê Hoàng Mỹ Hạ, 23120038 & Tiền xử lý dữ liệu, kiểm soát rò rỉ, trích xuất đặc trưng CLIP\\
+3 & Hàn Vũ Phương Uyên, 23120106 & Xây dựng scene graph, triển khai GAT, phân tích cấp độ 1\\
+4 & Trần Gia Hiển, 23120123 & Triển khai AdaMF trên DB15K, FB15K-237-IMG và các đối chứng cấp độ 2\\
+5 & Nguyễn An Nghiệp, 23127234 & Giải thích đồ thị, đánh giá XAI, dữ liệu MMKG tự xây\\
+\bottomrule
+\end{tabularx}
+\end{table*}

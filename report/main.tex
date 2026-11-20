@@ -14,6 +14,7 @@
 
 % Tables, figures, diagrams and source listings
 \usepackage{graphicx}
+\usepackage{pdfpages}
 \graphicspath{{images/}{Title/}{figures/}}
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -37,6 +38,9 @@
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \DeclareRobustCommand{\code}[1]{\texttt{\detokenize{#1}}}
+% Trình bày bảng thống nhất: tiêu đề cột hai dòng và độ lệch chuẩn cỡ nhỏ ngay sau giá trị trung bình.
+\newcommand{\twoline}[2]{\begin{tabular}[b]{@{}c@{}}#1\\#2\end{tabular}}
+\newcommand{\pmsd}[1]{\,{\scriptsize$\pm$#1}}
 
 \lstdefinestyle{codeblock}{
   backgroundcolor=\color{SoftGray},
@@ -75,9 +79,11 @@
 \renewcommand{\figurename}{Hình}
 \renewcommand{\tablename}{Bảng}
 \renewcommand{\refname}{Tài liệu tham khảo}
+\renewcommand{\abstractname}{Tóm tắt}
+\renewcommand{\IEEEkeywordsname}{Từ khóa}
 
 \newcommand{\renderbibliography}{%
-  \bibliographystyle{IEEEtran}%
+  \bibliographystyle{IEEEtran_nodash}% bản sao IEEEtran.bst, khoảng trang dùng gạch nối
   \bibliography{References/references}%
 }
 
@@ -87,23 +93,27 @@
 \let\IEEESubsection\subsection
 \let\IEEESubsubsection\subsubsection
 \let\IEEEParagraph\paragraph
-\newcommand{\chapter}[1]{\IEEESection{#1}}
-\renewcommand{\section}[1]{\IEEESubsection{#1}}
-\renewcommand{\subsection}[1]{\IEEESubsubsection{#1}}
-\renewcommand{\subsubsection}[1]{\IEEEParagraph{#1}}
+\makeatletter
+\newcommand{\chapter}{\@ifstar{\IEEESection*}{\IEEESection}}
+\renewcommand{\section}{\@ifstar{\IEEESubsection*}{\IEEESubsection}}
+\renewcommand{\subsection}{\@ifstar{\IEEESubsubsection*}{\IEEESubsubsection}}
+\renewcommand{\subsubsection}{\@ifstar{\IEEEParagraph*}{\IEEEParagraph}}
+\makeatother
 
 % Report metadata
 \newcommand{\coursename}{Học máy với dữ liệu đồ thị}
 \newcommand{\reporttitle}{Project 03: Truy vấn đa phương thức có giải thích bằng đồ thị}
 \newcommand{\covertitle}{PROJECT 03: TRUY VẤN ĐA PHƯƠNG THỨC CÓ GIẢI THÍCH BẰNG ĐỒ THỊ}
-\newcommand{\reportdate}{Tháng 11 năm 2026}
+\newcommand{\groupname}{Nhóm 02}
 \newcommand{\studentname}{02}
+\newcommand{\reportdate}{Tháng 11 năm 2026}
+\newcommand{\mssv}[1]{\makebox[2.4cm][l]{#1}}
 \newcommand{\studentmembers}{%
-  23120038 -- Lê Hoàng Mỹ Hạ \newline
-  23120106 -- Hàn Vũ Phương Uyên \newline
-  23120123 -- Trần Gia Hiển \newline
-  23120282 -- Chung Gia Khánh \newline
-  23127234 -- Nguyễn An Nghiệp%
+  \mssv{23120038}Lê Hoàng Mỹ Hạ \newline
+  \mssv{23120106}Hàn Vũ Phương Uyên \newline
+  \mssv{23120123}Trần Gia Hiển \newline
+  \mssv{23120282}Chung Gia Khánh \newline
+  \mssv{23127234}Nguyễn An Nghiệp%
 }
 \newcommand{\studentid}{\studentmembers}
 \newcommand{\lecturer}{%
@@ -111,17 +121,19 @@
   ThS. Huỳnh Lâm Hải Đăng%
 }
 
-\title{\reporttitle}
-\author{%
-  \IEEEauthorblockN{Lê Hoàng Mỹ Hạ, Hàn Vũ Phương Uyên, Trần Gia Hiển, Chung Gia Khánh, Nguyễn An Nghiệp}
-}
+
+% Trang chỉ có bảng/hình toàn khổ: xếp sát từ đầu trang thay vì dàn đều theo chiều dọc.
+\makeatletter
+\setlength{\@dblfptop}{0pt}
+\setlength{\@dblfpsep}{14pt plus 2pt}
+\setlength{\@dblfpbot}{0pt plus 1fil}
+\makeatother
 
 \begin{document}
 
-\onecolumn
-\input{Title/title}
-\twocolumn
-\maketitle
+% Trang bìa: Title/cover.tex (cùng mẫu với bìa của Project03_Report_Skeleton.pdf), biên dịch sẵn thành Title/cover.pdf.
+% Tên đề tài, trường, giảng viên và thành viên đã có trên bìa nên trang nội dung không lặp lại (không dùng \maketitle).
+\includepdf[pages=1]{Title/cover.pdf}
 \input{Appendix/summary}
 
 \input{Chapter1/chapter1}
@@ -132,6 +144,7 @@
 \input{Chapter6/chapter6}
 \input{Chapter7/chapter7}
 
+\input{Appendix/appendix_tables}
 \renderbibliography
 
 \appendices

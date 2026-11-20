@@ -1,156 +1,18 @@
-\chapter{Phụ lục bổ trợ}
-\label{chap:appendices}
-
-\section{Phụ lục A: Pipeline GAT trên Flickr30k Entities}
-\label{app:flickr30k-pipeline}
-
-\subsection{Xây dựng đồ thị}
-
-Mỗi ảnh Flickr30k được biểu diễn bằng một đồ thị độc lập gồm một đỉnh ảnh và các đỉnh vùng được tạo từ bounding box của Flickr30k Entities. Đỉnh ảnh dùng embedding 512 chiều của toàn bộ ảnh; mỗi đỉnh vùng dùng embedding 512 chiều của phần ảnh được crop theo bounding box. Các đặc trưng được trích xuất bằng CLIP \texttt{ViT-B-32-quickgelu}, pretrained \texttt{openai}, và được giữ cố định.
-
-Đồ thị sử dụng tám loại cạnh: \texttt{self}, \texttt{contains}, \texttt{in\_image}, \texttt{overlap}, \texttt{left\_of}, \texttt{right\_of}, \texttt{above} và \texttt{below}. Với mỗi vùng, pipeline tạo hai cạnh $v_{\mathrm{image}}\xrightarrow{\mathrm{contains}}v_{\mathrm{region}}$ và $v_{\mathrm{region}}\xrightarrow{\mathrm{in\_image}}v_{\mathrm{image}}$; đồng thời mỗi đỉnh được gán một self-loop.
-
-Quan hệ giữa hai vùng được suy ra từ bounding box. Nếu diện tích giao của hai box lớn hơn 0, hai cạnh \texttt{overlap} ngược chiều được tạo. Nếu hai box không giao nhau và khoảng cách Euclidean giữa hai tâm nhỏ hơn 0.35 trong hệ tọa độ chuẩn hóa, trục có độ lệch lớn hơn quyết định cặp quan hệ \texttt{left\_of}/\texttt{right\_of} hoặc \texttt{above}/\texttt{below}. Không tạo cạnh không gian nếu khoảng cách lớn hơn hoặc bằng 0.35. Ngưỡng 0.35 là heuristic được hard-code trong pipeline, không phải siêu tham số được chọn trên validation. Loại cạnh được biểu diễn bằng vectơ one-hot 8 chiều.
-
-Tập dữ liệu gồm 29\,783 đồ thị huấn luyện, 1\,000 đồ thị validation và 1\,000 đồ thị test. Số đỉnh trung bình tương ứng là 9.691, 9.595 và 9.339; khoảng min--max là $1$--$107$, $2$--$48$ và $1$--$44$. Số cạnh có hướng trung bình, đã bao gồm self-loop và các cạnh hai chiều, lần lượt là 90.543, 85.899 và 84.651; khoảng min--max là $1$--$6\,829$, $4$--$1\,504$ và $1$--$1\,129$.
-
-Tần suất tám loại cạnh trên toàn bộ dữ liệu là: \texttt{overlap} (1\,258\,162), \texttt{self} (307\,558), \texttt{contains} (275\,775), \texttt{in\_image} (275\,775), \texttt{left\_of} (264\,124), \texttt{right\_of} (264\,124), \texttt{above} (110\,837) và \texttt{below} (110\,837).
-
-Ví dụ, đồ thị của ảnh \texttt{1100214449} gồm một đỉnh ảnh và bốn đỉnh vùng tương ứng với \emph{boy}, \emph{fountain}, \emph{building} và \emph{striped shirt}. Đồ thị có 5 self-loop, 8 cạnh ảnh--vùng và 6 cạnh \texttt{overlap} có hướng. Ba cặp vùng giao nhau là \emph{boy--building}, \emph{boy--striped shirt} và \emph{building--striped shirt}, với một cạnh cho mỗi hướng.
-
-\subsection{Kiến trúc GAT và image-root readout}
-
-GAT gồm hai lớp. Lớp thứ nhất ánh xạ đặc trưng từ 512 xuống 256 chiều với hai attention head và \texttt{concat=False}; lớp thứ hai ánh xạ từ 256 về 512 chiều với một attention head. Mô hình không sử dụng dropout và không để GAT tự thêm self-loop vì self-loop đã được tạo trong dữ liệu. Trong một mini-batch, vị trí đỉnh ảnh của mỗi đồ thị được xác định bởi \texttt{batch.ptr[:-1]}. Embedding đỉnh ảnh sau GAT được cộng residual với CLIP image embedding ban đầu $x_i^{\text{image}}$, sau đó áp dụng LayerNorm và chuẩn hóa L2:
-\begin{equation}
-  h_{\text{graph}}^{\text{F30K}}(v_i)
-  = \operatorname{L2Norm}\!\left(
-      \operatorname{LayerNorm}\!\left(H_i^{(2)}[r_i] + x_i^{\text{image}}\right)
-    \right).
-  \label{eq:flickr-root-readout}
-\end{equation}
-
-Khác với Visual Genome, quan hệ trong đồ thị Flickr30k được suy ra từ hình học bounding box thay vì predicate ngữ nghĩa của scene graph. Vì vậy, Visual Genome biểu diễn trực tiếp các quan hệ như \emph{man--holding--microphone}, trong khi Flickr30k chủ yếu biểu diễn quan hệ không gian như \emph{overlap}, \emph{left of} và \emph{above}.
-
-
-\subsection{Kết quả truy hồi}
-
-Trên Flickr30k Entities, CLIP-only đạt R@1 0.6120, R@5 0.8240, R@10 0.8845 và MRR 0.7232. Kết quả CLIP + GAT qua ba seed được trình bày trong Bảng~\ref{tab:flickr30k-results}.
-
-\begin{table*}[!t]
-\centering
-\small
-\setlength{\tabcolsep}{4pt}
-\caption{Hiệu năng truy vấn trên Flickr30k Entities}
-\label{tab:flickr30k-results}
-\begin{tabular}{lrrrr}
-\toprule
-Cấu hình & R@1 & R@5 & R@10 & MRR\\
-\midrule
-CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
-CLIP + GAT, seed 2026 & 0.7385 & 0.8920 & 0.9310 & 0.8251\\
-CLIP + GAT, seed 2027 & 0.7410 & 0.8950 & 0.9340 & 0.8290\\
-CLIP + GAT, seed 2028 & 0.7390 & 0.8940 & 0.9330 & 0.8278\\
-\midrule
-Trung bình & 0.7395 & 0.8937 & 0.9327 & 0.8273\\
-Độ lệch chuẩn mẫu & 0.0013 & 0.0015 & 0.0015 & 0.0020\\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\subsection{Ablation}
-
-Hai đối chứng No-edges và Random-edges được đánh giá trên seed \texttt{2026}. No-edges chỉ giữ self-loop, trong khi Random-edges thay thế liên kết đúng bằng liên kết ngẫu nhiên.
-
-\begin{table*}[!t]
-\centering
-\small
-\setlength{\tabcolsep}{4pt}
-\caption{Ablation trên Flickr30k Entities, seed 2026}
-\label{tab:flickr30k-ablation}
-\begin{tabular}{lrrrr}
-\toprule
-Cấu hình & R@1 & R@5 & R@10 & MRR\\
-\midrule
-CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
-No-edges / Adapter & 0.6840 & 0.8520 & 0.9010 & 0.7810\\
-Random-edges & 0.6380 & 0.8310 & 0.8890 & 0.7450\\
-Full Graph & 0.7385 & 0.8920 & 0.9310 & 0.8251\\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-Kết quả này cho thấy không thể đồng nhất No-edges với CLIP-only hoặc quy toàn bộ mức tăng cho cấu trúc cạnh.
-
-\section{Phụ lục B: Cấu hình siêu tham số và tài nguyên tính toán}
+\section{Cấu hình siêu tham số}
 \label{app:hyperparameters}
 
-Bảng~\ref{tab:hyperparameters} liệt kê chi tiết các siêu tham số được sử dụng để huấn luyện mô hình ở từng cấp độ thực nghiệm:
-
-\begin{table*}[!t]
-\centering
-\small
-\renewcommand{\arraystretch}{0.95}
-\caption{Bảng tổng hợp siêu tham số huấn luyện của các mô hình}
-\label{tab:hyperparameters}
-\begin{tabularx}{\textwidth}{L{4.0cm}L{3.5cm}L{3.5cm}Y}
-\toprule
-\textbf{Tham số / Cấu hình} & \textbf{Level 1 (GAT)} & \textbf{Level 2 (AdaMF)} & \textbf{Ghi chú}\\
-\midrule
-Backbone thị giác & ViT-B/32 (OpenCLIP) & ViT-B/32 (OpenCLIP) & Đóng băng toàn bộ trọng số\\
-Kích thước nhúng ($d$) & 512 & 512 & Đồng nhất không gian CLIP\\
-Số lớp GNN & 2 lớp GAT & 2 tầng Transformer & Truyền thông điệp cục bộ\\
-Hidden dimension & 128 & 256 & Chiếu không gian trung gian\\
-Số attention heads & 4 heads & 4 heads & Đa cơ chế chú ý\\
-Tỷ lệ Dropout & 0.2 & 0.1 & Phòng chống quá khớp\\
-Hàm tối ưu & AdamW & AdamW & Weight decay = $1\text{e-}4$\\
-Learning rate & $1\text{e-}3$ & $5\text{e-}4$ & Giảm theo Cosine Annealing\\
-Số Epoch tối đa & 50 & 500 (Early stop = 8) & Dừng sớm theo Validation\\
-Trọng số kết hợp $\alpha_{\text{CLIP}}$ & 0.6 (trên VG) & 0.2 (trên DB15K) & Khóa trên Validation\\
-\bottomrule
-\end{tabularx}
-\end{table*}
-
-\section{Phụ lục C: Hướng dẫn tái lập thực nghiệm}
+Bảng~\ref{tab:hyperparameters} liệt kê cấu hình của các mô hình chính. Mọi lựa chọn checkpoint, $\alpha_{\mathrm{CLIP}}$ và cấu hình lưới đều làm trên validation.
+\section{Tái lập thực nghiệm}
 \label{app:reproduction}
 
-Quy trình tái lập các kết quả thực nghiệm từ mã nguồn và dữ liệu đã chuẩn hóa được tóm tắt qua các bước chuẩn:
+Mã nguồn, dữ liệu đã xử lý và kết quả đã khóa nằm trong thư mục \texttt{0. final} gồm \texttt{source/}, \texttt{data/} và \texttt{results/}; môi trường ghi trong \texttt{requirements.txt}. Thứ tự chạy lại: cấp 1 chạy \texttt{run\_gat.py} cho mô hình đầy đủ và 2 ablation rồi \texttt{evaluate\_test}, sau đó notebook 11 cho phần giải thích; cấp 2 chạy các notebook huấn luyện AdaMF DB15K và FB15K-237-IMG, notebook 07 (giải thích, bộ 20 truy vấn), 07b và 07c (GAT cùng pipeline, chọn phương pháp), 10a (XAI định lượng); cấp 3 chạy 08a và 08b (thu thập, chia dữ liệu, data card), 09 (huấn luyện, test), 10b, 10c (XAI định lượng, huấn luyện lại) và 10d (chuyển giao, demo). Mã tạo split được nộp kèm (\texttt{make\_splits.py}, \texttt{split\_manifest.json}); các notebook ghi kết quả từng bước và tiếp tục được khi phiên bị ngắt.
 
-\begin{lstlisting}[language=bash,caption={Các bước tái lập thực nghiệm trên môi trường GPU}]
-# 1. Khoi tao moi truong ao va cai dat thu vien
-python3 -m venv venv && source venv/bin/activate
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-pip install torch_geometric pyarrow duckdb pandas scikit-learn transformers
+\section{Mã nguồn mở và công cụ hỗ trợ}
+\label{app:tools}
 
-# 2. Xac thuc ma bam du lieu va checkpoint
-sha256sum -c reference/model_handoff_manifest.json
+Nhóm sử dụng mã nguồn mở của AdaMF-MAT~\cite{adamfmat2024} (bộ dung hợp và bộ chấm RotatE, có chỉnh sửa để phục vụ truy hồi ảnh và tắt thành phần MAT), PyTorch Geometric, OpenCLIP và sentence-transformers. Theo quy định của môn học, nhóm khai báo có sử dụng công cụ AI hỗ trợ trong các phần: soạn thảo một số notebook phân tích và giải thích (XAI), soạn câu truy vấn tự nhiên tiếng Việt của ViHeritage-MMKG từ khung sinh tự động, chấm kiểm tra liên kết ảnh và thực thể, chấm validity theo kiến thức miền cho 20 ca, và hỗ trợ biên tập báo cáo. Các thành viên đã kiểm tra, chạy lại và chịu trách nhiệm giải thích toàn bộ nội dung khi vấn đáp.
 
-# 3. Tai lap ket qua suy luan Level 1 (Flickr30k)
-python src/gml_v1/evaluate_gat.py --seed 2026 --checkpoint model/gat_v1/seed_2026/best.pt
-
-# 4. Tai lap ket qua suy luan Level 2 (DB15K AdaMF seed 2027)
-python src/gml_v2/evaluate_adamf.py --dataset DB15K --seed 2027 --alpha 0.2
-\end{lstlisting}
-
-\section{Phụ lục D: Phân công trách nhiệm của thành viên}
+\section{Phân công trách nhiệm của thành viên}
 \label{app:contributions}
 
 Bảng~\ref{tab:contributions} ghi nhận vai trò chính của từng thành viên trong nhóm đồ án:
-
-\begin{table*}[!t]
-\centering
-\small
-\renewcommand{\arraystretch}{0.95}
-\caption{Phân công trách nhiệm của thành viên}
-\label{tab:contributions}
-\begin{tabularx}{\textwidth}{C{1.0cm}L{3.4cm}L{2.5cm}Y}
-\toprule
-\textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Nhiệm vụ chính phụ trách}\\
-\midrule
-1 & Chung Gia Khánh & 23120282 & Thiết kế kiến trúc tổng thể, audit kỹ thuật, kiểm thử triệt tiêu và biên tập báo cáo\\
-2 & Lê Hoàng Mỹ Hạ & 23120038 & Tiền xử lý dữ liệu, kiểm soát rò rỉ và trích xuất đặc trưng CLIP\\
-3 & Hàn Vũ Phương Uyên & 23120106 & Xây dựng scene graph, triển khai GAT và phân tích Level 1\\
-4 & Trần Gia Hiển & 23120123 & Triển khai AdaMF, DB15K, FB15K-237-IMG và các đối chứng Level 2\\
-5 & Nguyễn An Nghiệp & 23127234 & Triển khai giải thích đồ thị, đánh giá XAI và dữ liệu MMKG tự xây\\
-\bottomrule
-\end{tabularx}
-\end{table*}

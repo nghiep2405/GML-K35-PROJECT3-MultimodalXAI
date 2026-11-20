@@ -4,16 +4,24 @@
 \section{Sơ đồ nghiên cứu tổng quát}
 \label{sec:overall-framework}
 
-Quy trình nghiên cứu tổng quát của đồ án được xây dựng dưới dạng một kiến trúc đa tầng tích hợp, kết nối xuyên suốt ba cấp độ thực hiện từ bài toán cơ sở đến giải pháp nâng cao và giải thích quyết định. Hệ thống nhận đầu vào là câu truy vấn văn bản $q$ và một không gian tìm kiếm hình ảnh quy mô lớn. 
+Cả ba cấp độ dùng chung một quy trình theo đề: truy vấn $\rightarrow$ mã hóa bằng CLIP đóng băng $\rightarrow$ chọn tập ứng viên theo cosine $\rightarrow$ tính điểm đồ thị cho từng ứng viên $\rightarrow$ xếp hạng lại bằng $\alpha_{\mathrm{CLIP}} z(S_{\text{CLIP}}) + (1-\alpha_{\mathrm{CLIP}}) z(S_{\text{graph}})$ $\rightarrow$ giải thích bằng các quan hệ đã tạo ra điểm đồ thị $\rightarrow$ đo fidelity bằng can thiệp. Tập ứng viên là top-50 CLIP trên Visual Genome, top-1\,000 trên DB15K và FB15K-237-IMG, và toàn bộ ảnh của tập test (88 ảnh) trên ViHeritage. Trọng số $\alpha_{\mathrm{CLIP}}$, checkpoint và mọi siêu tham số được chọn trên validation; test chỉ chạy một lần với cấu hình đã khóa. Bảng~\ref{tab:level-overview} tóm tắt mỗi cấp độ.
 
-Khung làm việc bao gồm ba khối chức năng dùng chung và ba nhánh thuật toán tương ứng:
-\begin{enumerate}
-  \item \textbf{Khối trích xuất đặc trưng cơ sở:} Sử dụng mô hình CLIP (frozen ViT-B/32) để mã hóa toàn bộ cơ sở dữ liệu ảnh và sinh biểu diễn vectơ cho câu truy vấn đầu vào.
-  \item \textbf{Khối lọc ứng viên sơ bộ:} Tận dụng tìm kiếm cosine similarity nhanh nhằm thu hẹp không gian tìm kiếm xuống tập top-$k$ candidates tiềm năng nhất.
-  \item \textbf{Khối chấm điểm và xếp hạng lại:} Áp dụng GAT trên đồ thị tĩnh (Level 1) hoặc mô hình dung hợp thích nghi AdaMF trên MMKG (Level 2).
-  \item \textbf{Khối giải thích và kiểm chứng độ tin cậy:} Phân rã đường đi và trọng số chú ý để trích xuất đồ thị con chứng minh, sau đó tiến hành kiểm tra fidelity bằng phương pháp can thiệp làm nhiễu đồ thị.
-\end{enumerate}
-
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Dữ liệu, mô hình và bộ giải thích theo cấp độ}
+\label{tab:level-overview}
+\begin{tabularx}{\columnwidth}{lYYY}
+\toprule
+Cấp & Dữ liệu & Điểm đồ thị & Giải thích\\
+\midrule
+1 & Visual Genome & GAT có đặc trưng cạnh trên scene graph của ảnh & Bỏ từng quan hệ, chạy lại GAT\\
+2 & DB15K, FB15K-237-IMG & AdaMF (RotatE) trên MMKG; GAT cùng pipeline để đối chứng & Học lại nhúng của thực thể khi bỏ bộ ba\\
+3 & ViHeritage-MMKG & AdaMF và KG-GAT & Như cấp 2 (AdaMF); che cạnh (GAT)\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Cấp độ 1: Mô hình cơ sở và truy vấn tăng cường đồ thị}
 \label{sec:level1-methodology}
@@ -271,6 +279,14 @@ Trọng số này cùng với checkpoint của mô hình
 Cuối cùng, 50 ảnh ứng viên được sắp xếp lại
 theo điểm $S_{\mathrm{final}}$ giảm dần.
 
+\subsection{Giải thích cấp độ 1}
+\label{sec:level1-xai-method}
+
+Đơn vị giải thích là một quan hệ của scene graph trong ảnh, gồm cạnh gốc và cạnh ngược của nó; cạnh ảnh $\rightarrow$ thực thể (\texttt{contains}) cũng là một đơn vị. Đóng góp của đơn vị $u$ là $\Delta_u = S_{\text{graph}} - S_{\text{graph}}^{\setminus u}$, trong đó $S_{\text{graph}}^{\setminus u}$ được tính lại bằng chính hai tầng GAT của checkpoint sau khi bỏ $u$. Giải thích của một ảnh là tối đa $K^\star$ đơn vị có $\Delta$ dương lớn nhất; vì GAT có hai tầng, mỗi đơn vị nằm trên đường đi dài tối đa hai bước về nút ảnh. Trọng số attention không được dùng làm giải thích vì bộ mã hóa đồ thị không nhận truy vấn, nên attention giống nhau với mọi truy vấn; attention chỉ là đường cơ sở. $K^\star$ là giá trị nhỏ nhất trong $\{1,2,3,5,8,12,16\}$ mà trung vị tỉ lệ mức giảm điểm khi bỏ top-$K$ so với khi bỏ mọi đơn vị có $\Delta$ dương đạt 0.8, chọn trên 300 truy vấn validation.
+
+\section{Cấp độ 2: Truy vấn đa phương thức với đồ thị tri thức}
+\label{sec:level2-methodology}
+
 Ở cấp độ 1, mỗi ảnh được biểu diễn bằng một đồ thị
 riêng biệt, gồm các thực thể và quan hệ được trích
 xuất từ nội dung ảnh. Tuy nhiên, các đồ thị này
@@ -281,9 +297,6 @@ gián tiếp cần liên kết thông tin giữa nhiều
 thực thể. Ở cấp độ 2, nhóm mở rộng
 sang đồ thị tri thức đa phương thức (MMKG)
 để khai thác thông tin quan hệ phong phú hơn.
-
-\section{Cấp độ 2 Truy vấn đa phương thức với đồ thị tri thức}
-\label{sec:level2-methodology}
 
 \subsection{Biểu diễn thực thể đa phương thức}
 
@@ -300,7 +313,7 @@ Trên DB15K, mô hình được huấn luyện bằng SigmoidLoss trên các b�
 Trên FB15K-237-IMG, mô hình được thích nghi cho bài toán truy hồi bằng cross-entropy. Mỗi truy vấn huấn luyện sử dụng một ảnh dương lấy mẫu từ tập ảnh liên quan và 50 ảnh âm khó từ 200 ứng viên CLIP đứng đầu. Truy vấn trực tiếp dùng độ tương đồng giữa văn bản đã chiếu và biểu diễn thực thể dung hợp. Truy vấn gián tiếp dùng điểm bộ ba. Hai triển khai đặt hệ số huấn luyện đối kháng đa phương thức $\mu$ bằng 0.
 
 \subsection{Xếp hạng lại kết quả CLIP}
-CLIP tạo thứ hạng ban đầu trên tập ảnh ứng viên. Với các truy vấn được xếp hạng lại, điểm kết hợp trên top 1.000 được tính bằng
+CLIP tạo thứ hạng ban đầu trên tập ảnh ứng viên. Với các truy vấn được xếp hạng lại, điểm kết hợp trên top-1\,000 được tính bằng
 \begin{equation}
 \begin{aligned}
 S(q,i)={}&\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))\\
@@ -309,32 +322,27 @@ S(q,i)={}&\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))\\
 \label{eq:mmkg-rerank}
 \end{equation}
 Trong đó $z_q$ chuẩn hóa điểm theo từng truy vấn và trọng số được chọn trên validation. DB15K giữ nguyên thứ hạng CLIP cho truy vấn trực tiếp. FB15K-237-IMG xếp hạng lại cả truy vấn trực tiếp và gián tiếp. Các triển khai dựa trên cơ chế dung hợp và chấm bộ ba của AdaMF-MAT~\cite{adamfmat2024}.
-\section{Cấp độ 3: Khả năng giải thích và chuyển giao tri thức}
+\subsection{Thuật toán cấp 1 trên cùng pipeline cấp 2}
+\label{sec:level2-gat}
+Để so sánh phương pháp mới với thuật toán cấp 1 trên cùng pipeline và cách chia, nhóm thay bộ mã hóa thực thể AdaMF bằng GAT có đặc trưng cạnh (hai tầng, bốn head, residual và LayerNorm, cùng kiến trúc với cấp 1) chạy trên đồ thị thực thể của DB15K, với cạnh là các bộ ba train hai chiều. Mọi thành phần khác giữ nguyên: dữ liệu, cách chia, đặc trưng, bộ giải mã RotatE, hàm mất mát, cấu hình, số lần huấn luyện, cách chọn checkpoint và $\alpha$. GAT được huấn luyện tối đa 500 epoch với patience 40. Phương pháp chuyển sang cấp 3 được chọn chỉ bằng MRR gián tiếp trên validation, có khoảng tin cậy bootstrap.
+
+\section{Cấp độ 3: Giải thích định lượng và MMKG tự xây}
 \label{sec:level3-methodology}
 
-\subsection{Động lực của truy vấn có khả năng giải thích}
-Mục tiêu của Cấp độ 3 là mở chiếc hộp đen của mô hình xếp hạng đồ thị, xác định chính xác các thành phần cạnh, đường đi suy luận hoặc đồ thị con tối thiểu đóng vai trò quyết định đến việc đẩy một kết quả lên vị trí hàng đầu, loại trừ hoàn toàn các giải thích hình thức không mang tính nhân quả đối với thuật toán chấm điểm.
+\subsection{Bộ giải thích cho mô hình MMKG}
+Với AdaMF, điểm của ảnh phụ thuộc đồ thị qua nhúng cấu trúc của thực thể $e^\star$ gắn với ảnh, và nhúng này được học từ các bộ ba train chứa $e^\star$. Theo ý tưởng của Kelpie~\cite{rossi2022kelpie}, nhóm học lại riêng nhúng cấu trúc của $e^\star$ (mọi tham số khác giữ nguyên) từ các bộ ba của nó, một lần với đủ bộ ba và các lần bỏ bớt, cùng khởi tạo, cùng mẫu âm và cùng số bước. Chênh lệch điểm giữa hai bản học lại là đóng góp của các bộ ba bị bỏ; chênh lệch này được trừ vào điểm gốc của checkpoint rồi xếp hạng lại bằng đúng hàm xếp hạng. Bộ ba giải thích được nối thành đường đi một hoặc hai bước từ thực thể neo của truy vấn khi có. Với KG-GAT, điểm còn phụ thuộc vào việc truyền tin trên đồ thị lúc suy luận, nên nhóm che trực tiếp từng cạnh trong vùng tiếp nhận hai bước của $e^\star$ và thực thể neo rồi tính lại nhúng bằng chính mô hình. $K^\star$ được chọn trên validation theo cùng quy tắc với cấp 1.
 
-\subsection{Sinh giải thích dựa trên đồ thị}
-Với mỗi kết quả trả về trong top-$k$, hệ thống truy vết ngược lại luồng truyền thông điệp của mô hình (GAT attention weights hoặc đường suy luận bộ ba của AdaMF). Đường đi giải thích $\mathcal{P} = \{ (e_{\text{query}}, r_1, e_1), (e_1, r_2, e_{\text{target}}) \}$ được trích xuất bằng cách tối ưu hóa hàm mục tiêu lựa chọn tập cạnh con $\mathcal{E}_{\text{sub}} \subseteq \mathcal{E}$ sao cho điểm số xếp hạng của thực thể đích được bảo toàn tối đa trong khi kích thước đồ thị con là nhỏ nhất có thể.
+Ngoài phép đo xấp xỉ trên, trên ViHeritage nhóm kiểm chứng fidelity bằng huấn luyện lại thật: bỏ $\mathcal{S}$ khỏi tập train, huấn luyện lại từ đầu với đúng cấu hình, khởi tạo và số epoch của checkpoint, rồi so với một lần huấn luyện lại không bỏ gì để loại nhiễu do chính việc huấn luyện lại.
 
+\subsection{Xây dựng ViHeritage-MMKG}
+\label{sec:viheritage-construction}
+Miền được chọn là di sản và danh thắng Việt Nam. Ứng viên thực thể là các mục trên Wikidata~\cite{vrandecic2014wikidata} ở Việt Nam có danh hiệu di sản (P1435) hoặc thuộc loại công trình, danh thắng phổ biến, đồng thời có nhãn tiếng Việt, bài Wikipedia tiếng Việt và ảnh; xếp theo số sitelink. Các thực thể không có ảnh (tỉnh, khái niệm, nhân vật lịch sử đã mất) được giữ khi là đầu kia của quan hệ và xuất hiện ít nhất hai lần.
 
-\subsection{Đánh giá tính trung thực và độ tin cậy của giải thích}
-Quy trình đánh giá giải thích được chuẩn hóa theo ba tiêu chí định lượng khắt khe:
-\begin{enumerate}
-  \item \textbf{Fidelity:} Khi xóa bỏ các cạnh giải thích khỏi đồ thị, điểm số của ứng viên đúng phải giảm mạnh và thứ hạng phải tụt lùi rõ rệt. Ngược lại, khi xóa một tập cạnh ngẫu nhiên có cùng kích thước, điểm số phải ít bị ảnh hưởng.
-  \item \textbf{Validity:} Đánh giá tỷ lệ các đường đi suy luận logic không chứa các vòng lặp vô nghĩa hoặc quan hệ mâu thuẫn thực tế.
-  \item \textbf{Sparsity:} Đảm bảo đồ thị con giải thích đủ cô đọng để chuyên gia có thể kiểm tra trực quan nhanh chóng.
-\end{enumerate}
+\textbf{Bộ ba.} Mười ba quan hệ lấy trực tiếp từ Wikidata, ví dụ \textit{là một} (P31), \textit{nằm ở tỉnh} (P131), \textit{danh hiệu di sản} (P1435), \textit{thuộc quần thể} (P361), \textit{tôn giáo} (P140). P131 được đi theo chuỗi tới cấp tỉnh và đổi sang 34 tỉnh, thành sau sắp xếp từ 1/7/2025. Hai quan hệ được suy ra từ thuộc tính nằm ngoài KG nên không làm lộ bộ ba test: \textit{ở gần} (mỗi thực thể có ảnh nối với hai thực thể có ảnh gần nhất trong 5 km theo tọa độ P625) và \textit{xây dựng vào thế kỷ} (từ năm khởi lập P571).
 
+\textbf{Văn bản và ảnh.} Văn bản của thực thể gồm nhãn, bí danh, mô tả Wikidata và hai đến ba câu mở đầu của bài Wikipedia tiếng Việt. Ảnh lấy từ Wikimedia Commons theo P18 và category P373, lọc theo kích thước, giấy phép tự do, từ khóa, phân loại zero-shot của CLIP (loại bản đồ, tài liệu, chân dung), khử trùng bằng SHA-256 và cosine CLIP $\geq 0.95$.
 
-\subsection{Xây dựng đồ thị tri thức đa phương thức tự xây}
-Để kiểm tra khả năng chuyển giao của các phương pháp đề xuất từ Cấp độ 1 và 2, nghiên cứu tiến hành thu thập và cấu trúc hóa một tập dữ liệu MMKG nhỏ cho một miền đặc thù bằng tiếng Việt.
-\begin{itemize}
-  \item \textbf{Quy mô mục tiêu:} 50--150 thực thể, 300--1.000 bộ ba quan hệ, và 200--500 hình ảnh kèm theo.
-  \item \textbf{Nguồn dữ liệu và phân quyền:} Khai thác dữ liệu văn bản mở và hình ảnh có bản quyền sử dụng hợp lệ, gắn kèm Data Card chi tiết về nguồn gốc và điều khoản sử dụng.
-\end{itemize}
+\textbf{Chia dữ liệu và truy vấn.} Bộ ba được chia 70/15/15 theo từng quan hệ, cặp đối xứng chung một tập, thực thể của bộ ba validation/test phải có trong train. Ảnh được chia theo thực thể; đặc trưng thị giác của thực thể chỉ lấy trung bình từ ảnh train. Truy vấn trực tiếp là tên thực thể; truy vấn gián tiếp sinh từ mỗi bộ ba validation/test $(h,r,t)$, đáp án là ảnh của thực thể bị che. Mỗi truy vấn gián tiếp có hai cách nói tiếng Việt và một bản tiếng Anh. Truy vấn gián tiếp được chấm theo kiểu lọc: ảnh của các đáp án đúng khác cho cùng (quan hệ, thực thể neo) bị loại khỏi danh sách xếp hạng.
 
-
-\subsection{Chuyển giao mô hình sang miền dữ liệu đặc thù}
-Mô hình tốt nhất được chọn lựa từ Cấp độ 1/2 được áp dụng trực tiếp (hoặc thông qua fine-tuning tối thiểu trên tập chia riêng) lên đồ thị MMKG tự xây nhằm khảo sát độ bền vững của biểu diễn đa phương thức và khả năng suy luận khi đối mặt với hiện tượng domain shift.
+\subsection{Chạy phương pháp tốt nhất trên ViHeritage}
+Cả AdaMF (phương pháp chính, chọn ở Mục~\ref{sec:level2-gat}) và KG-GAT được chạy trên ViHeritage với cùng khung: lưới 8 cấu hình, cấu hình thắng được huấn luyện ba lần, chọn epoch theo MRR truy vấn gián tiếp chỉ dùng điểm đồ thị trên validation, chọn $\alpha$ trên validation, test một lần. Văn bản thực thể và truy vấn tiếng Việt được mã hóa bằng CLIP đa ngôn ngữ (\texttt{clip-ViT-B-32-multilingual-v1}) cùng không gian với CLIP ảnh. Hai ablation (bỏ cạnh, xáo cạnh) được huấn luyện một lần. Để kiểm tra rò rỉ qua văn bản (tên thực thể neo có thể xuất hiện trong mô tả của đáp án), nhóm huấn luyện lại AdaMF với phương thức văn bản bị che hoàn toàn.

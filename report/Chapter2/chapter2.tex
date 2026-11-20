@@ -4,7 +4,7 @@
 \section{Truy vấn thông tin đa phương thức}
 \label{sec:multimodal-retrieval}
 
-Truy vấn thông tin đa phương thức là lĩnh vực nghiên cứu nhằm tìm kiếm và trích xuất các đối tượng thuộc phương thức này dựa trên truy vấn thuộc phương thức khác, tiêu biểu nhất là bài toán Text-to-Image Retrieval. Kiến trúc nền tảng phổ biến hiện nay là mô hình Dual-Encoder như CLIP \cite{radford2021clip}, bao gồm một bộ mã hóa thị giác $f_V(\cdot)$ và một bộ mã hóa ngôn ngữ $f_T(\cdot)$. Cả hai bộ mã hóa được huấn luyện thông qua hàm mất mát tương phản InfoNCE nhằm cực đại hóa cosine similarity của các cặp văn bản--hình ảnh tương ứng và đẩy xa các cặp âm tính trong cùng lô huấn luyện.
+Truy vấn thông tin đa phương thức là lĩnh vực nghiên cứu nhằm tìm kiếm và trích xuất các đối tượng thuộc phương thức này dựa trên truy vấn thuộc phương thức khác, tiêu biểu nhất là bài toán Text-to-Image Retrieval. Kiến trúc nền tảng phổ biến hiện nay là mô hình Dual-Encoder như CLIP \cite{radford2021clip}, bao gồm một bộ mã hóa thị giác $f_V(\cdot)$ và một bộ mã hóa ngôn ngữ $f_T(\cdot)$. Cả hai bộ mã hóa được huấn luyện thông qua hàm mất mát tương phản InfoNCE nhằm cực đại hóa cosine similarity của các cặp văn bản và hình ảnh tương ứng và đẩy xa các cặp âm tính trong cùng lô huấn luyện.
 
 Khi thực hiện truy vấn, với câu truy vấn $q$, vectơ nhúng được tính toán $e_q = f_T(q) / \|f_T(q)\|_2$. Tương tự, mỗi hình ảnh ứng viên $v_i$ trong không gian tìm kiếm được biểu diễn bằng $e_{v_i} = f_V(v_i) / \|f_V(v_i)\|_2$. Điểm tương đồng cơ sở giữa truy vấn và ảnh được định nghĩa thông qua tích vô hướng:
 \begin{equation}
@@ -12,7 +12,7 @@ Khi thực hiện truy vấn, với câu truy vấn $q$, vectơ nhúng được 
   \label{eq:clip-similarity}
 \end{equation}
 
-Hiệu năng của các hệ thống truy vấn đa phương thức được đo lường chuẩn hóa thông qua các độ đo xếp hạng bao gồm: Recall@K ($K \in \{1, 5, 10, 50\}$) xác định tỷ lệ các truy vấn có ảnh đúng nằm trong top-$K$ kết quả trả về, và Mean Reciprocal Rank (MRR) tính trung bình nghịch đảo thứ hạng của kết quả đúng đầu tiên:
+Hiệu năng của các hệ thống truy vấn đa phương thức được đo lường chuẩn hóa thông qua các độ đo xếp hạng bao gồm: Recall@K ($K \in \{1, 5, 10\}$) xác định tỷ lệ các truy vấn có ảnh đúng nằm trong top-$K$ kết quả trả về, và Mean Reciprocal Rank (MRR) tính trung bình nghịch đảo thứ hạng của kết quả đúng đầu tiên:
 \begin{equation}
   \text{MRR} = \frac{1}{|Q|} \sum_{j=1}^{|Q|} \frac{1}{\text{rank}_j}
   \label{eq:mrr-formula}
@@ -38,12 +38,12 @@ Xu hướng kết hợp đồ thị vào truy hồi đa phương thức khai th�
 Điểm xếp hạng cuối cùng được kết hợp theo dạng hàm tuyến tính có trọng số:
 \begin{equation}
 \begin{aligned}
-S_{\text{final}}(q,v_i)={}&\alpha S_{\text{base}}(q,v_i)\\
-&+(1-\alpha)S_{\text{graph}}(q,v_i).
+S_{\text{final}}(q,v_i)={}&\alpha_{\mathrm{CLIP}}\, z\big(S_{\text{CLIP}}(q,v_i)\big)\\
+&+(1-\alpha_{\mathrm{CLIP}})\, z\big(S_{\text{graph}}(q,v_i)\big).
 \end{aligned}
   \label{eq:score-fusion}
 \end{equation}
-Trong thực nghiệm, hai dãy điểm được chuẩn hóa z-score riêng theo truy vấn trên tập ứng viên xếp hạng lại trước khi áp dụng phép kết hợp ở phương trình~(\ref{eq:score-fusion}). Hệ số cân bằng $\alpha \in [0, 1]$ được điều chỉnh nghiêm ngặt trên validation set nhằm tìm điểm dung hòa tối ưu giữa năng lực nhận diện khái quát của CLIP và tri thức quan hệ cục bộ của đồ thị.
+Trong đó $z(\cdot)$ chuẩn hóa z-score riêng từng dãy điểm theo truy vấn trên tập ứng viên xếp hạng lại. Hệ số cân bằng $\alpha_{\mathrm{CLIP}} \in [0, 1]$ được điều chỉnh nghiêm ngặt trên validation set nhằm tìm điểm dung hòa tối ưu giữa năng lực nhận diện khái quát của CLIP và tri thức quan hệ cục bộ của đồ thị.
 
 \section{Đồ thị tri thức đa phương thức và công trình liên quan}
 \label{sec:advanced-mmkg-methods}
@@ -89,36 +89,26 @@ Với mục tiêu truy hồi, cross-entropy khuyến khích ảnh dương nhận
 trong đó $\ell$ là logit sau điều chỉnh thang điểm và $\mathcal{C}(q)$ gồm ảnh dương cùng các ảnh âm lấy mẫu. DB15K dùng mục tiêu bộ ba, còn FB15K-237-IMG dùng mục tiêu truy hồi kế thừa pipeline GAT. Sự khác nhau về mục tiêu học cần được xét khi diễn giải kết quả ablation.
 
 \subsection{Vai trò của các đối chứng}
-CLIP cung cấp đường cơ sở cho độ tương đồng văn bản--ảnh. Shuffled Edges và Random Graph thay đổi quan hệ train để kiểm tra mức nhạy của mô hình với cấu trúc. No Edges trong hai pipeline của nhóm dùng CLIP thuần và bỏ huấn luyện mô hình, nên khoảng cách với cấu hình đầy đủ bao gồm cả ảnh hưởng của học biểu diễn. Đánh giá riêng truy vấn trực tiếp và gián tiếp giúp nhận diện các thay đổi có thể bị bù trừ khi tính chỉ số tổng hợp.
+CLIP cung cấp đường cơ sở cho độ tương đồng giữa văn bản và ảnh. Shuffled Edges và Random Graph thay đổi quan hệ train để kiểm tra mức nhạy của mô hình với cấu trúc. Ở cấp 2, No Edges dùng CLIP thuần và bỏ huấn luyện mô hình, nên khoảng cách với cấu hình đầy đủ bao gồm cả ảnh hưởng của học biểu diễn; ở cấp 1 và cấp 3, No-edge vẫn huấn luyện mô hình nhưng bỏ toàn bộ cạnh, nên đo được riêng phần đóng góp của cấu trúc. Đánh giá riêng truy vấn trực tiếp và gián tiếp giúp nhận diện các thay đổi có thể bị bù trừ khi tính chỉ số tổng hợp.
 
 \section{Truy vấn đồ thị có khả năng giải thích}
 \label{sec:explainable-retrieval}
 
-Yêu cầu cốt lõi của bài toán Graph Explainability (xAI) là tính trung thực: bằng chứng giải thích (dưới dạng bộ ba quan hệ, đường đi suy luận hoặc đồ thị con tối thiểu) phải xuất phát từ chính cơ chế tính điểm của mô hình xếp hạng, không được là một câu chuyện post-hoc rationalization không liên quan đến quyết định thực tế.
+Đề yêu cầu giải thích phải đến từ chính cơ chế xếp hạng: một đường đi hợp lý được dựng sau khi đã có kết quả nhưng không ảnh hưởng tới dự đoán thì không được chấp nhận. Vì vậy giải thích được đánh giá bằng can thiệp: bỏ, chỉ giữ hoặc làm nhiễu tập phần tử giải thích $\mathcal{S}$ rồi chấm lại bằng đúng hàm xếp hạng. GNNExplainer~\cite{ying2019gnnexplainer} và SubgraphX~\cite{yuan2021subgraphx} chọn đồ thị con bằng tối ưu hoặc tìm kiếm; với KG embedding, Kelpie~\cite{rossi2022kelpie} học lại nhúng của thực thể sau khi bỏ bớt bộ ba để đo đóng góp của từng bộ ba. Nhóm dùng các chỉ số theo khảo sát của Amara và cộng sự~\cite{amara2022graphframex}.
 
-Các chỉ số định lượng đánh giá tính giải thích bao gồm:
-\begin{itemize}
-  \item \textbf{Fidelity:} Đo lường mức độ sụt giảm điểm số hoặc thay đổi thứ hạng khi loại bỏ hoặc can thiệp (perturb) các cạnh hoặc đường đi được mô hình chọn làm giải thích:
-  \begin{equation}
-    \text{Fidelity}^- = S_{\text{graph}}(q, v) - S_{\text{graph}}(q, v \setminus \mathcal{E}_{\text{exp}})
-    \label{eq:fidelity-formula}
-  \end{equation}
-  \item \textbf{Validity:} Tỷ lệ phần trăm các giải thích sinh ra thỏa mãn các ràng buộc logic hoặc có sự hiện diện thực tế trong ngữ cảnh ảnh và câu truy vấn.
-  \item \textbf{Sparsity:} Tỷ lệ nén của đồ thị con giải thích so với toàn bộ đồ thị tri thức ban đầu, bảo đảm giải thích ngắn gọn, dễ tiếp nhận đối với con người:
-  \begin{equation}
-    \text{Sparsity} = 1 - \frac{|\mathcal{E}_{\text{exp}}|}{|\mathcal{E}_{\text{subgraph}}|}
-    \label{eq:sparsity-formula}
-  \end{equation}
-\end{itemize}
+Gọi $p$ là xác suất softmax của ảnh được giải thích (ảnh hạng 1 hệ thống trả về) trên điểm cuối ở phương trình~(\ref{eq:score-fusion}), $p_{\setminus\mathcal{S}}$ và $p_{\mathcal{S}}$ là xác suất khi bỏ $\mathcal{S}$ và khi chỉ giữ $\mathcal{S}$, $\mathcal{F}$ là tập mọi phần tử có thể dùng làm giải thích của ảnh đó:
+\begin{equation}
+  \text{Fid}^{+} = \frac{p - p_{\setminus \mathcal{S}}}{p}, \qquad
+  \text{Fid}^{-} = \frac{p - p_{\mathcal{S}}}{p},
+  \label{eq:fidelity-formula}
+\end{equation}
+\begin{equation}
+  \text{Sparsity} = 1 - |\mathcal{S}| \,/\, |\mathcal{F}|.
+  \label{eq:sparsity-formula}
+\end{equation}
+$\text{Fid}^{+}$ lớn nghĩa là $\mathcal{S}$ cần thiết; $\text{Fid}^{-}$ nhỏ hoặc âm nghĩa là riêng $\mathcal{S}$ đã đủ giữ quyết định. Characterization là trung bình điều hòa của $\text{Fid}^{+}$ và $1-\text{Fid}^{-}$ sau khi kẹp về $[0,1]$. Fidelity khi làm nhiễu thay đầu kia của mỗi phần tử trong $\mathcal{S}$ bằng một thực thể ngẫu nhiên cùng vai trò. Validity được đo theo ba cách: phản thực (PN, tỉ lệ truy vấn mà bỏ $\mathcal{S}$ làm ảnh mất hạng 1) và đủ (PS, tỉ lệ mà chỉ giữ $\mathcal{S}$ ảnh vẫn hạng 1); cấu trúc (mọi phần tử của $\mathcal{S}$ là bộ ba huấn luyện, không trùng validation/test, và tỉ lệ nằm trên đường đi tới thực thể neo); và đánh giá theo kiến thức miền trên các ca cụ thể. Mỗi chỉ số được so với cùng số phần tử chọn ngẫu nhiên và chọn theo heuristic (attention hoặc bậc cao).
 
 \section{Động lực nghiên cứu}
 \label{sec:research-motivation}
 
-Từ việc tổng kết các công trình liên quan, nhóm nhận thấy một khoảng trống nghiên cứu rõ rệt: hầu hết các hệ thống truy vấn công nghiệp dựa trên mô hình ngôn ngữ--thị giác lớn đều đánh đổi khả năng diễn giải và năng lực xử lý quan hệ phức tạp để lấy tốc độ tính toán. Ngược lại, các nghiên cứu về MMKG thường tập trung vào bài toán hoàn thiện đồ thị tri thức KGC thay vì phục vụ truy hồi văn bản--hình ảnh thực tế.
-
-Khoảng trống này dẫn trực tiếp đến động lực thiết kế chuỗi nghiên cứu liên tục từ Level 1 đến Level 3:
-\begin{enumerate}
-  \item Đầu tiên, cần kiểm chứng định lượng trên một đồ thị đơn giản xem GNN có thực sự tạo ra giá trị gia tăng so với CLIP hay không (Level 1).
-  \item Tiếp đó, khắc phục nhược điểm của đồ thị cục bộ bằng cách đưa vào MMKG đa quan hệ và cơ chế dung hợp thích nghi để giải quyết triệt để các truy vấn gián tiếp (Level 2).
-  \item Cuối cùng, khép kín quy trình bằng việc trích xuất và đo lường định lượng tính trung thực của các giải thích đồ thị, đồng thời kiểm tra khả năng chuyển giao thực tế sang dữ liệu tiếng Việt (Level 3).
-\end{enumerate}
+Các hệ truy vấn dựa trên bộ mã hóa kép mạnh ở so khớp bề mặt nhưng không có cơ chế suy luận qua quan hệ, còn phần lớn nghiên cứu MMKG giải bài toán hoàn thiện đồ thị chứ không phục vụ truy vấn ảnh. Từ đó đồ án đi theo ba bước: kiểm tra một mô hình đồ thị đơn giản có thêm giá trị so với CLIP hay không (cấp 1); dùng MMKG đa quan hệ cho các truy vấn gián tiếp (cấp 2); đo mức trung thực của giải thích và thử chuyển giao sang dữ liệu tiếng Việt tự xây (cấp 3).

@@ -4,48 +4,42 @@
 \section{Bối cảnh nghiên cứu}
 \label{sec:research-background}
 
-Trong kỷ nguyên bùng nổ dữ liệu số, nhu cầu tìm kiếm và truy hồi thông tin tương tác giữa nhiều phương thức biểu diễn -- đặc biệt là giữa văn bản và hình ảnh -- đã trở thành một trong những bài toán trọng tâm của trí tuệ nhân tạo. Sự xuất hiện của các mô hình ngôn ngữ--thị giác tiền huấn luyện trên quy mô lớn như CLIP \cite{radford2021clip} đã mở ra bước đột phá vượt bậc. Bằng cách chiếu các đặc trưng biểu diễn của văn bản và hình ảnh vào cùng một shared latent space, các hệ thống truy vấn có thể xác định mức độ phù hợp thông qua độ đo cosine similarity giữa hai vectơ biểu diễn một cách hiệu quả và có khả năng khái quát hóa dạng zero-shot ấn tượng.
-
-Tuy nhiên, trong các tình huống thực tế, thế giới quan không chỉ đơn thuần là các mảng điểm ảnh hay các từ ngữ xuất hiện độc lập, mà luôn mang cấu trúc quan hệ ngữ nghĩa chặt chẽ. Một bức ảnh luôn chứa đựng nhiều thực thể với các mối liên kết không gian, chức năng hoặc hành động tương hỗ (ví dụ: một đứa trẻ đang đá bóng trên sân cỏ). Biểu diễn vectơ dày đặc của CLIP tuy nắm bắt xuất sắc diện mạo tổng thể nhưng thường gặp khó khăn trong việc hiểu rõ cấu trúc cú pháp quan hệ phức tạp và các tri thức suy luận ngầm định không xuất hiện trực tiếp dưới dạng đặc trưng thị giác bề mặt.
-
+Tìm kiếm hình ảnh bằng mô tả văn bản là nhu cầu phổ biến trong thực tế. Các mô hình như CLIP \cite{radford2021clip} biểu diễn hình ảnh và văn bản trong cùng một không gian đặc trưng, cho phép xếp hạng ảnh theo mức độ tương đồng với truy vấn. Tuy nhiên, nội dung ảnh không chỉ bao gồm các đối tượng mà còn có những mối quan hệ giữa chúng. Chẳng hạn, hai ảnh cùng chứa người và xe đạp nhưng chỉ một ảnh thể hiện người đang đi xe đạp. Mặc dù CLIP có thể học được thông tin về các mối quan hệ này, mô hình không biểu diễn chúng một cách tường minh. Trong khi đó, đồ thị cho phép biểu diễn các đối tượng và mối quan hệ giữa chúng thông qua các đỉnh và cạnh. Điều này đặt ra câu hỏi liệu việc kết hợp CLIP với biểu diễn đồ thị có giúp cải thiện khả năng truy hồi, đặc biệt với những truy vấn mô tả quan hệ giữa các đối tượng hay không.
 
 \section{Phát biểu bài toán}
 \label{sec:problem-statement}
 
-Mặc dù mô hình truy hồi dựa trên tương đồng không gian tiềm ẩn đạt tốc độ tính toán nhanh nhờ các thư viện chỉ mục vectơ như FAISS \cite{johnson2019faiss}, mô hình này tồn tại hai hạn chế mang tính cố hữu:
-\begin{enumerate}[label=(\arabic*)]
-  \item \textbf{Thiếu hụt khả năng mô hình hóa tri thức quan hệ:} Trong các truy vấn gián tiếp đòi hỏi suy luận logic hoặc liên kết đa chặng (ví dụ: truy vấn \textit{"a child playing football"} khi ảnh chỉ nhận diện được hai nhãn đối tượng là \textit{"ball"} và \textit{"field"}), mô hình dựa trên tương đồng vectơ thuần túy thường bỏ sót kết quả đúng do thiếu vắng đường đi kết nối tri thức \textit{child -- plays -- football}.
-  \item \textbf{Thiếu vắng tính Explainability:} Mô hình hộp đen chỉ trả về một giá trị tương đồng vô hướng, hoàn toàn không cho người dùng biết vì sao một hình ảnh lại được xếp hạng cao hơn hình ảnh khác, hoặc thành phần tri thức cụ thể nào trong ảnh đã đóng góp vào quyết định xếp hạng.
-\end{enumerate}
-Do đó, bài toán đặt ra cho đề tài là: \textit{Xây dựng hệ thống truy hồi đa phương thức kết hợp thông tin quan hệ từ đồ thị (Scene Graph và MMKG) nhằm cải thiện chất lượng xếp hạng kết quả, đồng thời sinh ra các giải thích trực quan dưới dạng quan hệ, đường đi hoặc đồ thị con có tính trung thực cao bắt nguồn từ chính cơ chế tính điểm của mô hình.}
+Với một mô tả bằng văn bản do người dùng cung cấp, hệ thống cần tìm và xếp hạng các hình ảnh theo mức độ phù hợp với mô tả đó. CLIP thực hiện việc này thông qua độ tương đồng giữa ảnh và văn bản, nhưng chưa trực tiếp khai thác cấu trúc quan hệ giữa các đối tượng trong ảnh. Ngoài ra, điểm tương đồng cũng chưa giúp giải thích rõ vì sao một hình ảnh được xếp hạng cao.
 
+Đồ án này tập trung kết hợp CLIP với đồ thị cảnh (scene graph) và đồ thị tri thức đa phương thức (MMKG) để đánh giá khả năng cải thiện hiệu quả truy hồi. Đồng thời, nghiên cứu xem xét cách giải thích kết quả thông qua các quan hệ, đường đi và đồ thị con, cũng như mức độ phản ánh quyết định của mô hình trong những giải thích này.
 
-\section{Mục tiêu và câu hỏi nghiên cứu}
+\section{Mục tiêu đồ án}
 \label{sec:research-objectives}
 
-Đồ án được thiết kế theo một cấu trúc học thuật chặt chẽ, tiến triển qua ba giai đoạn kế thừa lẫn nhau tương ứng với ba cấp độ nghiên cứu. Mỗi cấp độ tập trung giải quyết một câu hỏi khoa học xác định:
+Đồ án hướng đến cải thiện hiệu quả truy hồi đa phương thức bằng đồ thị và giải thích kết quả xếp hạng. Nội dung được chia thành ba cấp độ:
 
 \begin{itemize}
-  \item \textbf{Cấp độ 1:} Tập trung vào câu hỏi nghiên cứu \textbf{RQ1}: \textit{"Việc tích hợp cấu trúc đồ thị tĩnh thông qua mạng nơ-ron đồ thị GAT có thực sự cải thiện độ chính xác truy hồi so với baseline CLIP thuần túy hay không, và phần cải thiện này đến từ cấu trúc đồ thị hay từ việc gia tăng tham số của projection adapter?"}
-  \item \textbf{Cấp độ 2:} Tập trung vào câu hỏi nghiên cứu \textbf{RQ2}: \textit{"Khi mở rộng sang MMKG đa quan hệ và áp dụng cơ chế AdaMF-based feature fusion, tri thức quan hệ đóng góp như thế nào vào việc nâng cao chất lượng truy vấn, đặc biệt là đối với các truy vấn gián tiếp đòi hỏi suy luận liên kết?"}
-  \item \textbf{Cấp độ 3:} Tập trung vào câu hỏi nghiên cứu \textbf{RQ3}: \textit{"Các đường đi và đồ thị con giải thích được trích xuất từ cơ chế tính điểm đồ thị có đạt fidelity với hành vi xếp hạng của mô hình hay không, và giải pháp đề xuất có khả năng chuyển giao sang tập đồ thị đa phương thức tự xây cho miền đặc thù hay không?"}
+    \item \textbf{Cấp độ 1:} Việc xây dựng đồ thị và kết hợp mô hình học trên đồ thị với CLIP có cải thiện hiệu quả truy hồi không? Các quan hệ trong đồ thị đóng góp như thế nào?
+
+    \item \textbf{Cấp độ 2:} Việc áp dụng một phương pháp mới về truy hồi đa phương thức kết hợp đồ thị có cải thiện kết quả trên nhiều bộ dữ liệu, đặc biệt với các truy vấn gián tiếp không?
+
+    \item \textbf{Cấp độ 3:} Có thể giải thích kết quả truy hồi bằng các quan hệ, đường đi hoặc đồ thị con thực sự ảnh hưởng đến xếp hạng không? Phương pháp có thể áp dụng trên dữ liệu tự xây dựng không?
 \end{itemize}
 
-Mối quan hệ phụ thuộc logic giữa ba câu hỏi nghiên cứu được thể hiện rõ: RQ1 thiết lập nền tảng đo lường hiệu quả của đồ thị và kiểm soát kiểm thử triệt tiêu; RQ2 nâng cấp biểu diễn đồ thị sang không gian đa quan hệ MMKG và giải quyết bài toán truy vấn gián tiếp; RQ3 đi sâu vào bản chất minh bạch của quá trình ra quyết định ở hai cấp độ trước và kiểm tra tính tổng quát hóa trong môi trường dữ liệu mới.
-
-
-\section{Phạm vi nghiên cứu và đóng góp}
+\section{Phạm vi và đóng góp của đồ án}
 \label{sec:research-scope}
 
-\subsection{Phạm vi nghiên cứu}
-Nghiên cứu tập trung vào bài toán truy hồi Text-to-Image làm nhánh thực nghiệm chính theo đúng đặc tả chuẩn của đề bài. Nhánh mở rộng Image-to-Text và Text-to-Video được định vị ở mức khảo sát mở rộng. Các bộ dữ liệu chính được sử dụng gồm Visual Genome, DB15K và FB15k-237, kết hợp với tập dữ liệu khảo sát MMKG tự xây miền hẹp.
+Đồ án tập trung vào bài toán tìm kiếm ảnh bằng văn bản (Text-to-Image). Các thực nghiệm được thực hiện trên Visual Genome, DB15K, FB15k-237-IMG và một tập MMKG nhỏ do nhóm tự xây dựng.
 
-\subsection{Tóm tắt đóng góp chính}
-Các đóng góp chính của đồ án bao gồm:
+Các đóng góp chính của đồ án gồm:
 \begin{enumerate}
-  \item Xây dựng pipeline truy hồi đa phương thức chuẩn hóa tích hợp CLIP và đồ thị, bảo đảm giao thức chia tập dữ liệu nghiêm ngặt chống data leakage và kiểm soát seed ngẫu nhiên.
-  \item Triển khai và đánh giá thực nghiệm mô hình Graph Attention Network (GAT) trên Visual Genome, thực hiện ablation study kiểm chứng vai trò của cấu trúc cạnh bằng các đối chứng không cạnh và cạnh ngẫu nhiên.
-  \item Hiện thực hóa mô hình dung hợp đa phương thức dựa trên AdaMF trên hai tập chuẩn MMKG (DB15K và FB15k-237), phân tích chuyên sâu sự khác biệt hiệu năng giữa 20 truy vấn trực tiếp và gián tiếp.
-  \item Thiết kế giao thức đánh giá giải thích định lượng thông qua ba chỉ số: Fidelity, Validity và Sparsity, kèm theo phân tích định tính trên các trường hợp thành công và thất bại.
-  \item Khảo sát khả năng chuyển giao trên tập dữ liệu MMKG tự xây (tiếng Việt miền hẹp) và ghi nhận minh bạch các giới hạn thực nghiệm.
+    \item Xây dựng quy trình truy hồi ảnh bằng văn bản, kết hợp CLIP với thuật toán Graph Attention Network (GAT) để xếp hạng lại kết quả.
+
+    \item Triển khai phương pháp AdaMF để kết hợp đặc trưng đa phương thức, đồng thời đánh giá hiệu quả truy hồi trên các bộ dữ liệu công khai.
+
+    \item Thực hiện các thí nghiệm so sánh và phân tích vai trò của cấu trúc đồ thị đối với hiệu quả truy hồi.
+
+    \item Xây dựng và đánh giá khả năng giải thích kết quả truy hồi thông qua các quan hệ, đường đi và đồ thị con.
+
+    \item Xây dựng tập dữ liệu MMKG riêng và thử nghiệm khả năng áp dụng mô hình trên dữ liệu mới.
 \end{enumerate}

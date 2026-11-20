@@ -1,87 +1,59 @@
-\chapter{Phụ lục bổ trợ}
-\label{chap:appendices}
 
-\section{Phụ lục A: Pipeline GAT trên Flickr30k Entities}
+\section{Thực nghiệm bổ sung trên Flickr30k Entities}
 \label{app:flickr30k-pipeline}
 
-\subsection{Xây dựng đồ thị}
+Bên cạnh Visual Genome, nhóm thực hiện thêm thí nghiệm trên Flickr30k Entities để đánh giá khả năng kết hợp CLIP với GAT trên một cách xây dựng đồ thị khác.
 
-Mỗi ảnh Flickr30k được biểu diễn bằng một đồ thị độc lập gồm một đỉnh ảnh và các đỉnh vùng được tạo từ bounding box của Flickr30k Entities. Đỉnh ảnh dùng embedding 512 chiều của toàn bộ ảnh; mỗi đỉnh vùng dùng embedding 512 chiều của phần ảnh được crop theo bounding box. Các đặc trưng được trích xuất bằng CLIP \texttt{ViT-B-32-quickgelu}, pretrained \texttt{openai}, và được giữ cố định.
+Mỗi ảnh được biểu diễn bằng một đồ thị gồm một đỉnh ảnh và các đỉnh vùng được xác định từ bounding box. Đặc trưng 512 chiều của ảnh và từng vùng được trích xuất bằng CLIP \texttt{ViT-B-32-quickgelu} với trọng số cố định. Đồ thị gồm các cạnh liên kết ảnh với vùng, self-loop và các quan hệ không gian như \texttt{overlap}, \texttt{left\_of}, \texttt{right\_of}, \texttt{above} và \texttt{below}. Các quan hệ này được xác định dựa trên vị trí và mức độ giao nhau giữa các bounding box.
 
-Đồ thị sử dụng tám loại cạnh: \texttt{self}, \texttt{contains}, \texttt{in\_image}, \texttt{overlap}, \texttt{left\_of}, \texttt{right\_of}, \texttt{above} và \texttt{below}. Với mỗi vùng, pipeline tạo hai cạnh $v_{\mathrm{image}}\xrightarrow{\mathrm{contains}}v_{\mathrm{region}}$ và $v_{\mathrm{region}}\xrightarrow{\mathrm{in\_image}}v_{\mathrm{image}}$; đồng thời mỗi đỉnh được gán một self-loop.
+Mô hình sử dụng GAT hai lớp với kích thước đặc trưng lần lượt là 256 và 512 chiều. Biểu diễn tại đỉnh ảnh sau GAT được kết hợp với đặc trưng CLIP ban đầu thông qua kết nối residual, sau đó chuẩn hóa bằng LayerNorm và L2.
 
-Quan hệ giữa hai vùng được suy ra từ bounding box. Nếu diện tích giao của hai box lớn hơn 0, hai cạnh \texttt{overlap} ngược chiều được tạo. Nếu hai box không giao nhau và khoảng cách Euclidean giữa hai tâm nhỏ hơn 0.35 trong hệ tọa độ chuẩn hóa, trục có độ lệch lớn hơn quyết định cặp quan hệ \texttt{left\_of}/\texttt{right\_of} hoặc \texttt{above}/\texttt{below}. Không tạo cạnh không gian nếu khoảng cách lớn hơn hoặc bằng 0.35. Ngưỡng 0.35 là heuristic được hard-code trong pipeline, không phải siêu tham số được chọn trên validation. Loại cạnh được biểu diễn bằng vectơ one-hot 8 chiều.
+Dữ liệu gồm 29\,783 ảnh huấn luyện, 1\,000 ảnh validation và 1\,000 ảnh test. Kết quả truy hồi và so sánh các cấu hình đồ thị được trình bày trong Bảng~\ref{tab:flickr30k-results}.
 
-Tập dữ liệu gồm 29\,783 đồ thị huấn luyện, 1\,000 đồ thị validation và 1\,000 đồ thị test. Số đỉnh trung bình tương ứng là 9.691, 9.595 và 9.339; khoảng min--max là $1$--$107$, $2$--$48$ và $1$--$44$. Số cạnh có hướng trung bình, đã bao gồm self-loop và các cạnh hai chiều, lần lượt là 90.543, 85.899 và 84.651; khoảng min--max là $1$--$6\,829$, $4$--$1\,504$ và $1$--$1\,129$.
-
-Tần suất tám loại cạnh trên toàn bộ dữ liệu là: \texttt{overlap} (1\,258\,162), \texttt{self} (307\,558), \texttt{contains} (275\,775), \texttt{in\_image} (275\,775), \texttt{left\_of} (264\,124), \texttt{right\_of} (264\,124), \texttt{above} (110\,837) và \texttt{below} (110\,837).
-
-Ví dụ, đồ thị của ảnh \texttt{1100214449} gồm một đỉnh ảnh và bốn đỉnh vùng tương ứng với \emph{boy}, \emph{fountain}, \emph{building} và \emph{striped shirt}. Đồ thị có 5 self-loop, 8 cạnh ảnh--vùng và 6 cạnh \texttt{overlap} có hướng. Ba cặp vùng giao nhau là \emph{boy--building}, \emph{boy--striped shirt} và \emph{building--striped shirt}, với một cạnh cho mỗi hướng.
-
-\subsection{Kiến trúc GAT và image-root readout}
-
-GAT gồm hai lớp. Lớp thứ nhất ánh xạ đặc trưng từ 512 xuống 256 chiều với hai attention head và \texttt{concat=False}; lớp thứ hai ánh xạ từ 256 về 512 chiều với một attention head. Mô hình không sử dụng dropout và không để GAT tự thêm self-loop vì self-loop đã được tạo trong dữ liệu. Trong một mini-batch, vị trí đỉnh ảnh của mỗi đồ thị được xác định bởi \texttt{batch.ptr[:-1]}. Embedding đỉnh ảnh sau GAT được cộng residual với CLIP image embedding ban đầu $x_i^{\text{image}}$, sau đó áp dụng LayerNorm và chuẩn hóa L2:
-\begin{equation}
-  h_{\text{graph}}^{\text{F30K}}(v_i)
-  = \operatorname{L2Norm}\!\left(
-      \operatorname{LayerNorm}\!\left(H_i^{(2)}[r_i] + x_i^{\text{image}}\right)
-    \right).
-  \label{eq:flickr-root-readout}
-\end{equation}
-
-Khác với Visual Genome, quan hệ trong đồ thị Flickr30k được suy ra từ hình học bounding box thay vì predicate ngữ nghĩa của scene graph. Vì vậy, Visual Genome biểu diễn trực tiếp các quan hệ như \emph{man--holding--microphone}, trong khi Flickr30k chủ yếu biểu diễn quan hệ không gian như \emph{overlap}, \emph{left of} và \emph{above}.
-
-
-\subsection{Kết quả truy hồi}
-
-Trên Flickr30k Entities, CLIP-only đạt R@1 0.6120, R@5 0.8240, R@10 0.8845 và MRR 0.7232. Kết quả CLIP + GAT qua ba seed được trình bày trong Bảng~\ref{tab:flickr30k-results}.
-
-\begin{table*}[!t]
+\begin{table}[H]
 \centering
 \small
-\setlength{\tabcolsep}{4pt}
-\caption{Hiệu năng truy vấn trên Flickr30k Entities}
+\caption{Kết quả truy hồi trên Flickr30k Entities}
 \label{tab:flickr30k-results}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrrr}
 \toprule
-Cấu hình & R@1 & R@5 & R@10 & MRR\\
+Cấu hình & R@1 & R@5 & R@10 & MRR \\
 \midrule
-CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
-CLIP + GAT, seed 2026 & 0.7385 & 0.8920 & 0.9310 & 0.8251\\
-CLIP + GAT, seed 2027 & 0.7410 & 0.8950 & 0.9340 & 0.8290\\
-CLIP + GAT, seed 2028 & 0.7390 & 0.8940 & 0.9330 & 0.8278\\
+CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232 \\
+Full Graph (2026) & 0.7385 & 0.8920 & 0.9310 & 0.8251 \\
+Full Graph (2027) & 0.7410 & 0.8950 & 0.9340 & 0.8290 \\
+Full Graph (2028) & 0.7390 & 0.8940 & 0.9330 & 0.8278 \\
 \midrule
-Trung bình & 0.7395 & 0.8937 & 0.9327 & 0.8273\\
-Độ lệch chuẩn mẫu & 0.0013 & 0.0015 & 0.0015 & 0.0020\\
+Trung bình & 0.7395 & 0.8937 & 0.9327 & 0.8273 \\
+Độ lệch chuẩn & 0.0013 & 0.0015 & 0.0015 & 0.0020 \\
+\midrule
+No-edges (2026) & 0.6840 & 0.8520 & 0.9010 & 0.7810 \\
+Random-edges (2026) & 0.6380 & 0.8310 & 0.8890 & 0.7450 \\
 \bottomrule
 \end{tabular}
-\end{table*}
+}
+\end{table}
 
-\subsection{Ablation}
+CLIP kết hợp GAT đạt MRR trung bình 0.8273,
+cải thiện 14.4\% so với CLIP-only. Trong thí nghiệm
+so sánh trên seed 2026, Full Graph đạt MRR 0.8251,
+cao hơn No-edges (0.7810) và Random-edges (0.7450).
+Đáng chú ý, Random-edges còn cho kết quả thấp hơn
+No-edges, cho thấy các liên kết ngẫu nhiên có thể
+làm giảm hiệu quả truy hồi. Tuy nhiên, No-edges vẫn vượt CLIP-only, cho thấy mức cải thiện không hoàn toàn đến
+từ thông tin về các mối liên kết giữa
+các vùng ảnh trong đồ thị.
 
-Hai đối chứng No-edges và Random-edges được đánh giá trên seed \texttt{2026}. No-edges chỉ giữ self-loop, trong khi Random-edges thay thế liên kết đúng bằng liên kết ngẫu nhiên.
+Khác với Visual Genome có sẵn các quan hệ ngữ
+nghĩa giữa đối tượng, Flickr30k Entities chỉ cung
+cấp các vùng ảnh và mô tả tương ứng. Do đó,
+nhóm xây dựng đồ thị dựa trên liên kết ảnh--vùng
+và các quan hệ không gian suy ra từ bounding box.
+Kết quả cho thấy cách biểu diễn này có thể hỗ trợ
+cải thiện hiệu quả truy hồi khi kết hợp với GAT.
 
-\begin{table*}[!t]
-\centering
-\small
-\setlength{\tabcolsep}{4pt}
-\caption{Ablation trên Flickr30k Entities, seed 2026}
-\label{tab:flickr30k-ablation}
-\begin{tabular}{lrrrr}
-\toprule
-Cấu hình & R@1 & R@5 & R@10 & MRR\\
-\midrule
-CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232\\
-No-edges / Adapter & 0.6840 & 0.8520 & 0.9010 & 0.7810\\
-Random-edges & 0.6380 & 0.8310 & 0.8890 & 0.7450\\
-Full Graph & 0.7385 & 0.8920 & 0.9310 & 0.8251\\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-Kết quả này cho thấy không thể đồng nhất No-edges với CLIP-only hoặc quy toàn bộ mức tăng cho cấu trúc cạnh.
-
-\section{Phụ lục B: Cấu hình siêu tham số và tài nguyên tính toán}
+\section{Cấu hình siêu tham số và tài nguyên tính toán}
 \label{app:hyperparameters}
 
 Bảng~\ref{tab:hyperparameters} liệt kê chi tiết các siêu tham số được sử dụng để huấn luyện mô hình ở từng cấp độ thực nghiệm:
@@ -94,44 +66,24 @@ Bảng~\ref{tab:hyperparameters} liệt kê chi tiết các siêu tham số đư
 \label{tab:hyperparameters}
 \begin{tabularx}{\textwidth}{L{4.0cm}L{3.5cm}L{3.5cm}Y}
 \toprule
-\textbf{Tham số / Cấu hình} & \textbf{Level 1 (GAT)} & \textbf{Level 2 (AdaMF)} & \textbf{Ghi chú}\\
+\textbf{Tham số / Cấu hình} & \textbf{Visual Genome (GAT)} & \textbf{Level 2 (AdaMF)} & \textbf{Ghi chú}\\
 \midrule
-Backbone thị giác & ViT-B/32 (OpenCLIP) & ViT-B/32 (OpenCLIP) & Đóng băng toàn bộ trọng số\\
-Kích thước nhúng ($d$) & 512 & 512 & Đồng nhất không gian CLIP\\
-Số lớp GNN & 2 lớp GAT & 2 tầng Transformer & Truyền thông điệp cục bộ\\
-Hidden dimension & 128 & 256 & Chiếu không gian trung gian\\
-Số attention heads & 4 heads & 4 heads & Đa cơ chế chú ý\\
-Tỷ lệ Dropout & 0.2 & 0.1 & Phòng chống quá khớp\\
-Hàm tối ưu & AdamW & AdamW & Weight decay = $1\text{e-}4$\\
-Learning rate & $1\text{e-}3$ & $5\text{e-}4$ & Giảm theo Cosine Annealing\\
-Số Epoch tối đa & 50 & 500 (Early stop = 8) & Dừng sớm theo Validation\\
-Trọng số kết hợp $\alpha_{\text{CLIP}}$ & 0.6 (trên VG) & 0.2 (trên DB15K) & Khóa trên Validation\\
+Backbone thị giác & ViT-B-32, pretrained \texttt{openai} & ViT-B/32 (OpenCLIP) & CLIP được đóng băng\\
+Kích thước đặc trưng đầu vào & 512 & 512 & Đặc trưng CLIP\\
+Kiến trúc & 2 lớp GAT có xét đặc trưng cạnh & 2 tầng Transformer & Truyền thông điệp\\
+Hidden dimension & 128 & 256 & Visual Genome dùng image-root readout\\
+Số attention heads & 4 heads $\times$ 32 chiều & 4 heads & Đa cơ chế chú ý\\
+Tỷ lệ dropout & 0.2 & 0.1 & Cấu hình huấn luyện\\
+Hàm tối ưu & AdamW & AdamW & Visual Genome: weight decay $10^{-4}$\\
+Learning rate & $10^{-4}$ & $5\text{e-}4$ & Visual Genome huấn luyện 3 seed\\
+Số epoch tối đa & 100 & 500 (Early stop = 8) & Visual Genome không dừng sớm tự động\\
+Chọn checkpoint & Validation MRR cao nhất & Validation MRR & Không chọn mô hình bằng test\\
+Trọng số kết hợp $\alpha_{\text{CLIP}}$ & 0.6 & 0.2 (trên DB15K) & Chọn trên validation\\
 \bottomrule
 \end{tabularx}
 \end{table*}
 
-\section{Phụ lục C: Hướng dẫn tái lập thực nghiệm}
-\label{app:reproduction}
-
-Quy trình tái lập các kết quả thực nghiệm từ mã nguồn và dữ liệu đã chuẩn hóa được tóm tắt qua các bước chuẩn:
-
-\begin{lstlisting}[language=bash,caption={Các bước tái lập thực nghiệm trên môi trường GPU}]
-# 1. Khoi tao moi truong ao va cai dat thu vien
-python3 -m venv venv && source venv/bin/activate
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-pip install torch_geometric pyarrow duckdb pandas scikit-learn transformers
-
-# 2. Xac thuc ma bam du lieu va checkpoint
-sha256sum -c reference/model_handoff_manifest.json
-
-# 3. Tai lap ket qua suy luan Level 1 (Flickr30k)
-python src/gml_v1/evaluate_gat.py --seed 2026 --checkpoint model/gat_v1/seed_2026/best.pt
-
-# 4. Tai lap ket qua suy luan Level 2 (DB15K AdaMF seed 2027)
-python src/gml_v2/evaluate_adamf.py --dataset DB15K --seed 2027 --alpha 0.2
-\end{lstlisting}
-
-\section{Phụ lục D: Phân công trách nhiệm của thành viên}
+\section{Phân công trách nhiệm của thành viên}
 \label{app:contributions}
 
 Bảng~\ref{tab:contributions} ghi nhận vai trò chính của từng thành viên trong nhóm đồ án:

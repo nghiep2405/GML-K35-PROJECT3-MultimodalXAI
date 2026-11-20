@@ -87,10 +87,12 @@
 \let\IEEESubsection\subsection
 \let\IEEESubsubsection\subsubsection
 \let\IEEEParagraph\paragraph
-\newcommand{\chapter}[1]{\IEEESection{#1}}
-\renewcommand{\section}[1]{\IEEESubsection{#1}}
-\renewcommand{\subsection}[1]{\IEEESubsubsection{#1}}
-\renewcommand{\subsubsection}[1]{\IEEEParagraph{#1}}
+\makeatletter
+\newcommand{\chapter}{\@ifstar{\IEEESection*}{\IEEESection}}
+\renewcommand{\section}{\@ifstar{\IEEESubsection*}{\IEEESubsection}}
+\renewcommand{\subsection}{\@ifstar{\IEEESubsubsection*}{\IEEESubsubsection}}
+\renewcommand{\subsubsection}{\@ifstar{\IEEEParagraph*}{\IEEEParagraph}}
+\makeatother
 
 % Report metadata
 \newcommand{\coursename}{Học máy với dữ liệu đồ thị}
@@ -134,6 +136,7 @@
 
 \renderbibliography
 
+\clearpage
 \appendices
 \input{Appendix/appendix1}
 

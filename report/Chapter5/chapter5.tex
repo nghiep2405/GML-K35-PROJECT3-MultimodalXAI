@@ -1,7 +1,7 @@
 \chapter{Kết quả và phân tích thực nghiệm}
 \label{chap:results}
 
-\section{Yêu cầu 1: Kết quả thực nghiệm trên Visual Genome}
+\section{Kết quả thực nghiệm trên Visual Genome}
 \label{sec:level1-results}
 
 \subsection{Hiệu năng truy hồi ảnh}
@@ -53,6 +53,17 @@ chỉ 0.000166. Các chỉ số Recall cũng có độ
 lệch chuẩn nhỏ, cho thấy kết quả tương đối
 ổn định giữa các lần huấn luyện với seed khác nhau.
 
+Hình~\ref{fig:vg-convergence} minh họa diễn biến training loss
+và validation MRR theo epoch của ba lần chạy. Các mốc được đánh dấu
+là checkpoint có validation MRR cao nhất và được dùng cho đánh giá test.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figures/visual_genome_convergence.png}
+\caption{Training loss và validation MRR trên Visual Genome}
+\label{fig:vg-convergence}
+\end{figure}
+
 Tuy nhiên, sự cải thiện so với CLIP-only chưa
 đủ để khẳng định toàn bộ lợi ích đến từ các
 quan hệ trong đồ thị. Để làm rõ điều này,
@@ -84,6 +95,16 @@ Full Graph & 98 & 0.6 & \textbf{0.036129} & \textbf{0.095950} & \textbf{0.138033
 \bottomrule
 \end{tabular}
 \end{table*}
+
+Hình~\ref{fig:vg-ablation-seed2026} trực quan hóa chênh lệch
+giữa bốn cấu hình trên các thước đo truy hồi.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figures/visual_genome_ablation_seed2026.png}
+\caption{So sánh ablation trên Visual Genome (seed 2026)}
+\label{fig:vg-ablation-seed2026}
+\end{figure}
 
 Full Graph đạt kết quả cao nhất trên cả bốn
 chỉ số, tiếp theo là Random-edges, No-edge

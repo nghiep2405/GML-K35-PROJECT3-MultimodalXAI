@@ -29,7 +29,7 @@ Với một mô tả bằng văn bản do người dùng cung cấp, hệ thốn
 \section{Phạm vi và đóng góp của đồ án}
 \label{sec:research-scope}
 
-Đồ án tập trung vào bài toán tìm kiếm ảnh bằng văn bản (Text-to-Image). Các thực nghiệm được thực hiện trên Visual Genome, DB15K, FB15k-237-IMG và một tập MMKG nhỏ do nhóm tự xây dựng.
+Đồ án tập trung vào nhánh A của đề: truy vấn văn bản tìm ảnh (text-to-image). Mỗi cấp độ dùng một nhóm dữ liệu: cấp độ 1 dùng Visual Genome với scene graph có sẵn; cấp độ 2 dùng hai MMKG công khai DB15K và FB15K-237-IMG; cấp độ 3 dùng ViHeritage-MMKG, một MMKG tiếng Việt về di sản và danh thắng Việt Nam do nhóm tự xây.
 
 Các đóng góp chính của đồ án gồm:
 \begin{enumerate}
@@ -39,7 +39,7 @@ Các đóng góp chính của đồ án gồm:
 
     \item Thực hiện các thí nghiệm so sánh và phân tích vai trò của cấu trúc đồ thị đối với hiệu quả truy hồi.
 
-    \item Xây dựng và đánh giá khả năng giải thích kết quả truy hồi thông qua các quan hệ, đường đi và đồ thị con.
+    \item Xây dựng bộ giải thích dựa trên can thiệp vào chính hàm xếp hạng và đo định lượng fidelity, validity, sparsity trên cả ba cấp độ, có đối chứng ngẫu nhiên và kiểm định thống kê.
 
-    \item Xây dựng tập dữ liệu MMKG riêng và thử nghiệm khả năng áp dụng mô hình trên dữ liệu mới.
+    \item Xây dựng ViHeritage-MMKG (150 thực thể, 427 bộ ba, 438 ảnh, truy vấn tiếng Việt) kèm data card, chạy hai phương pháp tốt nhất của cấp 1 và cấp 2 trên tập này và phân tích khả năng chuyển giao.
 \end{enumerate}

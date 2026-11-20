@@ -1,52 +1,41 @@
 \chapter{Thảo luận}
 \label{chap:discussion}
 
-\section{Hiệu quả thực sự của truy vấn dựa trên đồ thị}
+\section{Đồ thị giúp truy vấn ở đâu}
 \label{sec:effectiveness-discussion}
 
-Kết quả thực nghiệm trên cả ba cấp độ khẳng định một cách nhất quán rằng việc tích hợp thông tin có cấu trúc từ đồ thị mang lại giá trị gia tăng rõ rệt so với các mô hình truy vấn đa phương thức chỉ dựa trên độ tương đồng vectơ bề mặt như CLIP. Tuy nhiên, mức độ hữu hiệu của đồ thị phụ thuộc rất lớn vào bản chất của câu truy vấn.
+Với truy vấn trực tiếp mô tả nội dung nhìn thấy được, CLIP đã mạnh; trên DB15K và ViHeritage, nhóm giữ nguyên thứ hạng CLIP cho loại truy vấn này. Lợi ích rõ nhất của đồ thị nằm ở truy vấn gián tiếp, nơi đáp án chỉ xác định được qua quan hệ với một thực thể khác: MRR gián tiếp tăng 6.6 lần trên DB15K, 9.7 lần trên FB15K-237-IMG và khoảng 2 lần trên ViHeritage. Trên ViHeritage, đồ thị giúp nhiều với các quan hệ có cấu trúc rõ như \textit{thuộc quần thể}, \textit{danh hiệu di sản}, \textit{nằm ở tỉnh}, nhưng làm hại với \textit{là một} và \textit{xây dựng vào thế kỷ}, là những quan hệ có rất nhiều đáp án và ít khác biệt về hình ảnh.
 
-Đối với các câu truy vấn trực tiếp mô tả đối tượng thị giác xuất hiện hiển nhiên trong ảnh, mô hình CLIP tiền huấn luyện trên hàng trăm triệu cặp ảnh--văn bản đã có khả năng tạo ra sự căn chỉnh không gian biểu diễn rất mạnh mẽ. Trong các tình huống này, đồ thị cục bộ chỉ đóng vai trò gia cố thứ hạng nhẹ hoặc thậm chí có thể đưa vào nhiễu nếu các nhãn đối tượng bị phát hiện sai lệch. Ngược lại, đối với các truy vấn gián tiếp -- nơi thông tin thị giác trực tiếp không đủ để định danh đối tượng hoặc đòi hỏi liên kết bắc cầu qua các sự kiện, nhân vật lịch sử và bối cảnh trừu tượng -- đồ thị tri thức đa phương thức đóng vai trò quyết định, biến một tác vụ truy vấn bất khả thi thành một quá trình suy luận có định hướng rõ ràng.
-
-
-\section{Đóng góp của thông tin cấu trúc đồ thị}
+\section{Mức tăng có thực sự đến từ cấu trúc quan hệ}
 \label{sec:structural-contribution}
 
-Một trong những đóng góp học thuật quan trọng nhất của báo cáo là làm sáng tỏ bản chất của "sự cải thiện nhờ đồ thị" thông qua các thí nghiệm triệt tiêu đa dạng. Trong nhiều công bố khoa học, việc một mô hình GNN cải thiện điểm số so với mô hình cơ sở thường bị quy mặc nhiên toàn bộ cho cấu trúc topo của đồ thị. 
+Hình~\ref{fig:ablation-all} đặt các ablation của bốn tập cạnh nhau. Ở Visual Genome, khoảng 77\% mức tăng còn lại khi bỏ hết cạnh và 92\% khi xáo cạnh: phần lớn cải thiện đến từ lớp chiếu và cơ chế dung hợp được huấn luyện có giám sát, cấu trúc scene graph chỉ đóng góp phần nhỏ. FB15K-237-IMG cho kết quả tương tự vì mục tiêu truy hồi cho phép mô hình học trực tiếp thực thể nào khớp với ảnh nào. Ngược lại, trên DB15K và ViHeritage, nơi điểm đồ thị đến từ bộ chấm bộ ba học trên cạnh train, bỏ hoặc xáo cạnh làm mất phần lớn hoặc toàn bộ lợi ích. Kết luận chung: cấu trúc quan hệ quan trọng khi mô hình buộc phải suy luận qua cạnh, và không nên quy toàn bộ mức tăng của một mô hình đồ thị cho cấu trúc nếu chưa có đối chứng bỏ cạnh.
 
-Các phát hiện thực nghiệm của nhóm trên Visual Genome và DB15K cho thấy bức tranh phức tạp hơn:
-\begin{enumerate}
-  \item \textbf{Hiệu ứng của các thành phần học được:} Trên Visual Genome seed 2026, cấu hình No-edge đạt MRR 0,069193 so với 0,061149 của CLIP-only. Kết quả cho thấy một phần cải thiện có thể đến từ các phép biến đổi đặc trưng và cơ chế kết hợp điểm, không chỉ từ cấu trúc cạnh.
-  \item \textbf{Hiệu ứng phân phối bậc:} Đồ thị hoán đổi cạnh trên DB15K giữ bậc vào và ra theo từng quan hệ và đạt MRR 0,315632, so với 0,257698 của CLIP. Thực nghiệm này chưa cô lập ảnh hưởng riêng của phân phối bậc.
-  \item \textbf{Ngữ nghĩa cạnh thực sự:} Đồ thị gốc cao hơn đồ thị hoán đổi khoảng 0,0989 MRR trên DB15K seed 2027. Hai cấu hình chọn trọng số và checkpoint riêng, nên mức chênh lệch được diễn giải ở cấp cấu hình.
-\end{enumerate}
-\section{Độ tin cậy của các giải thích đồ thị}
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_ablation_gain_kept.pdf}
+\caption{Phần lợi ích so với CLIP còn giữ lại khi bỏ, xáo hoặc thay ngẫu nhiên cạnh (mỗi biến thể một lần huấn luyện). Visual Genome dùng MRR toàn bộ test; các tập còn lại dùng MRR truy vấn gián tiếp. Cột không hiển thị là 0\%.}
+\label{fig:ablation-all}
+\end{figure}
+
+\section{Độ tin cậy của giải thích}
 \label{sec:xai-reliability}
 
-Khía cạnh xAI của hệ thống giải quyết triệt để vấn đề "hộp đen" trong truy vấn đa phương thức. Việc trích xuất đường đi suy luận từ cơ chế lan truyền thông điệp của GAT và hàm mục tiêu bộ ba của AdaMF bảo đảm rằng giải thích sinh ra phản ánh trung thực quá trình ra quyết định bên trong của mô hình.
+Vì mọi giải thích được đo bằng can thiệp lên chính hàm xếp hạng, chúng thỏa yêu cầu không dựng đường đi sau khi đã có kết quả: bỏ tập giải thích luôn làm ảnh mất điểm nhiều hơn bỏ ngẫu nhiên ở cả bốn tập, và trên ViHeritage kết quả vẫn đúng khi huấn luyện lại thật. Tuy vậy có ba giới hạn. Thứ nhất, cần thiết không đồng nghĩa với đủ: giải thích một bộ ba của AdaMF trên ViHeritage có Fid+ cao nhưng PS thấp. Thứ hai, phép đo xấp xỉ học lại nhúng của một thực thể chỉ tương quan vừa phải với huấn luyện lại thật (Spearman 0.32). Thứ ba, trung thành với mô hình khác với hợp lý theo kiến thức: ở các ca thất bại, giải thích phản ánh đúng lý do mô hình sai (trên Visual Genome là thưởng cho sự có mặt của vật mà bỏ qua thuộc tính; ở cấp 2 và 3 là trả về chính thực thể neo, dùng bộ ba không liên quan, bộ ba Wikidata sai) nhưng không cho lý do hợp lệ. Giải thích vì vậy hữu ích nhất để chẩn đoán lỗi của mô hình và dữ liệu.
 
-Các kiểm thử can thiệp định lượng qua chỉ số Fidelity chứng minh rằng khi người dùng loại bỏ các liên kết được chọn làm giải thích, điểm số của ứng viên bị sụt giảm nghiêm trọng, xác nhận tính nhân quả thực chất. Tuy nhiên, nghiên cứu cũng ghi nhận các trường hợp thất bại định tính: khi mô hình đưa ra dự đoán sai lệch (ví dụ: xếp hạng nhầm một bức ảnh phong cảnh khác), giải thích sinh ra đôi khi vẫn hiển thị một đường đi logic hợp lý bề mặt. Điều này cảnh báo rằng giải thích faithful to model không đồng nghĩa với việc giải thích luôn phản ánh ground-truth validity, đòi hỏi người vận hành phải có chuyên môn khi đánh giá.
-
-
-\section{Các giới hạn thực nghiệm}
+\section{Giới hạn}
 \label{sec:limitations}
 
-Báo cáo thừa nhận một cách thẳng thắn các giới hạn kỹ thuật và phương pháp luận hiện tại của đồ án:
 \begin{itemize}
-  \item \textbf{Giới hạn về tài nguyên tính toán và quy mô đánh giá:} Nhiều thực nghiệm ablation phức tạp (như Shuffled Edges) mới chỉ hoàn tất trên một seed ngẫu nhiên duy nhất (seed \texttt{2027}), chưa thể cung cấp khoảng tin cậy thống kê đa seed đầy đủ.
-  \item \textbf{Phương pháp loại trừ cạnh trong đồ thị hoán đổi:} Quy trình sinh đồ thị Shuffled Edges v2 sử dụng danh sách held-out triples cố định của tập validation và test để loại bỏ cạnh trùng. Mặc dù bảo đảm không có cạnh rò rỉ trực tiếp vào tập huấn luyện, quy trình này không đạt trạng thái \textit{strict test-blind} hoàn toàn.
-  \item \textbf{Tiến độ nhánh Cấp độ 3 trên dữ liệu tự xây:} Dữ liệu Custom MMKG tiếng Việt mới dừng lại ở giai đoạn thu thập sơ bộ; các artifact huấn luyện và đánh giá định lượng chuyển giao chưa được nghiệm thu chính thức trên các thư mục bàn giao.
+  \item Ablation chỉ chạy một lần cho mỗi biến thể, chưa ước lượng được biến thiên giữa các lần huấn luyện.
+  \item Đồ thị xáo cạnh trên DB15K dùng danh sách bộ ba validation/test để loại cạnh trùng, nên quy trình sinh không hoàn toàn mù với test.
+  \item Hai pipeline cấp 2 khác nhau về hàm mất mát (bộ ba trên DB15K, truy hồi trên FB15K-237-IMG) và nhiều siêu tham số, nên chưa tách được tác động riêng của hàm mất mát.
+  \item Trên Visual Genome, mô tả vùng được dùng làm truy vấn trong khi ứng viên là cả ảnh, và mỗi truy vấn chỉ có một ảnh đúng, nên MRR tuyệt đối thấp.
+  \item ViHeritage nhỏ (54 truy vấn gián tiếp test), thiên về địa danh nổi tiếng và ảnh du lịch; khoảng 35\% bộ ba là quan hệ suy ra; Wikidata về di tích Việt Nam còn thưa và có lỗi.
+  \item Câu truy vấn tự nhiên của ViHeritage được soạn với hỗ trợ của công cụ AI từ khung (quan hệ, thực thể neo) sinh tự động; kiểm tra liên kết ảnh và đánh giá validity theo kiến thức miền được chấm với hỗ trợ của công cụ AI, một lượt chấm, không có hệ số đồng thuận.
 \end{itemize}
 
-
-\section{Ý nghĩa nghiên cứu và hướng phát triển}
+\section{Hướng phát triển}
 \label{sec:future-directions-discussion}
 
-Nghiên cứu mở ra tiềm năng ứng dụng thực tiễn to lớn trong các hệ thống tìm kiếm hình ảnh chuyên biệt đòi hỏi tính chính xác cao và khả năng giải trình minh bạch, chẳng hạn như truy vấn tư liệu lịch sử, quản lý di sản số hóa, hoặc hỗ trợ tra cứu chẩn đoán y khoa đa phương thức.
-
-Các hướng phát triển tự nhiên tiếp theo bao gồm:
-\begin{enumerate}
-  \item Xây dựng cơ chế sinh đồ thị hoán đổi nghiêm ngặt strict test-blind edge shuffling.
-  \item Tích hợp hàm mất mát graph-aware contrastive loss trực tiếp trong quá trình huấn luyện bộ mã hóa.
-  \item Mở rộng sang bài toán truy vấn Text-to-Video bằng cách mô hình hóa đồ thị tương tác thời gian giữa các khung hình.
-\end{enumerate}
+Các hướng tiếp theo gồm: chạy ablation nhiều lần và sinh đồ thị xáo cạnh hoàn toàn mù với test; loại thực thể neo khỏi tập ứng viên của truy vấn gián tiếp, vì đây là nguồn lỗi chung của DB15K và ViHeritage; chọn $K^\star$ theo cả tính cần thiết và tính đủ; bổ sung người chấm độc lập cho validity; mở rộng ViHeritage và thử nghiệm truy vấn ảnh tìm văn bản.

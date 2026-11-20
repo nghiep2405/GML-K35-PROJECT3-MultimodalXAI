@@ -1,108 +1,18 @@
-
-\section{Thực nghiệm bổ sung trên Flickr30k Entities}
-\label{app:flickr30k-pipeline}
-
-Bên cạnh Visual Genome, nhóm thực hiện thêm thí nghiệm trên Flickr30k Entities để đánh giá khả năng kết hợp CLIP với GAT trên một cách xây dựng đồ thị khác.
-
-Mỗi ảnh được biểu diễn bằng một đồ thị gồm một đỉnh ảnh và các đỉnh vùng được xác định từ bounding box. Đặc trưng 512 chiều của ảnh và từng vùng được trích xuất bằng CLIP \texttt{ViT-B-32-quickgelu} với trọng số cố định. Đồ thị gồm các cạnh liên kết ảnh với vùng, self-loop và các quan hệ không gian như \texttt{overlap}, \texttt{left\_of}, \texttt{right\_of}, \texttt{above} và \texttt{below}. Các quan hệ này được xác định dựa trên vị trí và mức độ giao nhau giữa các bounding box.
-
-Mô hình sử dụng GAT hai lớp với kích thước đặc trưng lần lượt là 256 và 512 chiều. Biểu diễn tại đỉnh ảnh sau GAT được kết hợp với đặc trưng CLIP ban đầu thông qua kết nối residual, sau đó chuẩn hóa bằng LayerNorm và L2.
-
-Dữ liệu gồm 29\,783 ảnh huấn luyện, 1\,000 ảnh validation và 1\,000 ảnh test. Kết quả truy hồi và so sánh các cấu hình đồ thị được trình bày trong Bảng~\ref{tab:flickr30k-results}.
-
-\begin{table}[H]
-\centering
-\small
-\caption{Kết quả truy hồi trên Flickr30k Entities}
-\label{tab:flickr30k-results}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lrrrr}
-\toprule
-Cấu hình & R@1 & R@5 & R@10 & MRR \\
-\midrule
-CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232 \\
-Full Graph (2026) & 0.7385 & 0.8920 & 0.9310 & 0.8251 \\
-Full Graph (2027) & 0.7410 & 0.8950 & 0.9340 & 0.8290 \\
-Full Graph (2028) & 0.7390 & 0.8940 & 0.9330 & 0.8278 \\
-\midrule
-Trung bình & 0.7395 & 0.8937 & 0.9327 & 0.8273 \\
-Độ lệch chuẩn & 0.0013 & 0.0015 & 0.0015 & 0.0020 \\
-\midrule
-No-edges (2026) & 0.6840 & 0.8520 & 0.9010 & 0.7810 \\
-Random-edges (2026) & 0.6380 & 0.8310 & 0.8890 & 0.7450 \\
-\bottomrule
-\end{tabular}
-}
-\end{table}
-
-CLIP kết hợp GAT đạt MRR trung bình 0.8273,
-cải thiện 14.4\% so với CLIP-only. Trong thí nghiệm
-so sánh trên seed 2026, Full Graph đạt MRR 0.8251,
-cao hơn No-edges (0.7810) và Random-edges (0.7450).
-Đáng chú ý, Random-edges còn cho kết quả thấp hơn
-No-edges, cho thấy các liên kết ngẫu nhiên có thể
-làm giảm hiệu quả truy hồi. Tuy nhiên, No-edges vẫn vượt CLIP-only, cho thấy mức cải thiện không hoàn toàn đến
-từ thông tin về các mối liên kết giữa
-các vùng ảnh trong đồ thị.
-
-Khác với Visual Genome có sẵn các quan hệ ngữ
-nghĩa giữa đối tượng, Flickr30k Entities chỉ cung
-cấp các vùng ảnh và mô tả tương ứng. Do đó,
-nhóm xây dựng đồ thị dựa trên liên kết ảnh--vùng
-và các quan hệ không gian suy ra từ bounding box.
-Kết quả cho thấy cách biểu diễn này có thể hỗ trợ
-cải thiện hiệu quả truy hồi khi kết hợp với GAT.
-
-\section{Cấu hình siêu tham số và tài nguyên tính toán}
+\section{Cấu hình siêu tham số}
 \label{app:hyperparameters}
 
-Bảng~\ref{tab:hyperparameters} liệt kê chi tiết các siêu tham số được sử dụng để huấn luyện mô hình ở từng cấp độ thực nghiệm:
+Bảng~\ref{tab:hyperparameters} liệt kê cấu hình của các mô hình chính. Mọi lựa chọn checkpoint, $\alpha_{\mathrm{CLIP}}$ và cấu hình lưới đều làm trên validation.
+\section{Tái lập thực nghiệm}
+\label{app:reproduction}
 
-\begin{table*}[!t]
-\centering
-\small
-\renewcommand{\arraystretch}{0.95}
-\caption{Bảng tổng hợp siêu tham số huấn luyện của các mô hình}
-\label{tab:hyperparameters}
-\begin{tabularx}{\textwidth}{L{4.0cm}L{3.5cm}L{3.5cm}Y}
-\toprule
-\textbf{Tham số / Cấu hình} & \textbf{Visual Genome (GAT)} & \textbf{Level 2 (AdaMF)} & \textbf{Ghi chú}\\
-\midrule
-Backbone thị giác & ViT-B-32, pretrained \texttt{openai} & ViT-B/32 (OpenCLIP) & CLIP được đóng băng\\
-Kích thước đặc trưng đầu vào & 512 & 512 & Đặc trưng CLIP\\
-Kiến trúc & 2 lớp GAT có xét đặc trưng cạnh & 2 tầng Transformer & Truyền thông điệp\\
-Hidden dimension & 128 & 256 & Visual Genome dùng image-root readout\\
-Số attention heads & 4 heads $\times$ 32 chiều & 4 heads & Đa cơ chế chú ý\\
-Tỷ lệ dropout & 0.2 & 0.1 & Cấu hình huấn luyện\\
-Hàm tối ưu & AdamW & AdamW & Visual Genome: weight decay $10^{-4}$\\
-Learning rate & $10^{-4}$ & $5\text{e-}4$ & Visual Genome huấn luyện 3 seed\\
-Số epoch tối đa & 100 & 500 (Early stop = 8) & Visual Genome không dừng sớm tự động\\
-Chọn checkpoint & Validation MRR cao nhất & Validation MRR & Không chọn mô hình bằng test\\
-Trọng số kết hợp $\alpha_{\text{CLIP}}$ & 0.6 & 0.2 (trên DB15K) & Chọn trên validation\\
-\bottomrule
-\end{tabularx}
-\end{table*}
+Mã nguồn, dữ liệu đã xử lý và kết quả đã khóa nằm trong thư mục \texttt{0. final} gồm \texttt{source/}, \texttt{data/} và \texttt{results/}; môi trường ghi trong \texttt{requirements.txt}. Thứ tự chạy lại: cấp 1 chạy \texttt{run\_gat.py} cho mô hình đầy đủ và 2 ablation rồi \texttt{evaluate\_test}, sau đó notebook 11 cho phần giải thích; cấp 2 chạy các notebook huấn luyện AdaMF DB15K và FB15K-237-IMG, notebook 07 (giải thích, bộ 20 truy vấn), 07b và 07c (GAT cùng pipeline, chọn phương pháp), 10a (XAI định lượng); cấp 3 chạy 08a và 08b (thu thập, chia dữ liệu, data card), 09 (huấn luyện, test), 10b, 10c (XAI định lượng, huấn luyện lại) và 10d (chuyển giao, demo). Mã tạo split được nộp kèm (\texttt{make\_splits.py}, \texttt{split\_manifest.json}); các notebook ghi kết quả từng bước và tiếp tục được khi phiên bị ngắt.
+
+\section{Mã nguồn mở và công cụ hỗ trợ}
+\label{app:tools}
+
+Nhóm sử dụng mã nguồn mở của AdaMF-MAT~\cite{adamfmat2024} (bộ dung hợp và bộ chấm RotatE, có chỉnh sửa để phục vụ truy hồi ảnh và tắt thành phần MAT), PyTorch Geometric, OpenCLIP và sentence-transformers. Theo quy định của môn học, nhóm khai báo có sử dụng công cụ AI hỗ trợ trong các phần: soạn thảo một số notebook phân tích và giải thích (XAI), soạn câu truy vấn tự nhiên tiếng Việt của ViHeritage-MMKG từ khung sinh tự động, chấm kiểm tra liên kết ảnh và thực thể, chấm validity theo kiến thức miền cho 20 ca, và hỗ trợ biên tập báo cáo. Các thành viên đã kiểm tra, chạy lại và chịu trách nhiệm giải thích toàn bộ nội dung khi vấn đáp.
 
 \section{Phân công trách nhiệm của thành viên}
 \label{app:contributions}
 
 Bảng~\ref{tab:contributions} ghi nhận vai trò chính của từng thành viên trong nhóm đồ án:
-
-\begin{table*}[!t]
-\centering
-\small
-\renewcommand{\arraystretch}{0.95}
-\caption{Phân công trách nhiệm của thành viên}
-\label{tab:contributions}
-\begin{tabularx}{\textwidth}{C{1.0cm}L{3.4cm}L{2.5cm}Y}
-\toprule
-\textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Nhiệm vụ chính phụ trách}\\
-\midrule
-1 & Chung Gia Khánh & 23120282 & Thiết kế kiến trúc tổng thể, audit kỹ thuật, kiểm thử triệt tiêu và biên tập báo cáo\\
-2 & Lê Hoàng Mỹ Hạ & 23120038 & Tiền xử lý dữ liệu, kiểm soát rò rỉ và trích xuất đặc trưng CLIP\\
-3 & Hàn Vũ Phương Uyên & 23120106 & Xây dựng scene graph, triển khai GAT và phân tích Level 1\\
-4 & Trần Gia Hiển & 23120123 & Triển khai AdaMF, DB15K, FB15K-237-IMG và các đối chứng Level 2\\
-5 & Nguyễn An Nghiệp & 23127234 & Triển khai giải thích đồ thị, đánh giá XAI và dữ liệu MMKG tự xây\\
-\bottomrule
-\end{tabularx}
-\end{table*}

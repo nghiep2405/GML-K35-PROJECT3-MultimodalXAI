@@ -1,43 +1,12 @@
 \chapter{Kết luận}
 \label{chap:conclusion}
 
-\section{Tóm tắt kết quả nghiên cứu}
-\label{sec:conclusion-summary}
+Đồ án xây dựng hệ thống truy vấn văn bản tìm ảnh có xếp hạng lại bằng đồ thị và giải thích bằng quan hệ theo ba cấp độ của đề.
 
-Đồ án đã hoàn thành việc xây dựng và khảo nghiệm toàn diện hệ thống truy hồi thông tin đa phương thức có khai thác cấu trúc đồ thị và sinh giải thích minh bạch theo chuỗi tiến trình học thuật ba cấp độ (Level 1 $\rightarrow$ Level 2 $\rightarrow$ Level 3). 
+\textbf{Cấp độ 1.} CLIP đóng băng kết hợp GAT có đặc trưng cạnh trên scene graph Visual Genome nâng MRR test từ 0.0611 lên $0.0718 \pm 0.0002$. Ablation cho thấy phần lớn mức tăng không đến từ cấu trúc cạnh. Giải thích bằng quan hệ được lấy từ chính GAT bằng cách bỏ từng quan hệ và chạy lại mô hình: bỏ tối đa 12 quan hệ giải thích làm xác suất ảnh trả về giảm 0.118, so với 0.003 khi bỏ ngẫu nhiên. Giải thích chủ yếu là các vật có trong ảnh, khớp với kết quả ablation.
 
-Tại Cấp độ 1, mô hình kết hợp CLIP đóng băng với GAT đạt Mean Test MRR 0,071817 trên Visual Genome qua ba seed, cao hơn mức 0,061149 của CLIP-only. Đối chứng một seed cho thứ tự Full Graph $>$ Random-edges $>$ No-edge $>$ CLIP-only trên cả bốn chỉ số; tuy nhiên, chênh lệch nhỏ giữa Full Graph và Random-edges chưa đủ để phân rã chính xác mức đóng góp của cấu trúc cạnh.
+\textbf{Cấp độ 2.} Phương pháp dựa trên AdaMF-MAT trên DB15K và FB15K-237-IMG tăng MRR truy vấn gián tiếp từ 0.0475 lên 0.3143 và từ 0.0122 lên 0.1186. Ablation chứng minh vai trò của cạnh thật trên DB15K nhưng không trên FB15K-237-IMG. GAT cấp 1 chạy trên cùng pipeline DB15K ngang AdaMF. Bộ 20 truy vấn mỗi tập được báo cáo tách nhóm trực tiếp và gián tiếp.
 
-Tại Cấp độ 2, AdaMF đạt MRR trung bình $0.413301 \pm 0.001256$ trên DB15K và $0.289240 \pm 0.000670$ trên FB15K-237-IMG qua ba seed. MRR của CLIP lần lượt là $0.257698$ và $0.099057$. MRR gián tiếp tăng từ $0.047527$ lên $0.314268$ trên DB15K và từ $0.012171$ lên $0.118621$ trên FB15K-237-IMG. Trong đối chứng DB15K seed 2027, đồ thị gốc đạt MRR $0.414549$ và đồ thị hoán đổi cạnh đạt $0.315632$ (Mục~\ref{sec:level2-results}).
+\textbf{Cấp độ 3.} Giải thích lấy từ can thiệp vào hàm xếp hạng có Fid+ cao hơn bỏ ngẫu nhiên và bỏ theo heuristic trên cả bốn tập, với độ thưa 0.65 đến 0.80, và được kiểm chứng thêm bằng huấn luyện lại trên ViHeritage. ViHeritage-MMKG, MMKG tiếng Việt về di sản do nhóm tự xây (150 thực thể, 427 bộ ba, 438 ảnh, có data card), cho thấy đồ thị vẫn giúp truy vấn gián tiếp khi chuyển miền và lợi ích phụ thuộc hoàn toàn vào cạnh thật, không đến từ văn bản rò rỉ.
 
-Tại Cấp độ 3, nghiên cứu đã hoàn thiện khung phương pháp luận trích xuất giải thích đường đi và đồ thị con bắt nguồn trực tiếp từ cơ chế tính điểm của mô hình, thiết lập bộ tiêu chuẩn đo lường định lượng fidelity, validity và sparsity, đồng thời phân định minh bạch các trường hợp giải thích thành công và thất bại.
-
-
-\section{Đóng góp chính và các giới hạn còn lại}
-\label{sec:contributions-limitations}
-
-\subsection{Các đóng góp chính}
-\begin{enumerate}
-  \item Thiết lập một quy trình thực nghiệm truy hồi đa phương thức mẫu mực, bảo đảm tuyệt đối tính bất biến của dữ liệu kiểm thử và phòng chống rò rỉ thông tin qua các cơ chế kiểm soát mã băm SHA-256 nghiêm ngặt.
-  \item Phân lập một cách khoa học vai trò của cấu trúc đồ thị so với các yếu tố gia tăng tham số trong mạng nơ-ron, xóa bỏ sự ngộ nhận học thuật phổ biến về nguồn gốc của sự cải thiện hiệu năng.
-  \item Thích nghi cơ chế dung hợp của AdaMF cho truy hồi ảnh trên hai đồ thị tri thức đa phương thức và đo hiệu quả trên truy vấn tìm đầu hoặc đuôi của một quan hệ.
-  \item Xây dựng quy trình đánh giá tính giải thích định lượng có kiểm chứng can thiệp nhiễu, nâng cao trách nhiệm giải trình của hệ thống trí tuệ nhân tạo.
-\end{enumerate}
-\subsection{Các giới hạn còn lại}
-Mặc dù đã đạt được các kết quả kỹ thuật vững chắc, nghiên cứu còn một số giới hạn cần được giải quyết trong giai đoạn tiếp theo:
-\begin{itemize}
-  \item Một số thực nghiệm triệt tiêu hoán đổi cạnh còn giới hạn ở số lượng 1 seed do ràng buộc thời gian tính toán của hạ tầng GPU.
-  \item Đối chứng hoán đổi cạnh trên DB15K sử dụng bộ ba validation và test để loại cạnh trùng. Kết quả hiện có trên một seed, với checkpoint và trọng số kết hợp được chọn riêng cho từng cấu hình.
-  \item Quá trình nghiệm thu thực nghiệm trên tập dữ liệu MMKG tiếng Việt tự xây cần được bổ sung đầy đủ các independent replay artifacts.
-\end{itemize}
-
-
-\section{Hướng nghiên cứu tiếp theo}
-\label{sec:future-work}
-
-Để hoàn thiện và nâng tầm giá trị học thuật của công trình, các công việc trọng tâm cần tiếp tục triển khai bao gồm:
-\begin{enumerate}
-  \item Chạy bổ sung các seed ngẫu nhiên còn thiếu cho các nhánh ablation trên DB15K và FB15k-237 để báo cáo khoảng tin cậy trung bình và độ lệch chuẩn thống kê toàn diện.
-  \item Triển khai hoàn tất benchmark kiểm thử độc lập trên tập dữ liệu MMKG tiếng Việt tự xây, hoàn thiện Data Card và tài liệu hướng dẫn chuyển giao.
-  \item Nghiên cứu mở rộng cơ chế cơ chế adaptive query-dependent fusion và ứng dụng sang miền dữ liệu video đa phương thức.
-\end{enumerate}
+Bài học chính là: đồ thị giúp đúng ở các truy vấn cần suy luận qua quan hệ; mức tăng của một mô hình đồ thị cần được tách khỏi phần do tham số học thêm bằng ablation; và một giải thích trung thành với mô hình là công cụ chẩn đoán lỗi tốt, nhưng không thay được đánh giá theo kiến thức miền.

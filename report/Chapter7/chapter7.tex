@@ -6,7 +6,7 @@
 
 Đồ án đã hoàn thành việc xây dựng và khảo nghiệm toàn diện hệ thống truy hồi thông tin đa phương thức có khai thác cấu trúc đồ thị và sinh giải thích minh bạch theo chuỗi tiến trình học thuật ba cấp độ (Level 1 $\rightarrow$ Level 2 $\rightarrow$ Level 3). 
 
-Tại Cấp độ 1, nghiên cứu đã chứng minh bằng thực nghiệm độc lập có kiểm soát rằng việc kết hợp mạng nơ-ron chú ý đồ thị GAT với mô hình CLIP đóng băng nâng Mean Test MRR trên Flickr30k Entities từ $0.7232$ lên $0.8273$ qua 3 seed độc lập. Các phân tích triệt tiêu chặt chẽ đã bóc tách rõ ràng phần đóng góp của cấu trúc cạnh ngữ nghĩa đối xứng với hiệu ứng điều chỉnh không gian đặc trưng của bộ chuyển đổi adapter.
+Tại Cấp độ 1, mô hình kết hợp CLIP đóng băng với GAT đạt Mean Test MRR 0,071817 trên Visual Genome qua ba seed, cao hơn mức 0,061149 của CLIP-only. Đối chứng một seed cho thứ tự Full Graph $>$ Random-edges $>$ No-edge $>$ CLIP-only trên cả bốn chỉ số; tuy nhiên, chênh lệch nhỏ giữa Full Graph và Random-edges chưa đủ để phân rã chính xác mức đóng góp của cấu trúc cạnh.
 
 Tại Cấp độ 2, AdaMF đạt MRR trung bình $0.413301 \pm 0.001256$ trên DB15K và $0.289240 \pm 0.000670$ trên FB15K-237-IMG qua ba seed. MRR của CLIP lần lượt là $0.257698$ và $0.099057$. MRR gián tiếp tăng từ $0.047527$ lên $0.314268$ trên DB15K và từ $0.012171$ lên $0.118621$ trên FB15K-237-IMG. Trong đối chứng DB15K seed 2027, đồ thị gốc đạt MRR $0.414549$ và đồ thị hoán đổi cạnh đạt $0.315632$ (Mục~\ref{sec:level2-results}).
 

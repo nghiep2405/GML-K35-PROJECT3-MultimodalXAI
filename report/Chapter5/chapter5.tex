@@ -4,27 +4,24 @@
 \section{Yêu cầu 1: Kết quả thực nghiệm trên Visual Genome}
 \label{sec:level1-results}
 
-Mục này đánh giá đường cơ sở CLIP và mô hình CLIP + GAT trên Visual Genome \textit{split\_v2}. Tập test gồm 523\,347 truy vấn trên 10\,443 ảnh ứng viên. CLIP tìm kiếm trên toàn bộ candidate split, sau đó GAT chỉ xếp hạng lại top 50 ảnh. Mọi checkpoint và trọng số dung hợp đều được chọn trên validation trước khi chạy test.
+\subsection{Hiệu năng truy hồi ảnh}
 
-\subsection{Đường cơ sở CLIP}
-
-CLIP \texttt{ViT-B-32}, pretrained \texttt{openai}, được giữ cố định và đạt MRR 0.061149. Recall@1, Recall@5 và Recall@10 lần lượt là 0.029457, 0.079272 và 0.116531. Các kết quả này là mốc đối chiếu để định lượng đóng góp của nhánh đồ thị.
-
-\subsection{Hiệu năng Full Graph}
-
-Full Graph được chạy độc lập với ba seed \texttt{2026}--\texttt{2028}. Cả ba run đều chọn $\alpha_{\text{CLIP}}=0.6$ trên validation. Checkpoint tốt nhất lần lượt nằm ở epoch 98, 100 và 82; đây là các epoch có validation MRR cao nhất, không phải các epoch được chọn từ test.
+Bảng~\ref{tab:vg-full-graph-results} trình bày kết quả
+đánh giá mô hình CLIP cơ sở và Full Graph trên tập test
+Visual Genome. Kết quả Full Graph được tổng hợp từ ba
+lần huấn luyện độc lập với các seed 2026, 2027 và 2028.
 
 \begin{table*}[!t]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{Kết quả test của Full Graph trên Visual Genome}
+\caption{Kết quả truy hồi ảnh trên Visual Genome}
 \label{tab:vg-full-graph-results}
 \begin{tabular}{lrrrrr}
 \toprule
 Cấu hình & Epoch & R@1 & R@5 & R@10 & MRR\\
 \midrule
-CLIP cố định & -- & 0.029457 & 0.079272 & 0.116531 & 0.061149\\
+CLIP-only & -- & 0.029457 & 0.079272 & 0.116531 & 0.061149\\
 Full Graph, seed 2026 & 98 & 0.036129 & 0.095950 & 0.138033 & 0.071655\\
 Full Graph, seed 2027 & 100 & 0.036479 & 0.096198 & 0.138132 & 0.071987\\
 Full Graph, seed 2028 & 82 & 0.036184 & 0.096215 & 0.138189 & 0.071808\\
@@ -35,21 +32,50 @@ Trung bình & -- & \textbf{0.036264} & \textbf{0.096121} & \textbf{0.138118} & \
 \end{tabular}
 \end{table*}
 
-So với CLIP-only, Full Graph cải thiện MRR tuyệt đối 0.010668, tương đương khoảng 17.4\%. Recall@1, Recall@5 và Recall@10 tăng tuyệt đối lần lượt 0.006807, 0.016849 và 0.021587. Độ lệch chuẩn nhỏ qua ba seed cho thấy kết quả ổn định đối với khởi tạo ngẫu nhiên trong phạm vi giao thức này.
+Theo Bảng~\ref{tab:vg-full-graph-results}, Full Graph
+đạt MRR trung bình 0.071817, cao hơn mức 0.061149
+của CLIP-only, tương đương mức cải thiện khoảng
+17.4\%. Điều này cho thấy việc kết hợp GAT giúp
+đưa các ảnh phù hợp lên vị trí cao hơn trong
+danh sách kết quả.
 
-\subsection{Nghiên cứu triệt tiêu}
+Sự cải thiện cũng xuất hiện trên cả ba chỉ số
+Recall. Cụ thể, Recall@1 tăng từ 0.029457 lên
+0.036264, trong khi Recall@10 tăng từ 0.116531
+lên 0.138118. Như vậy, mô hình kết hợp không chỉ
+cải thiện thứ hạng của ảnh đúng mà còn tăng tỷ lệ
+truy vấn tìm thấy ảnh phù hợp trong những
+kết quả đầu tiên.
 
-Hai ablation được chạy trên seed \texttt{2026}, với checkpoint và $\alpha$ tiếp tục được chọn trên validation. No-edge giữ nguyên các phép biến đổi học được và residual path nhưng xóa toàn bộ cạnh trước message passing. Random-edges bảo toàn số cạnh và phân bố bậc trong từng đồ thị nhưng hoán vị đỉnh đích để phá vỡ quan hệ đúng.
+Ngoài ra, MRR của ba lần chạy dao động từ
+0.071655 đến 0.071987, với độ lệch chuẩn mẫu
+chỉ 0.000166. Các chỉ số Recall cũng có độ
+lệch chuẩn nhỏ, cho thấy kết quả tương đối
+ổn định giữa các lần huấn luyện với seed khác nhau.
+
+Tuy nhiên, sự cải thiện so với CLIP-only chưa
+đủ để khẳng định toàn bộ lợi ích đến từ các
+quan hệ trong đồ thị. Để làm rõ điều này,
+nhóm tiếp tục so sánh với các cấu hình ablation gồm
+No-edge và Random-edges.
+
+\subsection{So sánh các cấu hình ablation}
+
+Bảng~\ref{tab:vg-ablation} trình bày kết quả
+của bốn cấu hình trên cùng tập test, sử dụng
+seed 2026. Việc so sánh nhằm xác định mức cải thiện
+đến từ cấu trúc quan hệ của đồ thị hay
+từ các thành phần khác của mô hình.
 
 \begin{table*}[!t]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{Ablation trên Visual Genome, seed 2026}
+\caption{So sánh các cấu hình trên Visual Genome (seed 2026)}
 \label{tab:vg-ablation}
 \begin{tabular}{lrrrrrr}
 \toprule
-Cấu hình & Epoch & $\alpha_{\text{CLIP}}$ & R@1 & R@5 & R@10 & MRR\\
+Cấu hình & Epoch & $\alpha_{\mathrm{CLIP}}$ & R@1 & R@5 & R@10 & MRR\\
 \midrule
 CLIP-only & -- & 1.0 & 0.029457 & 0.079272 & 0.116531 & 0.061149\\
 No-edge & 85 & 0.6 & 0.034555 & 0.092084 & 0.133258 & 0.069193\\
@@ -59,12 +85,46 @@ Full Graph & 98 & 0.6 & \textbf{0.036129} & \textbf{0.095950} & \textbf{0.138033
 \end{tabular}
 \end{table*}
 
-Thứ tự $\text{Full Graph} > \text{Random-edges} > \text{No-edge} > \text{CLIP-only}$ xuất hiện nhất quán trên cả bốn chỉ số. No-edge cao hơn CLIP-only 0.008044 MRR, cho thấy các phép biến đổi học được và residual path tự thân đã đóng góp đáng kể. Full Graph cao hơn Random-edges 0.000883 MRR, phù hợp với giả thuyết rằng quan hệ đúng cung cấp thêm tín hiệu ngoài hiệu ứng của kiến trúc và phân bố bậc. Tuy nhiên, hai ablation hiện chỉ có một seed nên chênh lệch này không được diễn giải như một ước lượng đa seed.
+Full Graph đạt kết quả cao nhất trên cả bốn
+chỉ số, tiếp theo là Random-edges, No-edge
+và CLIP-only. Đáng chú ý, ngay cả khi các cạnh
+bị loại bỏ hoặc thay đổi, mô hình vẫn tốt hơn
+CLIP-only. Điều này cho thấy các thành phần
+khác của mô hình cũng góp phần cải thiện
+hiệu năng truy hồi.
 
-\subsection{Phát hiện chính và giới hạn}
+Trước hết, No-edge đạt MRR 0.069193, cải thiện
+khoảng 13.2\% so với CLIP-only dù không sử dụng
+các cạnh đồ thị. Điều này cho thấy mức cải thiện không hoàn toàn
+đến từ thông tin quan hệ trong đồ thị, mà còn
+có thể đến từ các thành phần khác của mô hình,
+chẳng hạn như các lớp biến đổi đặc trưng
+và cơ chế kết hợp điểm. Vì vậy, không thể quy toàn bộ mức cải thiện của
+Full Graph so với CLIP-only cho thông tin quan hệ trong đồ thị.
 
-Kết quả cho thấy việc đưa scene graph vào bước rerank cải thiện CLIP trên Visual Genome và duy trì độ ổn định qua ba seed. Đồng thời, ablation xác nhận không thể quy toàn bộ mức tăng cho cạnh ngữ nghĩa, vì cấu hình No-edge vẫn vượt CLIP-only. Giao thức hiện chỉ rerank top 50 của CLIP, nên GAT không thể phục hồi ảnh đúng nếu ảnh đó nằm ngoài candidate set này. Phân tích định tính theo từng truy vấn chưa được đưa vào mục này do chưa có bộ case study đã khóa.
+Random-edges đạt MRR 0.070772, cải thiện khoảng
+2.3\% so với No-edge và 15.7\% so với CLIP-only.
+Kết quả này cho thấy việc truyền thông tin giữa
+các đỉnh vẫn có thể mang lại lợi ích, ngay cả
+khi các liên kết giữa chúng đã bị hoán vị.
 
+Cuối cùng, Full Graph đạt MRR 0.071655,
+chỉ cao hơn Random-edges khoảng 1.25\%.
+Chênh lệch nhỏ này cho thấy việc giữ nguyên
+các mối quan hệ giữa thực thể chưa mang lại
+cải thiện đáng kể so với việc hoán vị các
+liên kết trong đồ thị. Tuy nhiên, thí nghiệm
+mới được thực hiện trên một seed nên cần
+thêm các lần chạy độc lập để đánh giá
+mức độ ổn định của kết quả.
+
+Nhìn chung, CLIP kết hợp GAT cải thiện rõ rệt
+hiệu năng truy hồi trên Visual Genome so với CLIP-only. Tuy nhiên,
+phần lớn mức cải thiện vẫn được duy trì khi các
+cạnh bị loại bỏ hoặc hoán vị. Điều này cho thấy
+lợi ích của mô hình không chủ yếu đến từ việc
+biểu diễn chính xác các mối quan hệ giữa thực thể,
+mà còn từ những thành phần học được khác.
 
 \section{Cấp độ 2 Hiệu năng truy vấn đa phương thức nâng cao}
 \label{sec:level2-results}
@@ -281,7 +341,6 @@ Mục này trình bày kết quả đánh giá tính minh bạch, trung thực c
 \label{sec:level3-explanation-results}
 Hệ thống trích xuất thành công các đường đi suy luận bộ ba và đồ thị con giải thích cho các truy vấn kiểm thử hàng đầu. Với mỗi kết quả trả về, giải thích thể hiện rõ chuỗi liên kết logic từ thực thể neo trong truy vấn đến thực thể đích trong cơ sở tri thức.
 
-
 \subsection{Đánh giá trên đồ thị MMKG tự xây}
 \label{sec:level3-custom-mmkg}
 Đối với tập MMKG tự xây miền hẹp (ưu tiên tiếng Việt):
@@ -289,7 +348,6 @@ Hệ thống trích xuất thành công các đường đi suy luận bộ ba v�
   \item \textbf{Trạng thái dữ liệu hiện tại:} Đã thu thập sơ bộ tập ảnh và metadata tại \texttt{dataset/mmkg\_tv}; các bảng bộ ba và nhúng đặc trưng đang trong quá trình chuẩn hóa.
   \item \textbf{Kết quả thực nghiệm:} Chưa có checkpoint huấn luyện hoặc kết quả suy luận chính thức trên thư mục bàn giao \texttt{0. final/results/MMKG}. Nghiên cứu không tuyên bố đã hoàn tất mục tiêu chuyển giao này khi chưa có artifact kiểm chứng độc lập.
 \end{itemize}
-
 
 \subsection{Phát hiện chính và giới hạn}
 Phân tích tính trung thực chứng minh rằng giải thích dựa trên trọng số chú ý và đường đi bộ ba phản ánh thực chất cơ chế tính điểm của mô hình. Giới hạn lớn nhất là số lượng trường hợp đánh giá định lượng cần được mở rộng trên toàn bộ tập test và quá trình nghiệm thu trên tập dữ liệu tiếng Việt cần được hoàn tất.
@@ -299,9 +357,9 @@ Phân tích tính trung thực chứng minh rằng giải thích dựa trên tr�
 
 Tổng hợp kết quả xuyên suốt ba cấp độ thực hiện mang lại bức tranh toàn diện giải đáp trọn vẹn ba câu hỏi nghiên cứu ban đầu:
 \begin{enumerate}
-  \item \textbf{Về RQ1 (Level 1):} Tích hợp đồ thị cục bộ qua GAT cải thiện đáng kể độ chính xác truy hồi so với CLIP thuần túy (MRR tăng từ $\sim 0.723$ lên $\sim 0.827$). Tuy nhiên, phân tích triệt tiêu khẳng định rằng khoảng 55\% mức tăng trưởng đến từ adapter effect, và 45\% đến từ cấu trúc kết nối cạnh thực sự.
+  \item \textbf{Về RQ1 (Level 1):} Trên Visual Genome, tích hợp scene graph qua GAT trong bước rerank cải thiện MRR trung bình từ 0.061149 của CLIP-only lên 0.071817, tương đương mức tăng tương đối khoảng 17.4\%. Kết quả triệt tiêu một seed cho thấy cả các phép biến đổi học được của nhánh đồ thị và cấu trúc cạnh đúng đều có đóng góp, nhưng chưa đủ để phân rã chính xác tỷ lệ đóng góp của từng thành phần.
   \item \textbf{Về RQ2 (Level 2):} So với CLIP, AdaMF cải thiện MRR gián tiếp trên cả DB15K và FB15K-237-IMG. Trong đối chứng DB15K seed 2027, cấu hình dùng đồ thị gốc có MRR cao hơn cấu hình hoán đổi cạnh khoảng $0.0989$.
   \item \textbf{Về RQ3 (Level 3):} Các bằng chứng đường đi giải thích trích xuất từ mô hình đạt độ thưa cao ($>85\%$) và có tính trung thực nhân quả với điểm số xếp hạng. Khả năng chuyển giao sang tập dữ liệu tự xây bước đầu được định hình về mặt phương pháp luận và cấu trúc dữ liệu.
 \end{enumerate}
 
-\noindent\textbf{Cảnh báo phương pháp luận:} Báo cáo nhấn mạnh không so sánh trực tiếp điểm số MRR giữa Flickr30k ($0.827$), DB15K ($0.413$) và FB15K-237-IMG ($0.289$) để kết luận mô hình nào vượt trội hơn, bởi vì mỗi tập dữ liệu vận hành trên một không gian ứng viên, số lượng nhãn và độ phức tạp quan hệ hoàn toàn khác biệt.
+\noindent\textbf{Cảnh báo phương pháp luận:} Báo cáo không so sánh trực tiếp điểm số MRR giữa Visual Genome ($0.071817$), DB15K ($0.413301$) và FB15K-237-IMG ($0.289240$) để kết luận mô hình nào vượt trội hơn, bởi vì mỗi tập dữ liệu sử dụng không gian ứng viên, số lượng truy vấn và mức độ phức tạp quan hệ khác nhau.

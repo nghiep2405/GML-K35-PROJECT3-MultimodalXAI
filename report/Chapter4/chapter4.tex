@@ -4,33 +4,29 @@
 \section{Tập dữ liệu và đặc trưng dữ liệu}
 \label{sec:datasets}
 
-Nghiên cứu sử dụng nhiều bộ dữ liệu công khai tiêu chuẩn và một tập dữ liệu tự xây nhằm phục vụ các mục tiêu chuyên biệt của từng cấp độ. \textbf{Nguyên tắc học thuật bắt buộc:} Các tập dữ liệu này sở hữu cấu trúc, phân phối và không gian ứng viên hoàn toàn khác nhau; do đó chúng được vận hành trên các giao thức thực nghiệm độc lập và kết quả giữa các tập không được so sánh chéo trực tiếp để rút ra kết luận thắng thua tổng quát.
-
-\begin{table*}[!t]
-\centering
-\small
-\renewcommand{\arraystretch}{0.95}
-\caption{Tổng hợp các bộ dữ liệu thực nghiệm trong nghiên cứu}
-\label{tab:dataset-summary}
-\begin{tabularx}{\textwidth}{L{2.8cm}C{1.8cm}L{3.2cm}L{3.0cm}Y}
-\toprule
-\textbf{Tập dữ liệu} & \textbf{Cấp độ} & \textbf{Số lượng thực thể / ảnh} & \textbf{Số bộ ba / cạnh đồ thị} & \textbf{Vai trò trong đồ án}\\
-\midrule
-Visual Genome & Level 1 & 104.426 ảnh; \textit{split\_v2} (80/10/10) & Scene graphs: đối tượng, quan hệ, vùng & Thực nghiệm chính của Yêu cầu 1\\
-Flickr30k Entities & Level 1 / Phụ lục & 31.783 ảnh; 158.915 captions & Đồ thị vùng và quan hệ không gian & Thực nghiệm bổ sung trình bày tại Phụ lục~\ref{app:flickr30k-pipeline}\\
-DB15K & Level 2 & 14.708 thực thể; 12.842 ảnh & 99.028 triples; 279 relations & Đánh giá AdaMF-based và truy vấn gián tiếp\\
-FB15K-237-IMG & Level 2 & 14.541 thực thể; ảnh gắn thực thể & 310.116 triples; 237 relations & Đối chứng phương pháp MMKG tiên tiến\\
-\bottomrule
-\end{tabularx}
-\end{table*}
-
-
-\section{Yêu cầu 1: Thiết kế thực nghiệm trên Visual Genome}
+\subsection{Visual Genome}
 \label{sec:vg-experimental-design}
 
-\subsection{Phân chia dữ liệu và thống kê đồ thị}
+Nhóm sử dụng tập dữ liệu Visual Genome gồm 104\,426 ảnh,
+được chia thành 83\,540 ảnh huấn luyện, 10\,443 ảnh
+validation và 10\,443 ảnh test. Để hạn chế rò rỉ dữ liệu,
+các ảnh có cùng mã băm SHA-256 hoặc có khoảng cách
+pHash không vượt quá 6 được gom nhóm trước khi
+phân chia, đảm bảo các ảnh trùng hoặc gần giống
+nhau thuộc cùng một tập.
 
-Visual Genome \textit{split\_v2} gồm 104\,426 ảnh, được chia thành 83\,540 ảnh huấn luyện, 10\,443 ảnh validation và 10\,443 ảnh test. Các ảnh trùng SHA-256 hoặc có khoảng cách pHash không vượt quá 6 được đưa vào cùng một split trước khi phân chia nhằm hạn chế rò rỉ hình ảnh giữa các tập. Mỗi ảnh tạo thành một đồ thị độc lập theo quy trình ở Mục~\ref{sec:static-graph}.
+Mỗi ảnh được biểu diễn bằng một đồ thị độc lập
+theo quy trình ở Mục~\ref{sec:static-graph}.
+Đặc trưng ảnh, vùng ảnh và văn bản được trích
+xuất bằng mô hình CLIP \texttt{ViT-B-32} với
+trọng số tiền huấn luyện \texttt{openai}.
+Toàn bộ tham số CLIP được giữ cố định
+trong quá trình thực nghiệm.
+
+Thống kê về số đỉnh, số cạnh của các đồ thị
+được trình bày tại Bảng~\ref{tab:vg-graph-stats},
+trong khi các loại quan hệ phổ biến nhất
+được tổng hợp tại Bảng~\ref{tab:vg-relations}.
 
 \begin{table*}[!t]
 \centering
@@ -48,8 +44,6 @@ Test & 10\,443 & 24.832 & 38.040 & 76.081\\
 \bottomrule
 \end{tabular}
 \end{table*}
-
-Số đỉnh nhỏ nhất--lớn nhất lần lượt là $3$--$151$ trên train, $3$--$129$ trên validation và $3$--$116$ trên test. Mười loại cạnh phổ biến nhất trong đồ thị gốc được trình bày ở Bảng~\ref{tab:vg-relations}.
 
 \begin{table*}[!t]
 \centering
@@ -69,54 +63,42 @@ Quan hệ & Số lần & Quan hệ & Số lần\\
 \end{tabular}
 \end{table*}
 
-\subsection{Cấu hình huấn luyện}
+\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
 
-Full Graph được huấn luyện độc lập với ba seed \texttt{2026}, \texttt{2027} và \texttt{2028}. Mỗi mini-batch gồm 8 truy vấn; mỗi truy vấn đi kèm một ảnh dương và 50 hard negatives. Trong mỗi epoch, pipeline lấy tối đa 5 truy vấn cho mỗi ảnh để hạn chế việc một ảnh có nhiều mô tả chi phối quá trình tối ưu.
+DB15K gồm 14\,708 thực thể, 12\,842 ảnh, 99\,028 bộ ba và 279 loại quan hệ. FB15K-237-IMG gồm 14\,541 thực thể, 310\,116 bộ ba, 237 loại quan hệ và các ảnh được gắn với thực thể. Hai tập kế thừa cách chia train/validation/test của MMKB benchmark và được dùng để đánh giá truy vấn trực tiếp, truy vấn gián tiếp và khả năng dung hợp đa phương thức của AdaMF.
 
-Mô hình sử dụng AdamW với learning rate $10^{-4}$ và weight decay $10^{-4}$. Mỗi run chạy đủ 100 epoch, không dừng sớm tự động. Sau mỗi epoch, pipeline đánh giá trên validation và lưu checkpoint có validation MRR cao nhất. Trọng số dung hợp $\alpha_{\text{CLIP}}$ được chọn trên validation từ tập $\{0,0.1,\ldots,1\}$; test set không tham gia lựa chọn checkpoint hoặc $\alpha_{\text{CLIP}}$.
-
-\subsection{Giao thức đánh giá}
-
-Tập test gồm 523\,347 truy vấn và 10\,443 ảnh ứng viên. Với mỗi truy vấn, CLIP xếp hạng toàn bộ candidate split; GAT sau đó chỉ xếp hạng lại 50 ảnh đứng đầu. Các chỉ số báo cáo gồm Recall@1, Recall@5, Recall@10 và MRR. Checkpoint và $\alpha_{\text{CLIP}}$ được khóa từ validation trước khi suy luận test.
-
-\subsection{Cấu hình đối chứng}
-
-Ngoài CLIP-only và Full Graph, nghiên cứu thực hiện hai ablation trên seed \texttt{2026}:
-\begin{itemize}
-  \item \textbf{No-edge:} giữ nguyên đặc trưng đỉnh, kiến trúc GAT, optimizer và residual path nhưng xóa toàn bộ \texttt{edge\_index} và \texttt{edge\_attr} trước message passing. Vì vậy, đỉnh ảnh không nhận thông tin từ các đỉnh thực thể.
-  \item \textbf{Random-edges:} giữ nguyên số cạnh, đỉnh nguồn, multiset đỉnh đích, đặc trưng cạnh và phân bố bậc, nhưng hoán vị đỉnh đích trong từng đồ thị để phá vỡ quan hệ đúng giữa các đỉnh.
-\end{itemize}
-\section{Tiền xử lý dữ liệu và xây dựng đồ thị}
-\label{sec:preprocessing}
-
-Để đảm bảo tính nghiêm ngặt và ngăn chặn data leakage, toàn bộ quy trình tiền xử lý được thực hiện theo các nguyên tắc:
-\begin{enumerate}
-  \item \textbf{Trích xuất đặc trưng:} Sử dụng mô hình CLIP (OpenCLIP ViT-B/32) đóng băng tham số. Đặc trưng hình ảnh và văn bản được trích xuất sẵn một lần duy nhất và lưu trữ dưới dạng mảng nhị phân định dạng Parquet/Tensor nhằm đảm bảo tính bất biến giữa các lần chạy.
-  \item \textbf{Xây dựng đồ thị và phân chia tập:}
-  \begin{itemize}
-    \item Trên Visual Genome: Sử dụng quy tắc phân cụm ảnh trùng lặp (\textit{split\_v2}) với tỷ lệ 80/10/10 trên 104.426 ảnh, đảm bảo các ảnh có mã băm SHA-256 giống nhau hoặc khoảng cách pHash $\le 6$ bắt buộc phải nằm chung một tập phân chia để ngăn ngừa rò rỉ hình ảnh.
-    \item Trên DB15K và FB15k-237: Kế thừa tập phân chia chuẩn train/valid/test từ MMKB benchmark. Các cạnh đồ thị phục vụ huấn luyện chỉ được trích xuất duy nhất từ tập train.
-  \end{itemize}
-  \item \textbf{Không gian ứng viên ở Cấp độ 2:} Mỗi bộ dữ liệu dùng bảng truy vấn, ảnh liên quan và ảnh ứng viên theo từng split từ manifest. DB15K có 5.477 truy vấn test, gồm 2.282 trực tiếp và 3.195 gián tiếp. FB15K-237-IMG có 33.156 truy vấn test, gồm 8.592 trực tiếp và 24.564 gián tiếp. Mốc 1.000 là giới hạn xếp hạng lại sau lượt CLIP trên tập ảnh ứng viên.
-  \item \textbf{Đặc trưng ở Cấp độ 2:} Hai pipeline dùng encoder văn bản \texttt{openai/clip-vit-base-patch32} đã khóa revision và cache đặc trưng ảnh có sẵn. Metadata cache ảnh thiếu revision chính xác. Đặc trưng thị giác cấp thực thể trong mô hình được gộp từ ảnh train.
-\end{enumerate}
-
+Hai pipeline sử dụng encoder văn bản \texttt{openai/clip-vit-base-patch32} đã khóa revision và cache đặc trưng ảnh có sẵn. Metadata của cache ảnh chưa ghi lại revision chính xác. Đặc trưng thị giác cấp thực thể trong mô hình được tổng hợp từ các ảnh thuộc tập train.
 
 \section{Giao thức huấn luyện và đánh giá}
 \label{sec:training-protocol}
 
-Giao thức huấn luyện và đánh giá được thiết lập như sau:
-\begin{itemize}
-  \item \textbf{Kiểm soát tính ngẫu nhiên:} Các mô hình đầy đủ được đánh giá qua ba seed:
-  \begin{itemize}
-    \item Visual Genome (Level 1): Ba seed gồm \texttt{2026}, \texttt{2027}, \texttt{2028}.
-    \item DB15K / FB15K-237-IMG (Level 2): Ba seed gồm \texttt{2027}, \texttt{2028}, \texttt{2029}.
-  \end{itemize}
-  Trung bình và độ lệch chuẩn mẫu được tính trên ba lượt chạy mô hình đầy đủ. Các ablation DB15K và FB15K-237-IMG hiện có seed 2027, được báo cáo từng cấu hình và chưa có độ lệch chuẩn giữa các seed.
-  \item \textbf{Quy tắc lựa chọn mô hình và siêu tham số:} Trọng số dung hợp $\alpha$, best checkpoint và các siêu tham số huấn luyện (learning rate, weight decay, số lớp GNN) chỉ được tối ưu hóa dựa trên chỉ số MRR của validation set.
-  \item \textbf{Giao thức Frozen Test:} Tập kiểm thử chỉ được suy luận đúng một lần duy nhất sau khi toàn bộ tham số đã được khóa hoàn toàn. Checkpoint và trọng số được khóa trước khi đánh giá. Đối chứng Shuffled Edges của DB15K và FB15K-237-IMG dùng danh sách bộ ba validation/test để loại cạnh trùng ở khâu tạo đồ thị, mô tả trong Mục~\ref{sec:level2-graph-ablation}.
-\end{itemize}
+\subsection{Visual Genome}
 
+Mô hình CLIP kết hợp GAT được huấn luyện
+qua ba lần chạy độc lập với các seed 2026, 2027 và
+2028. Mỗi mini-batch gồm 8 truy vấn, trong đó mỗi truy vấn
+đi kèm một ảnh đúng và 50 ảnh không phù hợp nhưng
+có độ tương đồng cao với truy vấn (hard negatives). Do mỗi ảnh có thể đi kèm nhiều câu mô tả,
+nhóm giới hạn tối đa 5 truy vấn cho mỗi ảnh
+trong một epoch để tránh một số ảnh xuất hiện
+quá nhiều trong quá trình huấn luyện.
+
+Mô hình được huấn luyện bằng AdamW với learning rate
+$10^{-4}$ và weight decay $10^{-4}$. Do giới hạn
+về thời gian thực nghiệm, mỗi lần huấn luyện
+được thực hiện trong 100 epoch. Checkpoint có
+MRR cao nhất trên tập validation được lựa chọn
+để đánh giá. Trọng số kết hợp $\alpha_{\mathrm{CLIP}}$
+cũng được lựa chọn trên tập này bằng cách thử các
+giá trị từ 0 đến 1 với bước nhảy 0.1.
+
+Tập test gồm 523\,347 truy vấn và 10\,443 ảnh ứng viên.
+Với mỗi truy vấn, CLIP xếp hạng toàn bộ ảnh, sau đó
+GAT xếp hạng lại 50 ảnh có điểm CLIP cao nhất.
+Checkpoint và trọng số kết hợp đã chọn được giữ
+cố định trong quá trình đánh giá trên tập test.
+
+\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
 
 
 \begin{table}[H]
@@ -172,48 +154,94 @@ Checkpoint và trọng số kết hợp được chọn bằng validation trư�
 \section{Cấu hình cơ sở và kiểm thử triệt tiêu}
 \label{sec:baselines-ablations}
 
-Để phân lập chính xác nguồn gốc của sự cải thiện hiệu năng, nghiên cứu thiết lập hệ thống các cấu hình baselines và ablations chuẩn mực:
-\begin{enumerate}
-  \item \textbf{CLIP-only Baseline:} Mô hình chỉ sử dụng cosine similarity của CLIP đóng băng, hoàn toàn không có sự tham gia của đồ thị ($\alpha_{\text{CLIP}} = 1.0$).
-  \item \textbf{Full Graph (CLIP + GAT / AdaMF-based):} Mô hình đầy đủ kết hợp thông tin tương đồng bề mặt và cấu trúc quan hệ đồ thị huấn luyện trên tập train.
-  \item \textbf{No-edges Control:}
-  \begin{itemize}
-    \item Trong pipeline GAT (Visual Genome): Xóa toàn bộ \texttt{edge\_index} và \texttt{edge\_attr} trước message passing nhưng giữ nguyên các phép biến đổi học được và residual path.
-    \item Trong hai pipeline AdaMF (DB15K và FB15K-237-IMG): Bỏ huấn luyện mô hình và đặt $\alpha_{\mathrm{CLIP}}=1$, nên kết quả xếp hạng bằng CLIP baseline.
-  \end{itemize}
-  \item \textbf{Random Graph Control:} Trên DB15K, giữ số cạnh theo từng quan hệ và lấy mẫu đều hai thực thể đầu--đuôi; loại self-loop, bộ ba trùng đồ thị train gốc và bộ ba trùng trong đồ thị ngẫu nhiên. Trên FB15K-237-IMG, lấy mẫu đều neo thay thế trong tập thực thể cho truy vấn train gián tiếp, giữ quan hệ, đích và ảnh liên quan. Neo phải khác đích; cặp neo--đích mới phải chưa được lấy mẫu trong nhóm quan hệ và khác các cạnh train gốc cùng hướng. Nhánh Random Graph của hai tập dùng thông tin train khi tạo đối chứng, không áp dụng bước loại cạnh theo validation/test của Shuffled Edges.
-  \item \textbf{Shuffled Edges Control:}
-  \begin{itemize}
-    \item Trên DB15K, hoán đổi đuôi bộ ba trong cùng quan hệ để giữ bậc theo quan hệ. Trên FB15K-237-IMG, hoán đổi thực thể neo trong nhóm quan hệ và hướng truy vấn train, giữ thực thể đích và ảnh liên quan.
-  \end{itemize}
-\end{enumerate}
+\subsection{Visual Genome}
 
+Để đánh giá hiệu quả của việc sử dụng thông tin
+đồ thị, nhóm so sánh bốn cấu hình:
+
+\begin{itemize}
+    \item \textbf{CLIP-only:}
+    Mô hình cơ sở chỉ sử dụng điểm tương đồng
+    cosine của CLIP, không kết hợp thông tin
+    từ GAT.
+
+    \item \textbf{Full Graph:}
+    Mô hình đầy đủ, kết hợp điểm CLIP với
+    điểm được tính từ biểu diễn ảnh sau GAT
+    trên đồ thị gốc.
+
+    \item \textbf{No-edge:}
+    Loại bỏ toàn bộ cạnh trong quá trình
+    truyền thông tin, nhưng giữ nguyên
+    đặc trưng đỉnh và kiến trúc mô hình.
+    Cấu hình này giúp đánh giá mức cải thiện
+    khi không sử dụng các liên kết đồ thị.
+
+    \item \textbf{Random-edges:}
+    Hoán vị đỉnh đích của các cạnh trong
+    từng đồ thị, đồng thời giữ nguyên số cạnh,
+    đặc trưng cạnh và phân bố bậc.
+    Cấu hình này được sử dụng để đánh giá
+    vai trò của các liên kết thực tế giữa
+    những thực thể.
+\end{itemize}
+
+Full Graph được huấn luyện với ba seed
+2026, 2027 và 2028. Hai cấu hình ablation
+được thực hiện với seed 2026.
+Checkpoint và trọng số kết hợp $\alpha_{\mathrm{CLIP}}$ của mỗi cấu hình
+được lựa chọn riêng trên tập validation.
+
+\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+
+Các cấu hình được so sánh gồm:
+\begin{itemize}
+  \item \textbf{CLIP-only:} chỉ sử dụng điểm tương đồng CLIP, tương ứng $\alpha_{\mathrm{CLIP}}=1$.
+  \item \textbf{AdaMF Full Graph:} kết hợp nhánh truy hồi ảnh với điểm từ đồ thị tri thức huấn luyện trên tập train.
+  \item \textbf{No Edges:} bỏ huấn luyện mô hình và đặt $\alpha_{\mathrm{CLIP}}=1$, nên kết quả xếp hạng bằng CLIP baseline trên cả DB15K và FB15K-237-IMG.
+  \item \textbf{Random Graph:} trên DB15K, giữ số cạnh theo từng quan hệ và lấy mẫu đều hai thực thể đầu--đuôi, đồng thời loại self-loop, bộ ba trùng đồ thị train gốc và bộ ba trùng trong đồ thị ngẫu nhiên. Trên FB15K-237-IMG, lấy mẫu đều neo thay thế cho truy vấn train gián tiếp, giữ quan hệ, đích và ảnh liên quan; neo phải khác đích và liên kết mới không được trùng cạnh train gốc cùng hướng.
+  \item \textbf{Shuffled Edges:} trên DB15K, hoán đổi đuôi bộ ba trong cùng quan hệ để giữ bậc theo quan hệ. Trên FB15K-237-IMG, hoán đổi thực thể neo trong nhóm quan hệ và hướng truy vấn train, giữ thực thể đích và ảnh liên quan.
+\end{itemize}
+
+Random Graph chỉ dùng thông tin train khi tạo đối chứng. Shuffled Edges sử dụng danh sách bộ ba validation/test để loại các phép hoán đổi tạo cạnh trùng; chi tiết kiểm soát chồng lấn được trình bày tại Mục~\ref{sec:reproducibility-leakage}.
 
 \section{Thang đo đánh giá}
 \label{sec:metrics}
 
-Hệ thống đánh giá định lượng sử dụng các chỉ số học thuật tiêu chuẩn:
-\begin{itemize}
-  \item \textbf{Chỉ số truy hồi:}
-  \begin{itemize}
-    \item $\text{Recall@}K$ ($K \in \{1, 5, 10\}$): Tỷ lệ phần trăm số câu truy vấn tìm thấy kết quả đúng trong top-$K$.
-    \item $\text{MRR}$ (Mean Reciprocal Rank): Trung bình nghịch đảo hạng của ảnh liên quan tốt nhất trên các truy vấn.
-    \item $\text{Indirect MRR}$: Điểm MRR tính riêng trên tập con các truy vấn gián tiếp nhằm xác định năng lực suy luận của đồ thị.
-  \end{itemize}
-  \item \textbf{Chỉ số giải thích:}
-  \begin{itemize}
-    \item $\text{Fidelity}^-$ (Sufficiency/Fidelity): Mức độ sụt giảm điểm số khi loại bỏ đường đi giải thích khỏi đồ thị.
-    \item $\text{Validity}$: Tỷ lệ giải thích hợp lệ về mặt ngữ nghĩa và cú pháp logic.
-    \item $\text{Sparsity}$: Tỷ lệ số cạnh tối giản trong đồ thị con giải thích so với đồ thị tổng thể.
-  \end{itemize}
-\end{itemize}
+\subsection{Visual Genome}
 
+Nhóm sử dụng hai chỉ số để đánh giá hiệu quả
+truy hồi ảnh là Recall@$K$ và Mean Reciprocal
+Rank (MRR).
+
+Recall@$K$, với $K\in\{1,5,10\}$, đo tỷ lệ
+truy vấn có ít nhất một ảnh đúng nằm trong
+$K$ kết quả đầu tiên. Trong khi đó, MRR
+là trung bình nghịch đảo thứ hạng của ảnh
+đúng đầu tiên, phản ánh khả năng đưa ảnh
+phù hợp lên vị trí cao trong danh sách kết quả.
+
+\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+
+Hiệu năng được báo cáo bằng MRR, Recall@10 và MRR theo loại truy vấn. \textit{Direct MRR} được tính trên các truy vấn trực tiếp; \textit{Indirect MRR} được tính riêng trên các truy vấn cần thông tin quan hệ, nhằm đánh giá phần đóng góp của đồ thị tri thức.
 
 \section{Khả năng tái lập và phòng chống rò rỉ dữ liệu}
 \label{sec:reproducibility-leakage}
 
-Nghiên cứu áp dụng các quy chuẩn phòng chống data leakage tuyệt đối:
-\begin{itemize}
-  \item \textbf{Khóa mã băm:} Toàn bộ tập dữ liệu đã chia, ma trận đặc trưng trích xuất và file checkpoint mô hình đều được lưu kèm chữ ký mã băm SHA-256 trong file \texttt{test\_protocol.json} và \texttt{baseline\_manifest.json}.
-  \item \textbf{Kiểm soát chồng lấn cạnh:} Shuffled Edges trên DB15K và FB15K-237-IMG dùng danh sách bộ ba validation và test để loại phép hoán đổi tạo cạnh trùng. Trên DB15K, kiểm tra thực hiện trên bộ ba train đã biến đổi. Trên FB15K-237-IMG, kiểm tra thực hiện trên bộ ba được khôi phục từ neo, đích, quan hệ và hướng truy vấn. Cơ chế này chỉ áp dụng cho Shuffled Edges trong các kết quả báo cáo.
-\end{itemize}
+\subsection{Visual Genome}
+
+Tập dữ liệu được phân chia trước khi huấn luyện,
+đồng thời kiểm tra các ảnh trùng hoặc gần giống
+nhau bằng SHA-256 và pHash để hạn chế rò rỉ dữ liệu
+giữa các tập. Các lần huấn luyện với seed khác nhau
+đều sử dụng cùng dữ liệu đã xử lý và đặc trưng
+CLIP được trích xuất sẵn.
+
+Checkpoint và trọng số kết hợp $\alpha_{\mathrm{CLIP}}$
+chỉ được lựa chọn dựa trên kết quả validation.
+Tập test được sử dụng để đánh giá mô hình sau
+khi quá trình lựa chọn hoàn tất.
+
+\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+
+Các split chuẩn, cache đặc trưng và cấu hình seed được giữ cố định giữa các lần chạy. Cạnh huấn luyện và đặc trưng thị giác cấp thực thể được lấy từ train. Shuffled Edges trên DB15K và FB15K-237-IMG dùng danh sách bộ ba validation và test để loại phép hoán đổi tạo cạnh trùng. Trên DB15K, kiểm tra thực hiện trên bộ ba train đã biến đổi; trên FB15K-237-IMG, kiểm tra thực hiện trên bộ ba được khôi phục từ neo, đích, quan hệ và hướng truy vấn. Cơ chế test-aware exclusion này chỉ áp dụng cho Shuffled Edges trong các kết quả báo cáo và không được mô tả như một quy trình blind-generation thuần túy.

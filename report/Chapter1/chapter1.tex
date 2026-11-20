@@ -38,13 +38,13 @@ Mối quan hệ phụ thuộc logic giữa ba câu hỏi nghiên cứu được 
 \label{sec:research-scope}
 
 \subsection{Phạm vi nghiên cứu}
-Nghiên cứu tập trung vào bài toán truy hồi Text-to-Image làm nhánh thực nghiệm chính theo đúng đặc tả chuẩn của đề bài. Nhánh mở rộng Image-to-Text và Text-to-Video được định vị ở mức khảo sát mở rộng. Các bộ dữ liệu được sử dụng bao gồm: Flickr30k Entities, DB15K, FB15k-237 và Visual Genome, kết hợp với tập dữ liệu khảo sát MMKG tự xây miền hẹp.
+Nghiên cứu tập trung vào bài toán truy hồi Text-to-Image làm nhánh thực nghiệm chính theo đúng đặc tả chuẩn của đề bài. Nhánh mở rộng Image-to-Text và Text-to-Video được định vị ở mức khảo sát mở rộng. Các bộ dữ liệu chính được sử dụng gồm Visual Genome, DB15K và FB15k-237, kết hợp với tập dữ liệu khảo sát MMKG tự xây miền hẹp.
 
 \subsection{Tóm tắt đóng góp chính}
 Các đóng góp chính của đồ án bao gồm:
 \begin{enumerate}
   \item Xây dựng pipeline truy hồi đa phương thức chuẩn hóa tích hợp CLIP và đồ thị, bảo đảm giao thức chia tập dữ liệu nghiêm ngặt chống data leakage và kiểm soát seed ngẫu nhiên.
-  \item Triển khai và đánh giá thực nghiệm mô hình Graph Attention Network (GAT) trên Flickr30k Entities, thực hiện ablation study kiểm chứng vai trò thực chất của các cạnh đồ thị đối chứng với cấu hình không cạnh và cạnh ngẫu nhiên.
+  \item Triển khai và đánh giá thực nghiệm mô hình Graph Attention Network (GAT) trên Visual Genome, thực hiện ablation study kiểm chứng vai trò của cấu trúc cạnh bằng các đối chứng không cạnh và cạnh ngẫu nhiên.
   \item Hiện thực hóa mô hình dung hợp đa phương thức dựa trên AdaMF trên hai tập chuẩn MMKG (DB15K và FB15k-237), phân tích chuyên sâu sự khác biệt hiệu năng giữa 20 truy vấn trực tiếp và gián tiếp.
   \item Thiết kế giao thức đánh giá giải thích định lượng thông qua ba chỉ số: Fidelity, Validity và Sparsity, kèm theo phân tích định tính trên các trường hợp thành công và thất bại.
   \item Khảo sát khả năng chuyển giao trên tập dữ liệu MMKG tự xây (tiếng Việt miền hẹp) và ghi nhận minh bạch các giới hạn thực nghiệm.

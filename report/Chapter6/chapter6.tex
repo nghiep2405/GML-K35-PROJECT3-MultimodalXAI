@@ -14,9 +14,9 @@ Kết quả thực nghiệm trên cả ba cấp độ khẳng định một các
 
 Một trong những đóng góp học thuật quan trọng nhất của báo cáo là làm sáng tỏ bản chất của "sự cải thiện nhờ đồ thị" thông qua các thí nghiệm triệt tiêu đa dạng. Trong nhiều công bố khoa học, việc một mô hình GNN cải thiện điểm số so với mô hình cơ sở thường bị quy mặc nhiên toàn bộ cho cấu trúc topo của đồ thị. 
 
-Các phát hiện thực nghiệm của nhóm trên Flickr30k và DB15K cho thấy bức tranh phức tạp hơn:
+Các phát hiện thực nghiệm của nhóm trên Visual Genome và DB15K cho thấy bức tranh phức tạp hơn:
 \begin{enumerate}
-  \item \textbf{Hiệu ứng tinh chỉnh không gian biểu diễn:} Cấu hình No-Edges (mạng adapter không cạnh) vẫn tạo ra bước nhảy vọt đáng kể so với CLIP thuần. Điều này chứng minh rằng các tầng biến đổi phi tuyến đã giúp điều chỉnh các vectơ nhúng tổng quát của CLIP cho vừa vặn hơn với phân phối dữ liệu cụ thể của bài toán.
+  \item \textbf{Hiệu ứng của các thành phần học được:} Trên Visual Genome seed 2026, cấu hình No-edge đạt MRR 0,069193 so với 0,061149 của CLIP-only. Kết quả cho thấy một phần cải thiện có thể đến từ các phép biến đổi đặc trưng và cơ chế kết hợp điểm, không chỉ từ cấu trúc cạnh.
   \item \textbf{Hiệu ứng phân phối bậc:} Đồ thị hoán đổi cạnh trên DB15K giữ bậc vào và ra theo từng quan hệ và đạt MRR 0,315632, so với 0,257698 của CLIP. Thực nghiệm này chưa cô lập ảnh hưởng riêng của phân phối bậc.
   \item \textbf{Ngữ nghĩa cạnh thực sự:} Đồ thị gốc cao hơn đồ thị hoán đổi khoảng 0,0989 MRR trên DB15K seed 2027. Hai cấu hình chọn trọng số và checkpoint riêng, nên mức chênh lệch được diễn giải ở cấp cấu hình.
 \end{enumerate}

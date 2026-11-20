@@ -115,21 +115,23 @@ Checkpoint và $\alpha_{\mathrm{CLIP}}$ được chọn trên validation: $\alph
 \begin{table}[!t]
 \centering
 \footnotesize
-\setlength{\tabcolsep}{2pt}
-\caption{MRR test theo nhóm truy vấn (trung bình $\pm$ độ lệch chuẩn mẫu; R@10 tính trên mọi truy vấn)}
+\setlength{\tabcolsep}{1.8pt}
+\caption{Kết quả test trên DB15K và FB15K-237-IMG (trung bình ba lần huấn luyện, độ lệch chuẩn không quá 0.004 ở mọi ô; R@K tính trên mọi truy vấn)}
 \label{tab:level2-main}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-Mô hình & Gộp & \twoline{Trực}{tiếp} & \twoline{Gián}{tiếp} & R@10\\
+ & & & & \multicolumn{3}{c}{MRR}\\
+\cmidrule(l){5-7}
+Mô hình & R@1 & R@5 & R@10 & Gộp & \twoline{Trực}{tiếp} & \twoline{Gián}{tiếp}\\
 \midrule
-\multicolumn{5}{l}{\textit{DB15K}}\\
-CLIP & 0.2577 & 0.5520 & 0.0475 & 0.3412\\
-CLIP + AdaMF & \textbf{0.4133}\pmsd{0.0013} & 0.5520 & \textbf{0.3143}\pmsd{0.0022} & \textbf{0.5519}\\
-CLIP + GAT & 0.4114\pmsd{0.0015} & 0.5520 & 0.3110\pmsd{0.0026} & 0.5491\\
+\multicolumn{7}{l}{\textit{DB15K}}\\
+CLIP & 0.2123 & 0.3002 & 0.3412 & 0.2577 & 0.5520 & 0.0475\\
+CLIP + AdaMF & \textbf{0.3395} & 0.4955 & \textbf{0.5519} & \textbf{0.4133} & 0.5520 & \textbf{0.3143}\\
+CLIP + GAT & 0.3368 & \textbf{0.4967} & 0.5491 & 0.4114 & 0.5520 & 0.3110\\
 \midrule
-\multicolumn{5}{l}{\textit{FB15K-237-IMG}}\\
-CLIP & 0.0991 & 0.3475 & 0.0122 & 0.1394\\
-CLIP + AdaMF & \textbf{0.2892}\pmsd{0.0007} & \textbf{0.7770} & \textbf{0.1186}\pmsd{0.0012} & \textbf{0.3492}\\
+\multicolumn{7}{l}{\textit{FB15K-237-IMG}}\\
+CLIP & 0.0760 & 0.1181 & 0.1394 & 0.0991 & 0.3475 & 0.0122\\
+CLIP + AdaMF & \textbf{0.2581} & \textbf{0.3214} & \textbf{0.3492} & \textbf{0.2892} & \textbf{0.7770} & \textbf{0.1186}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -208,7 +210,7 @@ Mỗi ảnh được giải thích theo ba tầng: thực thể quyết định 
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/case_db15k_success_hitchens.png}
+\includegraphics[width=0.78\textwidth]{figures/case_db15k_success_hitchens.png}
 \caption{Ca thành công trên DB15K: truy vấn tìm thực thể có quan hệ \textit{influenced by} tới Richard Dawkins (nút xanh ngọc, ảnh trả về là nút cam); CLIP xếp ảnh đúng ở hạng 55, CLIP + AdaMF ở hạng 1. Đồ thị: hai bộ ba giải thích ($K^\star = 2$, nét liền, độ dày và số trong ngoặc là $\Delta$), trong đó Christopher Hitchens \textit{influenced} Richard Dawkins ($\Delta = 0.198$) nối trực tiếp với thực thể neo; nét đứt là quan hệ được hỏi. Che từng phương thức: điểm đồ thị giảm 74.8 khi che cấu trúc, $-0.15$ khi che ảnh và 0.20 khi che văn bản.}
 \label{fig:case-db15k}
 \end{figure*}
@@ -226,16 +228,18 @@ Mỗi ảnh được giải thích theo ba tầng: thực thể quyết định 
 \begin{table}[!t]
 \centering
 \footnotesize
-\setlength{\tabcolsep}{2.5pt}
-\caption{MRR test trên ViHeritage-MMKG, câu tiếng Việt (trung bình $\pm$ độ lệch chuẩn mẫu)}
+\setlength{\tabcolsep}{2pt}
+\caption{Kết quả test trên ViHeritage-MMKG, câu tiếng Việt (trung bình $\pm$ độ lệch chuẩn mẫu; R@K tính trên cả 142 truy vấn; 88 truy vấn trực tiếp giữ thứ hạng CLIP, MRR 0.156)}
 \label{tab:viheritage-results}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-Mô hình & \twoline{Gộp}{(142)} & \twoline{Trực tiếp}{(88)} & \twoline{Gián tiếp}{(54)} & \twoline{R@10}{gián tiếp}\\
+ & & & & \multicolumn{2}{c}{MRR}\\
+\cmidrule(l){5-6}
+Mô hình & R@1 & R@5 & R@10 & \twoline{Gộp}{(142)} & \twoline{Gián tiếp}{(54)}\\
 \midrule
-CLIP & 0.139 & 0.156 & 0.112 & 0.241\\
-CLIP + AdaMF & 0.180\pmsd{0.004} & 0.156 & 0.219\pmsd{0.012} & 0.519\\
-CLIP + GAT & \textbf{0.195}\pmsd{0.014} & 0.156 & \textbf{0.258}\pmsd{0.036} & \textbf{0.611}\\
+CLIP & 0.053 & 0.183 & 0.324 & 0.139 & 0.112\\
+CLIP + AdaMF & 0.069 & 0.248 & 0.430 & 0.180\pmsd{0.004} & 0.219\pmsd{0.012}\\
+CLIP + GAT & \textbf{0.080} & \textbf{0.282} & \textbf{0.465} & \textbf{0.195}\pmsd{0.014} & \textbf{0.258}\pmsd{0.036}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -254,21 +258,21 @@ Bảng~\ref{tab:xai-all} tổng hợp các chỉ số theo cùng định nghĩa 
 \begin{table*}[!t]
 \centering
 \footnotesize
-\setlength{\tabcolsep}{3.5pt}
-\caption{Đánh giá giải thích tại $K^\star$ (trung bình $\pm$ độ lệch chuẩn giữa các lần huấn luyện; $\text{Fid}^{-}$ là trung vị trong mỗi lần)}
+\setlength{\tabcolsep}{3pt}
+\caption{Đánh giá giải thích tại $K^\star$ (trung bình $\pm$ độ lệch chuẩn giữa các lần huấn luyện; $\text{Fid}^{-}$ và Fid làm nhiễu là trung vị trong mỗi lần)}
 \label{tab:xai-all}
-\begin{tabular}{lllrrrrrrrrr}
+\begin{tabular}{llrrrrrrrrrr}
 \toprule
-Cấp & Dữ liệu, mô hình & Bộ giải thích & $K^\star$ & Fid+ & \twoline{Fid+}{ngẫu nhiên} & Fid$-$ & PN & \twoline{PN}{ngẫu nhiên} & PS & Sparsity & Ổn định\\
+Dữ liệu, mô hình & Bộ giải thích & $K^\star$ & Fid+ & \twoline{Fid+}{ngẫu nhiên} & \twoline{Fid làm}{nhiễu} & Fid$-$ & PN & \twoline{PN}{ngẫu nhiên} & PS & Sparsity & Ổn định\\
 \midrule
-1 & Visual Genome, GAT & Bỏ quan hệ & 12 & 0.118\pmsd{0.002} & 0.003 & $-$0.193 & 0.357 & 0.053 & 1.000 & 0.647 & 0.552\\
-2 & DB15K, AdaMF & Học lại nhúng & 2 & 0.511\pmsd{0.065} & 0.023 & $-$0.905 & 0.643 & 0.230 & 0.681 & 0.799 & 0.625\\
-2 & FB15K-237-IMG, AdaMF & Học lại nhúng & 8 & 0.335\pmsd{0.041} & 0.011 & $-$0.938 & 0.757 & 0.248 & 0.976 & 0.795 & 0.421\\
-3 & ViHeritage, AdaMF & Học lại nhúng & 1 & 0.535\pmsd{0.059} & 0.145 & 0.861 & 0.773 & 0.401 & 0.144 & 0.786 & 0.396\\
-3 & ViHeritage, GAT & Che cạnh & 8 & 0.103\pmsd{0.080} & 0.002 & $-$0.112 & 0.370 & 0.072 & 0.981 & 0.762 & 0.364\\
+Visual Genome, GAT & Bỏ quan hệ & 12 & 0.118\pmsd{0.002} & 0.003 & 0.063 & $-$0.193 & 0.357 & 0.053 & 1.000 & 0.647 & 0.552\\
+DB15K, AdaMF & Học lại nhúng & 2 & 0.511\pmsd{0.065} & 0.023 & 0.431 & $-$0.905 & 0.643 & 0.230 & 0.681 & 0.799 & 0.625\\
+FB15K-237-IMG, AdaMF & Học lại nhúng & 8 & 0.335\pmsd{0.041} & 0.011 & 0.043 & $-$0.938 & 0.757 & 0.248 & 0.976 & 0.795 & 0.421\\
+ViHeritage, AdaMF & Học lại nhúng & 1 & 0.535\pmsd{0.059} & 0.145 & 0.059 & 0.861 & 0.773 & 0.401 & 0.144 & 0.786 & 0.396\\
+ViHeritage, GAT & Che cạnh & 8 & 0.103\pmsd{0.080} & 0.002 & 0.024 & $-$0.112 & 0.370 & 0.072 & 0.981 & 0.762 & 0.364\\
 \bottomrule
 \end{tabular}
-\par\smallskip{\footnotesize Ổn định: Jaccard trung bình của tập giải thích giữa các cặp mô hình huấn luyện độc lập khi chúng trả về cùng ảnh. Validity cấu trúc đạt 100\% ở mọi dòng: với Visual Genome, mọi phần tử là quan hệ có trong scene graph của chính ảnh và nằm trong vùng tiếp nhận hai bước; với các tập còn lại, mọi phần tử là bộ ba train, không trùng validation/test. Visual Genome dùng 500 truy vấn test, DB15K và FB15K-237-IMG 70, ViHeritage 54.}
+\par\smallskip{\footnotesize Cấp 1: Visual Genome; cấp 2: DB15K, FB15K-237-IMG; cấp 3: ViHeritage. Ổn định: Jaccard trung bình của tập giải thích giữa các cặp mô hình huấn luyện độc lập khi chúng trả về cùng ảnh. Validity cấu trúc đạt 100\% ở mọi dòng: với Visual Genome, mọi phần tử là quan hệ có trong scene graph của chính ảnh và nằm trong vùng tiếp nhận hai bước; với các tập còn lại, mọi phần tử là bộ ba train, không trùng validation/test. Số truy vấn: Visual Genome 500, DB15K và FB15K-237-IMG 70, ViHeritage 54 với GAT và 50 với AdaMF.}
 \end{table*}
 
 \begin{figure}[!t]
@@ -278,7 +282,7 @@ Cấp & Dữ liệu, mô hình & Bộ giải thích & $K^\star$ & Fid+ & \twolin
 \label{fig:xai-fidelity}
 \end{figure}
 
-\textbf{Fidelity.} Ở mọi mô hình, bỏ đúng tập giải thích làm xác suất của ảnh trả về giảm nhiều hơn hẳn bỏ cùng số phần tử ngẫu nhiên. Trên ViHeritage (54 truy vấn), hiệu số Fid+ so với ngẫu nhiên là 0.39 (CI 95\% $[0.35, 0.44]$, $p < 10^{-10}$) với AdaMF và 0.10 ($[0.06, 0.14]$, $p < 10^{-4}$) với GAT; PN cao hơn ngẫu nhiên 0.38 và 0.30. Giải thích cũng tốt hơn heuristic: chọn bộ ba có bậc cao nhất cho Fid+ 0.02 đến 0.21 ở cấp 2 và 3; trên Visual Genome, chọn cùng số quan hệ có attention lớn nhất cho $-0.007$, thấp hơn giải thích 0.125 (CI 95\% $[0.119, 0.131]$). Khi huấn luyện lại AdaMF từ đầu sau khi bỏ bộ ba giải thích, Fid+ là 0.327 so với 0.180 khi bỏ bộ ba ngẫu nhiên ($p = 0.0002$) và 0.197 khi bỏ bộ ba bậc cao ($p = 0.0008$); PN là 0.62 so với 0.52 ($p = 0.075$). Tương quan Spearman giữa Fid+ xấp xỉ và Fid+ khi huấn luyện lại là 0.32, nên phép đo xấp xỉ đúng về hướng nhưng chỉ tương quan vừa phải theo từng truy vấn.
+\textbf{Fidelity.} Ở mọi mô hình, bỏ đúng tập giải thích làm xác suất của ảnh trả về giảm nhiều hơn hẳn bỏ cùng số phần tử ngẫu nhiên. Trên ViHeritage (54 truy vấn với GAT, 50 với AdaMF), hiệu số Fid+ so với ngẫu nhiên là 0.39 (CI 95\% $[0.35, 0.44]$, $p < 10^{-10}$) với AdaMF và 0.10 ($[0.06, 0.14]$, $p < 10^{-4}$) với GAT; PN cao hơn ngẫu nhiên 0.38 và 0.30. Làm nhiễu, tức thay đầu kia của mỗi phần tử trong $\mathcal{S}$ bằng một thực thể ngẫu nhiên cùng vai trò, cũng làm xác suất của ảnh trả về giảm ở mọi mô hình (trung vị 0.024 đến 0.431, cao nhất trên DB15K), nên kết quả phụ thuộc đúng vào các thực thể mà giải thích chỉ ra. Giải thích cũng tốt hơn heuristic: chọn bộ ba có bậc cao nhất cho Fid+ 0.02 đến 0.21 ở cấp 2 và 3; trên Visual Genome, chọn cùng số quan hệ có attention lớn nhất cho $-0.007$, thấp hơn giải thích 0.125 (CI 95\% $[0.119, 0.131]$). Khi huấn luyện lại AdaMF từ đầu sau khi bỏ bộ ba giải thích, Fid+ là 0.327 so với 0.180 khi bỏ bộ ba ngẫu nhiên ($p = 0.0002$) và 0.197 khi bỏ bộ ba bậc cao ($p = 0.0008$); PN là 0.62 so với 0.52 ($p = 0.075$). Tương quan Spearman giữa Fid+ xấp xỉ và Fid+ khi huấn luyện lại là 0.32, nên phép đo xấp xỉ đúng về hướng nhưng chỉ tương quan vừa phải theo từng truy vấn.
 
 \textbf{Đủ và gọn.} Fid$-$ âm ở Visual Genome, DB15K, FB15K-237-IMG và GAT ViHeritage: chỉ giữ tập giải thích làm ảnh được tin hơn. Riêng AdaMF trên ViHeritage, $K^\star = 1$ cho Fid+ cao nhưng Fid$-$ 0.861 và PS 0.144: một bộ ba là cần thiết nhưng chưa đủ. Hình~\ref{fig:xai-kcurve} cho thấy đánh đổi này; với $K = 2$, Fid$-$ về khoảng 0 và PS tăng lên 0.68 nhưng sparsity giảm từ 0.76 xuống 0.60. Quy tắc chọn $K^\star$ chỉ dựa vào mức giảm điểm khi bỏ, nên ưu tiên tính cần thiết hơn tính đủ. Ngược lại, giải thích của GAT ở cả Visual Genome và ViHeritage có PS cao nhưng Fid+ thấp vì đóng góp phân tán qua nhiều cạnh trong vùng tiếp nhận; trên Visual Genome, Fid+ vẫn tăng khi $K$ vượt $K^\star = 12$ trong khi sparsity giảm còn 0.58 ở $K = 16$.
 

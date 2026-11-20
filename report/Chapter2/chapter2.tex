@@ -98,15 +98,18 @@ Yêu cầu cốt lõi của bài toán Graph Explainability (xAI) là tính trun
 
 Các chỉ số định lượng đánh giá tính giải thích bao gồm:
 \begin{itemize}
-  \item \textbf{Fidelity:} Đo lường mức độ sụt giảm điểm số hoặc thay đổi thứ hạng khi loại bỏ hoặc can thiệp (perturb) các cạnh hoặc đường đi được mô hình chọn làm giải thích:
+  \item \textbf{Fidelity:} Đo mức thay đổi của xác suất xếp hạng ảnh đúng khi can thiệp vào tập bộ ba giải thích $\mathcal{E}_{\text{exp}}$. Gọi $p_0$ là xác suất softmax của ảnh đúng sau khi trộn điểm CLIP và điểm đồ thị, $p_{\setminus \mathcal{E}_{\text{exp}}}$ là xác suất khi bỏ các bộ ba giải thích và $p_{\mathcal{E}_{\text{exp}}}$ là xác suất khi chỉ giữ các bộ ba này. Hai dạng Fidelity được chuẩn hóa theo $p_0$:
   \begin{equation}
-    \text{Fidelity}^- = S_{\text{graph}}(q, v) - S_{\text{graph}}(q, v \setminus \mathcal{E}_{\text{exp}})
+    \text{Fid}^{+} = \frac{p_0 - p_{\setminus \mathcal{E}_{\text{exp}}}}{p_0},
+    \qquad
+    \text{Fid}^{-} = \frac{p_0 - p_{\mathcal{E}_{\text{exp}}}}{p_0}
     \label{eq:fidelity-formula}
   \end{equation}
+  $\text{Fid}^{+}$ lớn cho thấy việc bỏ bằng chứng giải thích làm giảm mạnh xác suất của ảnh đúng. $\text{Fid}^{-}$ nhỏ hoặc âm cho thấy riêng bằng chứng giải thích đã đủ để giữ hoặc tăng xác suất này.
   \item \textbf{Validity:} Tỷ lệ phần trăm các giải thích sinh ra thỏa mãn các ràng buộc logic hoặc có sự hiện diện thực tế trong ngữ cảnh ảnh và câu truy vấn.
-  \item \textbf{Sparsity:} Tỷ lệ nén của đồ thị con giải thích so với toàn bộ đồ thị tri thức ban đầu, bảo đảm giải thích ngắn gọn, dễ tiếp nhận đối với con người:
+  \item \textbf{Sparsity:} Tỷ lệ nén của tập bộ ba giải thích so với các bộ ba train liên quan đến thực thể của ảnh ứng viên, bảo đảm giải thích ngắn gọn, dễ tiếp nhận đối với con người. Trong đó $\mathcal{F}_e$ là tập bộ ba train chứa thực thể $e$ của ảnh được giải thích:
   \begin{equation}
-    \text{Sparsity} = 1 - \frac{|\mathcal{E}_{\text{exp}}|}{|\mathcal{E}_{\text{subgraph}}|}
+    \text{Sparsity} = 1 - \frac{|\mathcal{E}_{\text{exp}}|}{|\mathcal{F}_{e}|}
     \label{eq:sparsity-formula}
   \end{equation}
 \end{itemize}

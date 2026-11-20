@@ -289,7 +289,7 @@ Random Graph & 0.2577 & 0.3412 & 0.0475\\
 \par\smallskip{\footnotesize GT là nhóm gián tiếp. No Edges bỏ huấn luyện; Random Graph chọn $\alpha_{\mathrm{CLIP}}=1$ trên validation. Hai hàng tương ứng dùng hoàn toàn điểm CLIP khi xếp hạng test.}
 \end{table}
 
-MRR của đồ thị gốc cao hơn Shuffled Edges 0.098917 trên toàn bộ test và 0.169569 ở nhóm gián tiếp. Vì nhóm trực tiếp giữ thứ hạng CLIP ở mọi cấu hình, chênh lệch tổng hợp xuất phát từ nhóm gián tiếp. Kết quả hỗ trợ vai trò của các quan hệ đúng trong pipeline DB15K.
+Các bảng làm tròn đến bốn chữ số thập phân, còn văn bản dùng giá trị sáu chữ số từ kết quả gốc. MRR của đồ thị gốc cao hơn Shuffled Edges 0.098917 trên toàn bộ test và 0.169569 ở nhóm gián tiếp. Vì nhóm trực tiếp giữ thứ hạng CLIP ở mọi cấu hình, chênh lệch tổng hợp xuất phát từ nhóm gián tiếp. Kết quả hỗ trợ vai trò của các quan hệ đúng trong pipeline DB15K.
 
 No Edges bỏ huấn luyện KGC và đặt $\alpha_{\mathrm{CLIP}}$ bằng 1, cho kết quả bằng CLIP. Với Random Graph, cấu hình được chọn trên validation cũng có $\alpha_{\mathrm{CLIP}}$ bằng 1 tại epoch 1. Vì vậy, đầu ra test của nhánh này dùng hoàn toàn điểm CLIP. Thực nghiệm hiện tại cho biết quy trình chọn mô hình đã loại đóng góp điểm đồ thị ngẫu nhiên. Để đo tác động khi ép mô hình sử dụng đồ thị ngẫu nhiên, cần đánh giá thêm trọng số $\alpha_{\mathrm{CLIP}}$ cố định nhỏ hơn 1.
 
@@ -342,7 +342,7 @@ Shuffled Edges & 0.7904 & 0.1121 & 0.0496 & 0.1729\\
 }
 \end{table}
 
-Random Graph và Shuffled Edges đạt MRR gián tiếp 0.112115 và 0.112135, giữ khoảng 93.6\% MRR gián tiếp của đồ thị gốc (0.119752) so với CLIP baseline đạt khoảng 0.012178. Việc phần lớn hiệu năng vẫn được giữ khi neo train bị thay đổi gợi ý đóng góp đáng kể của các thành phần biểu diễn và mục tiêu truy hồi. Các đối chứng hiện có chưa phân lập được mức đóng góp riêng của từng thành phần.
+Các bảng làm tròn đến bốn chữ số thập phân, còn văn bản dùng giá trị sáu chữ số từ kết quả gốc. Random Graph và Shuffled Edges đạt MRR gián tiếp 0.112115 và 0.112135, giữ khoảng 93.6\% MRR gián tiếp của đồ thị gốc (0.119752). Để so sánh, CLIP baseline chỉ đạt 0.012178. Việc phần lớn hiệu năng vẫn được giữ khi neo train bị thay đổi gợi ý đóng góp đáng kể của các thành phần biểu diễn và mục tiêu truy hồi. Các đối chứng hiện có chưa phân lập được mức đóng góp riêng của từng thành phần.
 
 MRR gián tiếp giữa Random Graph và Shuffled Edges chỉ chênh khoảng 0.000020. Trong seed này, cơ chế bảo toàn phân phối neo và đích của Shuffled Edges chưa tạo khác biệt rõ so với lấy mẫu ngẫu nhiên. Mô hình đầy đủ cao hơn hai đối chứng khoảng 0.0076 MRR gián tiếp. Chênh lệch này mới quan sát ở một seed ablation và chưa có kiểm định thống kê.
 

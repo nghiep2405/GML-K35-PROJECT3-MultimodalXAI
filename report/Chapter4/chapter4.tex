@@ -62,7 +62,7 @@ Quan hệ & Số lần & Quan hệ & Số lần\\
 \end{tabular}
 \end{table*}
 
-\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+\subsection{DB15K và FB15K-237-IMG}
 
 DB15K gồm 14\,708 thực thể, 12\,842 ảnh, 99\,028 bộ ba và 279 loại quan hệ. FB15K-237-IMG gồm 14\,541 thực thể, 310\,116 bộ ba, 237 loại quan hệ và các ảnh được gắn với thực thể. Hai tập kế thừa cách chia train/validation/test của MMKB benchmark và được dùng để đánh giá truy vấn trực tiếp, truy vấn gián tiếp và khả năng dung hợp đa phương thức của AdaMF.
 
@@ -97,7 +97,7 @@ GAT xếp hạng lại 50 ảnh có điểm CLIP cao nhất.
 Checkpoint và trọng số kết hợp đã chọn được giữ
 cố định trong quá trình đánh giá trên tập test.
 
-\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+\subsection{Thuật toán ADAMF}
 
 
 \begin{table}[H]
@@ -191,7 +191,7 @@ Full Graph được huấn luyện với ba seed
 Checkpoint và trọng số kết hợp $\alpha_{\mathrm{CLIP}}$ của mỗi cấu hình
 được lựa chọn riêng trên tập validation.
 
-\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+\subsection{Thuật toán ADAMF}
 
 Các cấu hình được so sánh gồm:
 \begin{itemize}
@@ -220,9 +220,9 @@ là trung bình nghịch đảo thứ hạng của ảnh
 đúng đầu tiên, phản ánh khả năng đưa ảnh
 phù hợp lên vị trí cao trong danh sách kết quả.
 
-\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+\subsection{Thuật toán ADAMF}
 
-Hiệu năng được báo cáo bằng MRR, Recall@10 và MRR theo loại truy vấn. \textit{Direct MRR} được tính trên các truy vấn trực tiếp; \textit{Indirect MRR} được tính riêng trên các truy vấn cần thông tin quan hệ, nhằm đánh giá phần đóng góp của đồ thị tri thức.
+Hiệu năng được báo cáo bằng MRR, Recall@1, Recall@5, Recall@10 và MRR theo nhóm truy vấn. \textit{Direct MRR} được tính trên các truy vấn trực tiếp; \textit{Indirect MRR} được tính riêng trên các truy vấn cần thông tin quan hệ, nhằm đánh giá phần đóng góp của đồ thị tri thức. Head và Tail là hai nhóm con của truy vấn gián tiếp, phân theo vị trí thực thể còn thiếu trong bộ ba.
 
 \section{Khả năng tái lập và phòng chống rò rỉ dữ liệu}
 \label{sec:reproducibility-leakage}
@@ -241,6 +241,6 @@ chỉ được lựa chọn dựa trên kết quả validation.
 Tập test được sử dụng để đánh giá mô hình sau
 khi quá trình lựa chọn hoàn tất.
 
-\subsection{Yêu cầu 2: DB15K và FB15K-237-IMG}
+\subsection{DB15K và FB15K-237-IMG}
 
-Các split chuẩn, cache đặc trưng và cấu hình seed được giữ cố định giữa các lần chạy. Cạnh huấn luyện và đặc trưng thị giác cấp thực thể được lấy từ train. Shuffled Edges trên DB15K và FB15K-237-IMG dùng danh sách bộ ba validation và test để loại phép hoán đổi tạo cạnh trùng. Trên DB15K, kiểm tra thực hiện trên bộ ba train đã biến đổi; trên FB15K-237-IMG, kiểm tra thực hiện trên bộ ba được khôi phục từ neo, đích, quan hệ và hướng truy vấn. Cơ chế test-aware exclusion này chỉ áp dụng cho Shuffled Edges trong các kết quả báo cáo và không được mô tả như một quy trình blind-generation thuần túy.
+Bản chia thực nghiệm, cache đặc trưng và cấu hình seed được giữ cố định giữa các lần chạy. Trên DB15K, bản chia gồm 71.300 bộ ba train và 7.922 bộ ba validation được tách từ train chuẩn, còn test là tập test chính thức; validation chính thức không dùng để chọn mô hình. Cạnh huấn luyện và đặc trưng thị giác cấp thực thể được lấy từ train. Shuffled Edges trên DB15K và FB15K-237-IMG dùng danh sách bộ ba validation và test để loại phép hoán đổi tạo cạnh trùng. Trên DB15K, kiểm tra thực hiện trên bộ ba train đã biến đổi; trên FB15K-237-IMG, kiểm tra thực hiện trên bộ ba được khôi phục từ neo, đích, quan hệ và hướng truy vấn. Cơ chế test-aware exclusion này chỉ áp dụng cho Shuffled Edges trong các kết quả báo cáo và không được mô tả như một quy trình blind-generation thuần túy.

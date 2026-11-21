@@ -4,111 +4,35 @@
 \section{Truy vấn thông tin đa phương thức}
 \label{sec:multimodal-retrieval}
 
-Truy vấn thông tin đa phương thức là lĩnh vực nghiên cứu nhằm tìm kiếm và trích xuất các đối tượng thuộc phương thức này dựa trên truy vấn thuộc phương thức khác, tiêu biểu nhất là bài toán Text-to-Image Retrieval. Kiến trúc nền tảng phổ biến hiện nay là mô hình Dual-Encoder như CLIP \cite{radford2021clip}, bao gồm một bộ mã hóa thị giác $f_V(\cdot)$ và một bộ mã hóa ngôn ngữ $f_T(\cdot)$. Cả hai bộ mã hóa được huấn luyện thông qua hàm mất mát tương phản InfoNCE nhằm cực đại hóa cosine similarity của các cặp văn bản và hình ảnh tương ứng và đẩy xa các cặp âm tính trong cùng lô huấn luyện.
-
-Khi thực hiện truy vấn, với câu truy vấn $q$, vectơ nhúng được tính toán $e_q = f_T(q) / \|f_T(q)\|_2$. Tương tự, mỗi hình ảnh ứng viên $v_i$ trong không gian tìm kiếm được biểu diễn bằng $e_{v_i} = f_V(v_i) / \|f_V(v_i)\|_2$. Điểm tương đồng cơ sở giữa truy vấn và ảnh được định nghĩa thông qua tích vô hướng:
+CLIP~\cite{radford2021clip} mã hóa câu truy vấn $q$ và ảnh $v_i$ vào cùng không gian vectơ. Với hai embedding đã chuẩn hóa L2 là $e_q$ và $e_{v_i}$, điểm truy hồi cơ sở là
 \begin{equation}
-  S_{\text{CLIP}}(q, v_i) = \cos(e_q, e_{v_i}) = e_q^\top e_{v_i}
+  S_{\text{CLIP}}(q,v_i)=\cos(e_q,e_{v_i})=e_q^\top e_{v_i}.
   \label{eq:clip-similarity}
 \end{equation}
-
-Hiệu năng của các hệ thống truy vấn đa phương thức được đo lường chuẩn hóa thông qua các độ đo xếp hạng bao gồm: Recall@K ($K \in \{1, 5, 10\}$) xác định tỷ lệ các truy vấn có ảnh đúng nằm trong top-$K$ kết quả trả về, và Mean Reciprocal Rank (MRR) tính trung bình nghịch đảo thứ hạng của kết quả đúng đầu tiên:
-\begin{equation}
-  \text{MRR} = \frac{1}{|Q|} \sum_{j=1}^{|Q|} \frac{1}{\text{rank}_j}
-  \label{eq:mrr-formula}
-\end{equation}
+Các chỉ số MRR và Recall@$K$ được trình bày ở Mục~\ref{sec:metrics}.
 
 \section{Học biểu diễn đồ thị}
 \label{sec:graph-representation-learning}
 
-Để vượt qua giới hạn của việc chỉ biểu diễn các đối tượng một cách độc lập, học biểu diễn đồ thị cung cấp các công cụ toán học để mô hình hóa cấu trúc liên kết và sự phụ thuộc giữa các thực thể. Đồ thị $\mathcal{G} = (\mathcal{V}, \mathcal{E}, \mathcal{R})$ bao gồm tập đỉnh $\mathcal{V}$, tập cạnh $\mathcal{E}$ và tập các quan hệ $\mathcal{R}$. Trong thị giác máy tính, Scene Graph \cite{krishna2017visualgenome} mô tả các đối tượng trong ảnh dưới dạng đỉnh, với các cạnh có hướng thể hiện quan hệ vị trí, hành động hoặc thuộc tính giữa chúng.
-
-Mạng nơ-ron đồ thị GNN, điển hình là GCN \cite{kipf2017gcn}, GraphSAGE \cite{hamilton2017graphsage} và GAT \cite{velickovic2018gat}, thực hiện cơ chế message passing qua các lớp kế tiếp để tổng hợp thông tin từ vùng láng giềng:
-\begin{equation}
-  h_i^{(l+1)} = \sigma \left( \sum_{j \in \mathcal{N}_i \cup \{i\}} \alpha_{ij}^{(l)} W^{(l)} h_j^{(l)} \right)
-  \label{eq:gat-aggregation}
-\end{equation}
-Trong đó, $\alpha_{ij}^{(l)}$ là hệ số chú ý thể hiện tầm quan trọng của đỉnh $j$ đối với đỉnh $i$, cho phép mô hình học cách tập trung vào các quan hệ có ý nghĩa ngữ nghĩa cao nhất.
+Đồ thị cảnh của Visual Genome~\cite{krishna2017visualgenome} biểu diễn đối tượng bằng đỉnh và quan hệ giữa các đối tượng bằng cạnh. Các mô hình GCN, GraphSAGE và GAT đều tổng hợp thông tin từ láng giềng~\cite{kipf2017gcn,hamilton2017graphsage,velickovic2018gat}. Ở cấp độ 1, nhóm dùng GAT để học trọng số khi tổng hợp đặc trưng của các đỉnh trong ảnh.
 
 \section{Cải thiện truy vấn bằng đồ thị}
 \label{sec:graph-enhanced-retrieval}
 
-Xu hướng kết hợp đồ thị vào truy hồi đa phương thức khai thác đồ thị để rerank tập ứng viên sơ bộ do bộ mã hóa vectơ sinh ra. Với mỗi truy vấn $q$, mô hình đầu tiên chọn lọc một tập ứng viên rút gọn $\mathcal{C}_k(q)$ (ví dụ: top-$k$ ứng viên theo cosine CLIP). Sau đó, mô hình đồ thị tính toán điểm tương đồng đồ thị $S_{\text{graph}}(q, v_i)$ dựa trên đường đi suy luận hoặc sự tương thích giữa vectơ nhúng của truy vấn với biểu diễn đồ thị ngữ cảnh của ảnh $v_i$.
-
-Điểm xếp hạng cuối cùng được kết hợp theo dạng hàm tuyến tính có trọng số:
-\begin{equation}
-\begin{aligned}
-S_{\text{final}}(q,v_i)={}&\alpha_{\mathrm{CLIP}}\, z\big(S_{\text{CLIP}}(q,v_i)\big)\\
-&+(1-\alpha_{\mathrm{CLIP}})\, z\big(S_{\text{graph}}(q,v_i)\big).
-\end{aligned}
-  \label{eq:score-fusion}
-\end{equation}
-Trong đó $z(\cdot)$ chuẩn hóa z-score riêng từng dãy điểm theo truy vấn trên tập ứng viên xếp hạng lại. Hệ số cân bằng $\alpha_{\mathrm{CLIP}} \in [0, 1]$ được điều chỉnh nghiêm ngặt trên validation set nhằm tìm điểm dung hòa tối ưu giữa năng lực nhận diện khái quát của CLIP và tri thức quan hệ cục bộ của đồ thị.
+CLIP lấy các ảnh ứng viên có điểm tương đồng cao. Mô hình đồ thị bổ sung điểm về mức phù hợp của ảnh với quan hệ trong truy vấn. Hai dãy điểm được chuẩn hóa z-score theo từng truy vấn trước khi kết hợp với trọng số $\alpha_{\mathrm{CLIP}}$ chọn trên tập validation. Chi tiết triển khai ở hai cấp độ được trình bày tại Mục~\ref{sec:level1-methodology} và Mục~\ref{sec:level2-methodology}.
 
 \section{Đồ thị tri thức đa phương thức và công trình liên quan}
 \label{sec:advanced-mmkg-methods}
 
-\subsection{Biểu diễn thực thể và quan hệ}
-Đồ thị tri thức biểu diễn sự kiện bằng bộ ba $(h,r,t)$, trong đó $h$ và $t$ là thực thể, còn $r$ là quan hệ có hướng. Trong đồ thị tri thức đa phương thức, thực thể còn gắn với ảnh và mô tả văn bản. Hoàn thiện đồ thị tri thức đa phương thức dự đoán thực thể còn thiếu trong $(h,r,?)$ hoặc $(?,r,t)$ bằng cách kết hợp thông tin cấu trúc, thị giác và ngôn ngữ~\cite{liu2019mmkg,adamfmat2024}. Trong bài toán truy hồi của nhóm, thực thể dự đoán được liên kết với ảnh ứng viên để hỗ trợ xếp hạng.
+Đồ thị tri thức đa phương thức gắn ảnh và văn bản với các thực thể trong bộ ba $(h,r,t)$~\cite{liu2019mmkg}. Với truy vấn gián tiếp, hệ thống biết quan hệ $r$ và một thực thể neo, rồi điền thực thể gắn với ảnh ứng viên vào vị trí còn thiếu trong $(h,r,?)$ hoặc $(?,r,t)$.
 
-\subsection{Chấm điểm bộ ba bằng RotatE}
-RotatE~\cite{sun2019rotate} biểu diễn thực thể trong không gian số phức và mô hình hóa quan hệ như phép quay theo từng chiều. Với các embedding $\mathbf{h},\mathbf{r},\mathbf{t}$, khoảng cách và điểm bộ ba có dạng
-\begin{equation}
-\begin{aligned}
-d_r(h,t)&=\|\mathbf{h}\circ\mathbf{r}-\mathbf{t}\|,\\
-s(h,r,t)&=\gamma-d_r(h,t).
-\end{aligned}
- \label{eq:rotate-score}
-\end{equation}
-trong đó $\circ$ là tích từng phần tử, $|r_j|=1$ và $\gamma$ là tham số biên. Bộ ba có khoảng cách nhỏ nhận điểm cao. Khi đã biết thực thể neo và quan hệ, điểm này giúp đánh giá thực thể của từng ảnh ứng viên. Trong triển khai, embedding thực thể được lưu bằng phần thực và phần ảo, nên có chiều thực gấp đôi tham số chiều quan hệ.
+AdaMF học trọng số để dung hợp đặc trưng cấu trúc, ảnh và văn bản của mỗi thực thể~\cite{adamfmat2024}. RotatE~\cite{sun2019rotate} chấm bộ ba dựa trên khoảng cách giữa đầu sau phép quay theo quan hệ và đuôi. NativE khai thác trọng số theo quan hệ để xử lý sự không cân bằng giữa các phương thức~\cite{native2024sigir}.
 
-\subsection{Dung hợp thích nghi với AdaMF}
-AdaMF-MAT của Zhang và cộng sự~\cite{adamfmat2024} gồm dung hợp đa phương thức thích nghi (Adaptive Multi-modal Fusion) và huấn luyện đối kháng theo phương thức (Modality Adversarial Training). AdaMF học trọng số cho thông tin cấu trúc, ảnh và văn bản để tạo biểu diễn thực thể chung. MAT sinh mẫu đối kháng nhằm hỗ trợ xử lý sự mất cân bằng thông tin giữa các phương thức. Nhóm sử dụng cơ chế dung hợp và bộ chấm điểm cho truy hồi, với hệ số thành phần MAT bằng 0.
-
-NativE~\cite{native2024sigir} cũng nghiên cứu hoàn thiện đồ thị đa phương thức trong điều kiện thông tin không cân bằng và thiếu phương thức. Phương pháp dùng dung hợp thích nghi có hướng dẫn bởi quan hệ và huấn luyện đối kháng theo phương thức. Hai công trình cung cấp cơ sở cho việc học biểu diễn thực thể từ nhiều nguồn thông tin. Thực nghiệm của nhóm tập trung vào cách thích nghi AdaMF cho DB15K và FB15K-237-IMG.
-
-\subsection{Mục tiêu huấn luyện}
-Với mục tiêu học từ bộ ba, SigmoidLoss tăng điểm bộ ba đúng và giảm điểm bộ ba âm được lấy mẫu. Trong cơ chế lấy mẫu âm tự đối kháng, các mẫu âm đang có điểm cao được gán trọng số lớn hơn~\cite{sun2019rotate}. Với một bộ ba dương có điểm $s^+$ và các mẫu âm có điểm $s_j^-$, loss có dạng
-\begin{equation}
-\begin{aligned}
-\mathcal{L}_{\mathrm{KGC}}=-\frac{1}{2}\Bigl[&\log\sigma(s^+)\\
-&+\sum_jw_j\log\sigma(-s_j^-)\Bigr],\\
-w_j={}&\operatorname{softmax}_j(\tau s_j^-).
-\end{aligned}
- \label{eq:kgc-sigmoid-loss}
-\end{equation}
-trong đó $\tau$ điều chỉnh độ tập trung trọng số. Trong triển khai, trọng số $w_j$ được tách khỏi đồ thị gradient khi tối ưu.
-
-Với mục tiêu truy hồi, cross-entropy khuyến khích ảnh dương nhận điểm cao hơn các ảnh âm trong cùng nhóm ứng viên:
-\begin{equation}
- \mathcal{L}_{\mathrm{ret}}
- =-\log\frac{\exp(\ell(q,i^+))}
- {\sum_{i\in\mathcal{C}(q)}\exp(\ell(q,i))},
- \label{eq:retrieval-ce-loss}
-\end{equation}
-trong đó $\ell$ là logit sau điều chỉnh thang điểm và $\mathcal{C}(q)$ gồm ảnh dương cùng các ảnh âm lấy mẫu. DB15K dùng mục tiêu bộ ba, còn FB15K-237-IMG dùng mục tiêu truy hồi kế thừa pipeline GAT. Sự khác nhau về mục tiêu học cần được xét khi diễn giải kết quả ablation.
-
-\subsection{Vai trò của các đối chứng}
-CLIP cung cấp đường cơ sở cho độ tương đồng giữa văn bản và ảnh. Shuffled Edges và Random Graph thay đổi quan hệ train để kiểm tra mức nhạy của mô hình với cấu trúc. Ở cấp 2, No Edges dùng CLIP thuần và bỏ huấn luyện mô hình, nên khoảng cách với cấu hình đầy đủ bao gồm cả ảnh hưởng của học biểu diễn; ở cấp 1 và cấp 3, No-edge vẫn huấn luyện mô hình nhưng bỏ toàn bộ cạnh, nên đo được riêng phần đóng góp của cấu trúc. Đánh giá riêng truy vấn trực tiếp và gián tiếp giúp nhận diện các thay đổi có thể bị bù trừ khi tính chỉ số tổng hợp.
+Ở cấp độ 2, nhóm dùng cơ chế dung hợp AdaMF và bộ chấm điểm RotatE, với hệ số huấn luyện đối kháng MAT bằng 0. DB15K dùng SigmoidLoss trên bộ ba dương và âm. FB15K-237-IMG dùng cross-entropy để xếp ảnh đúng lên trên các ảnh âm của cùng truy vấn.
 
 \section{Truy vấn đồ thị có khả năng giải thích}
 \label{sec:explainable-retrieval}
 
-Đề yêu cầu giải thích phải đến từ chính cơ chế xếp hạng: một đường đi hợp lý được dựng sau khi đã có kết quả nhưng không ảnh hưởng tới dự đoán thì không được chấp nhận. Vì vậy giải thích được đánh giá bằng can thiệp: bỏ, chỉ giữ hoặc làm nhiễu tập phần tử giải thích $\mathcal{S}$ rồi chấm lại bằng đúng hàm xếp hạng. GNNExplainer~\cite{ying2019gnnexplainer} và SubgraphX~\cite{yuan2021subgraphx} chọn đồ thị con bằng tối ưu hoặc tìm kiếm; với KG embedding, Kelpie~\cite{rossi2022kelpie} học lại nhúng của thực thể sau khi bỏ bớt bộ ba để đo đóng góp của từng bộ ba. Nhóm dùng các chỉ số theo khảo sát của Amara và cộng sự~\cite{amara2022graphframex}.
+GNNExplainer và SubgraphX tìm đồ thị con để giải thích dự đoán của GNN~\cite{ying2019gnnexplainer,yuan2021subgraphx}. Với mô hình nhúng đồ thị tri thức, Kelpie đánh giá ảnh hưởng của bộ ba bằng cách học lại embedding sau can thiệp~\cite{rossi2022kelpie}.
 
-Gọi $p$ là xác suất softmax của ảnh được giải thích (ảnh hạng 1 hệ thống trả về) trên điểm cuối ở phương trình~(\ref{eq:score-fusion}), $p_{\setminus\mathcal{S}}$ và $p_{\mathcal{S}}$ là xác suất khi bỏ $\mathcal{S}$ và khi chỉ giữ $\mathcal{S}$, $\mathcal{F}$ là tập mọi phần tử có thể dùng làm giải thích của ảnh đó:
-\begin{equation}
-  \text{Fid}^{+} = \frac{p - p_{\setminus \mathcal{S}}}{p}, \qquad
-  \text{Fid}^{-} = \frac{p - p_{\mathcal{S}}}{p},
-  \label{eq:fidelity-formula}
-\end{equation}
-\begin{equation}
-  \text{Sparsity} = 1 - |\mathcal{S}| \,/\, |\mathcal{F}|.
-  \label{eq:sparsity-formula}
-\end{equation}
-$\text{Fid}^{+}$ lớn nghĩa là $\mathcal{S}$ cần thiết; $\text{Fid}^{-}$ nhỏ hoặc âm nghĩa là riêng $\mathcal{S}$ đã đủ giữ quyết định. Characterization là trung bình điều hòa của $\text{Fid}^{+}$ và $1-\text{Fid}^{-}$ sau khi kẹp về $[0,1]$. Fidelity khi làm nhiễu thay đầu kia của mỗi phần tử trong $\mathcal{S}$ bằng một thực thể ngẫu nhiên cùng vai trò. Validity được đo theo ba cách: phản thực (PN, tỉ lệ truy vấn mà bỏ $\mathcal{S}$ làm ảnh mất hạng 1) và đủ (PS, tỉ lệ mà chỉ giữ $\mathcal{S}$ ảnh vẫn hạng 1); cấu trúc (mọi phần tử của $\mathcal{S}$ là bộ ba huấn luyện, không trùng validation/test, và tỉ lệ nằm trên đường đi tới thực thể neo); và đánh giá theo kiến thức miền trên các ca cụ thể. Mỗi chỉ số được so với cùng số phần tử chọn ngẫu nhiên và chọn theo heuristic (attention hoặc bậc cao).
-
-\section{Động lực nghiên cứu}
-\label{sec:research-motivation}
-
-Các hệ truy vấn dựa trên bộ mã hóa kép mạnh ở so khớp bề mặt nhưng không có cơ chế suy luận qua quan hệ, còn phần lớn nghiên cứu MMKG giải bài toán hoàn thiện đồ thị chứ không phục vụ truy vấn ảnh. Từ đó đồ án đi theo ba bước: kiểm tra một mô hình đồ thị đơn giản có thêm giá trị so với CLIP hay không (cấp 1); dùng MMKG đa quan hệ cho các truy vấn gián tiếp (cấp 2); đo mức trung thực của giải thích và thử chuyển giao sang dữ liệu tiếng Việt tự xây (cấp 3).
+Nhóm đánh giá giải thích bằng cách bỏ, chỉ giữ hoặc làm nhiễu tập bằng chứng rồi chấm lại ảnh đứng đầu~\cite{amara2022graphframex}. $\mathrm{Fid}^{+}$ đo mức giảm tương đối của xác suất xếp hạng khi bỏ bằng chứng, còn $\mathrm{Fid}^{-}$ đo mức giảm khi chỉ giữ bằng chứng. Sparsity đo tỷ lệ phần tử ứng viên bị lược bỏ. PN và PS lần lượt đo tỷ lệ ảnh mất hạng nhất khi bỏ bằng chứng và giữ hạng nhất khi chỉ giữ bằng chứng.

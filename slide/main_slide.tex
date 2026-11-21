@@ -146,13 +146,13 @@
 % ===========================================================================
 % 02 --- Research problem
 % ===========================================================================
-\begin{frame}{CLIP Matches Vectors, Not Relations}
+\begin{frame}{CLIP Retrieval Can Struggle with Relational Queries}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
       \begin{itemize}
-        \item CLIP ranks images by \textbf{cosine similarity} of frozen embeddings --- effective, but structure-blind.
-        \item Two images with the same objects but different \textbf{relations} receive similar scores.
-        \item A score gives \textbf{no reason} for why a result was returned.
+        \item CLIP ranks images by \textbf{cosine similarity} of frozen embeddings --- effective, but without explicit graph reasoning.
+        \item Images with the same objects but different \textbf{relations} can be difficult to distinguish.
+        \item A similarity score alone does not identify the \textbf{evidence} behind a result.
       \end{itemize}
       \vspace{0.15cm}
       \begin{block}{Research question}
@@ -412,7 +412,7 @@
       \end{center}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Datasets (same protocol as Level 1)}\footnotesize
+      \begin{block}{Datasets (shared retrieval framework)}\footnotesize
         \textbf{DB15K}: 12{,}842 entities, 279 relations, 25{,}925 images; clean split 71{,}300 / 7{,}922 / official test.\\[0.12cm]
         \textbf{FB15K-237-IMG}: 14{,}541 entities, 237 relations, 139{,}814 images; official KG split + image split (seed 2026).
       \end{block}
@@ -456,7 +456,7 @@
 % ===========================================================================
 % 10 --- Level 2 ablation
 % ===========================================================================
-\begin{frame}{\leveltag{L2Orange}{LEVEL 2} Real Edges Matter on DB15K, Not on FB15K-237-IMG}
+\begin{frame}{\leveltag{L2Orange}{LEVEL 2} Edge Corruption Hurts More on DB15K than FB15K}
   \begin{columns}[c]
     \begin{column}{0.54\textwidth}
       \centering
@@ -465,9 +465,9 @@
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{itemize}\footnotesize
-        \item \textbf{DB15K}: removing edges or using a random graph drops validation to $\alpha{=}1$ (graph contributes nothing); degree-preserving shuffling keeps only \textbf{37\%}.
-        \item \textbf{FB15K-237-IMG}: shuffled and random graphs keep ${\approx}\textbf{93\%}$ --- the pipeline learns entity--image associations \emph{without} relation structure.
-        \item \textbf{Conclusion}: structure is causally supported on DB15K only; FB15K ablation cannot attribute gains to relations.
+        \item \textbf{DB15K}: No Edges skips training and uses CLIP; Random Graph selects $\alpha{=}1$ on validation. Shuffling keeps \textbf{37\%} of the gain.
+        \item \textbf{FB15K-237-IMG}: shuffled and random graphs keep ${\approx}\textbf{93\%}$ --- much of the gain survives corrupted indirect-query training anchors.
+        \item \textbf{Conclusion}: DB15K ablations support a contribution from correct relations; FB15K gains are not isolated to relations.
       \end{itemize}
       \vspace{0.12cm}
       \begin{block}{Controls}\footnotesize
@@ -504,15 +504,15 @@
   \vspace{0.3cm}
   \begin{columns}[t]
     \begin{column}{0.32\textwidth}\footnotesize
-      \textbf{Not post-hoc}: the evidence set is defined by \emph{recomputing} the model's own score after intervention --- a plausible path that does not change the score is never produced.
+      \textbf{Intervention-based attribution}: evidence is selected by changes in the ranking score, rather than path plausibility alone. GAT uses direct masking; AdaMF uses a local relearning approximation.
     \end{column}
     \begin{column}{0.32\textwidth}\footnotesize
       \textbf{Metrics}\\
-      \textbf{Fid+}: relative score drop when $S$ is removed (vs.\ random removal).\\
-      \textbf{Fid$-$}: change when only $S$ is kept.\\
+      \textbf{Fid+}: relative softmax-probability drop when $S$ is removed (vs.\ random).\\
+      \textbf{Fid$-$}: relative probability drop when only $S$ is kept.\\
       \textbf{PN/PS}: top-1 lost / kept.\\
       \textbf{Sparsity}: fraction of units discarded.\\
-      \textbf{Validity}: elements legal in the graph.
+      \textbf{Structural validity}: elements legal in the graph.
     \end{column}
     \begin{column}{0.32\textwidth}\footnotesize
       \textbf{$K^\star$ selection}\\Chosen on validation: smallest $K$ whose median completeness $\ge 0.8$.\\[0.15cm]
@@ -532,13 +532,13 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{itemize}\footnotesize
-        \item Removing $S$ drops the returned image's score far more than removing the same number of random elements on \textbf{all five model/dataset pairs}.
-        \item \textbf{Validity = 100\%} (legal relations / train triples); \textbf{sparsity} at $K^\star$: 0.65 (VG) --- 0.80 (KG); heuristics score worse than learned evidence.
+        \item Removing $S$ reduces the returned image's softmax probability more than random removal on \textbf{all five model/dataset pairs}.
+        \item \textbf{Structural validity = 100\%} on evaluated explanations (legal relations / train triples); \textbf{sparsity} at $K^\star$: 0.65 (VG) --- 0.80 (KG); heuristics score worse than learned evidence.
         \item ViHeritage retrain control: Fid+ 0.327 vs.\ 0.180 random ($p{=}0.0002$); Spearman(approx, retrain) $=0.32$.
       \end{itemize}
       \vspace{0.1cm}
       \begin{alertblock}{Limit}\footnotesize
-        Fidelity = \emph{faithfulness to the model}, not truth about the world.
+        Intervention sensitivity does not establish semantic truth; AdaMF evidence also depends on the relearning approximation.
       \end{alertblock}
     \end{column}
   \end{columns}
@@ -557,11 +557,11 @@
           Rel.\ / triples & 15 / 427 (tr 318, val 53, te 56)\\
           Images (tr/val/te) & 438 (264 / 86 / 88)\\
           Test queries & 88 dir + 54 ind.\\
-          Audit / Verified & 0.935 / 1.0; 35\% derived\\
+          Audit / derived & 0.935 ($n=100$) / 35\%\\
         \end{tabularx}
       \end{block}
       \vspace{0.05cm}
-      {\scriptsize\color{Slate} Sources: Wikidata (CC0), Wikimedia, vi.wikipedia (CC BY-SA 4.0). Data card ships with dataset.}
+      {\scriptsize\color{Slate} Sources: Wikidata (CC0); Wikipedia text (CC BY-SA 4.0); Commons images (original licenses).}
     \end{column}
     \begin{column}{0.30\textwidth}
       \centering
@@ -571,8 +571,8 @@
     \begin{column}{0.28\textwidth}
       \begin{itemize}\scriptsize
         \item Indirect MRR \textbf{0.112 $\rightarrow$ 0.219} (AdaMF) / \textbf{0.258} (GAT); $p\le0.006$.
-        \item \textbf{Text-leak control}: masking all text keeps 0.230 --- not name leakage.
-        \item \textbf{Ablation}: corrupted edges fall \emph{below} CLIP --- every gain needs real edges.
+        \item \textbf{Text control}: masking entity text gives 0.230; no performance drop detected in this experiment.
+        \item \textbf{Ablation}: shuffled edges fall \emph{below} CLIP; correct edges matter in the tested runs.
         \item Case: ``di tích ở Huế'' $\rightarrow$ Chùa Thiên Mụ rank 1.
       \end{itemize}
     \end{column}
@@ -589,8 +589,8 @@
         \begin{itemize}
           \item Graph-augmented ranking beats CLIP on every dataset tested (3 seeds for full models).
           \item Largest, most consistent gains on \textbf{indirect} queries ($6.6\times$ / $9.7\times$ / ${\approx}2\times$).
-          \item \textbf{Relation structure} causes the gain on \textbf{DB15K} (37\% kept) and \textbf{ViHeritage} (gain vanishes when edges corrupted).
-          \item Explanations \textbf{faithful}: Fid+ $\gg$ random on all 5 pairs; validity 100\%.
+          \item Ablations support a contribution from \textbf{correct relations} on \textbf{DB15K} and \textbf{ViHeritage} under the tested protocols.
+          \item Explanations are \textbf{intervention-sensitive}: Fid+ $\gg$ random; structural validity 100\% on evaluated samples.
         \end{itemize}
       \end{block}
     \end{column}
@@ -599,7 +599,7 @@
         \begin{itemize}
           \item On \textbf{Visual Genome}, most gain survives edge removal --- relation structure is a minor, single-run residual.
           \item On \textbf{FB15K-237-IMG}, corrupted graphs keep ${\approx}93\%$ --- gains not attributed to relations.
-          \item AdaMF vs.\ GAT on DB15K is a \textbf{statistical tie} (CI includes 0).
+          \item AdaMF vs.\ GAT on DB15K: \textbf{no significant difference detected} (CI includes 0).
           \item Fidelity $\ne$ truth; single-run ablations; top-50 ceiling; no cross-dataset MRR comparison.
         \end{itemize}
       \end{alertblock}
@@ -620,8 +620,8 @@
     \begin{column}{0.55\textwidth}
       \begin{enumerate}\footnotesize
         \item \textbf{Retrieval}: frozen CLIP + edge-aware GAT raises Visual Genome MRR 0.0611 $\rightarrow$ 0.0718 ($+17.4\%$, 3 seeds) --- caveat: most of the gain does not require real edges.
-        \item \textbf{Knowledge}: AdaMF lifts indirect-query MRR up to $9.7\times$; ablations attribute the gain to real relations on DB15K (not FB15K).
-        \item \textbf{Explanation}: intervention-based explanations with high fidelity vs.\ random, 100\% validity, sparsity 0.65--0.80 --- on a self-built Vietnamese MMKG (150 entities, 427 triples).
+        \item \textbf{Knowledge}: AdaMF lifts indirect-query MRR up to $9.7\times$; ablations support a contribution from correct relations on DB15K; FB15K gains are not isolated to relations.
+        \item \textbf{Explanation}: intervention-sensitive explanations vs.\ random, 100\% structural validity on evaluated samples, sparsity 0.65--0.80 --- on a self-built Vietnamese MMKG (150 entities, 427 triples).
       \end{enumerate}
       \vspace{0.1cm}
       \begin{block}{Limitations stated upfront}\footnotesize
@@ -678,7 +678,7 @@
           \item FB15K: image clusters hashed before split (seed 2026); cross-entity duplicates dropped.
           \item Entity visual features averaged over \emph{train} images only.
           \item Shuffled-edge controls exclude val/test collisions (disclosed, not fully blind).
-          \item ViHeritage: text-masking re-run for name leakage (38.9\% of indirect queries contain the anchor name).
+          \item ViHeritage: text-masking re-run for name leakage (38.9\% have the anchor name in target-entity text).
         \end{itemize}
       \end{block}
     \end{column}
@@ -719,7 +719,7 @@
         \end{tabular}
       \end{block}
       \vspace{0.1cm}
-      {\footnotesize\color{Slate} 10 indirect queries are too few for significance tests --- full-test Table X is the primary evidence.}
+      {\footnotesize\color{Slate} The 10 indirect queries are illustrative; full-test Table X is the primary performance evidence.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -770,11 +770,11 @@
         \textbf{CLIP + AdaMF rank}: 1 ($K^\star = 2$)
       \end{block}
       \vspace{0.1cm}
-      \begin{block}{\scriptsize Modality Ablation ($\Delta$)}\scriptsize
-        \textbf{Structure masked}: $-74.8$\\
+      \begin{block}{\scriptsize Score Drop ($\Delta=S_{\rm orig}-S_{\rm masked}$)}\scriptsize
+        \textbf{Structure masked}: $+74.8$\\
         \textbf{Text masked}: $+0.20$\\
         \textbf{Visual masked}: $-0.15$\\
-        $\rightarrow$ Retrieval relies almost entirely on KG structure.
+        $\rightarrow$ This case is much more sensitive to masking structure.
       \end{block}
       \vspace{0.1cm}
       \begin{exampleblock}{\scriptsize Primary Triples}\scriptsize
@@ -808,7 +808,7 @@
       \end{block}
       \vspace{0.1cm}
       \begin{exampleblock}{\scriptsize Fidelity Verification}\scriptsize
-        Fid+ $= 0.49$ vs.\ $0.01$ random ($K^\star{=}8$). Confirms transfer to Vietnamese heritage graph.
+        Fid+ $= 0.49$ vs.\ $0.01$ random ($K^\star{=}8$). Illustrates retrieval and explanation on Vietnamese heritage data.
       \end{exampleblock}
     \end{column}
   \end{columns}

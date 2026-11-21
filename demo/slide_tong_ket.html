@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tổng kết</title>
+<!-- Nguồn của ảnh slide_tong_ket.png (1920×1080, chụp ở tỉ lệ 2x). Số liệu lấy từ báo cáo: Bảng VI, IX, XII, XIII và mục ablation. -->
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#fff}
+  body{position:relative;width:1920px;height:1080px;padding:70px 100px 50px;font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#222}
+  h1{margin:0 0 34px;font-size:60px;font-weight:700;color:#1f4e8c}
+  table{width:100%;border-collapse:collapse;font-size:30px}
+  th{background:#2a78d6;color:#fff;font-weight:700;padding:14px 16px;text-align:center;border:1px solid #2a78d6;line-height:1.2}
+  td{padding:15px 16px;text-align:center;border:1px solid #c9d6ea}
+  tbody tr:nth-child(odd) td{background:#eef4fc}
+  .l{text-align:left}
+  .g{color:#666}
+  ul{margin:40px 0 0;padding-left:34px;font-size:32px;line-height:1.5}
+  li{margin-bottom:8px}
+  .foot{position:absolute;left:100px;bottom:40px;font-size:21px;color:#666}
+</style>
+</head>
+<body>
+  <h1>Tổng kết</h1>
+  <table>
+    <thead>
+      <tr><th class="l">Dữ liệu</th><th>MRR<br>CLIP</th><th>MRR<br>CLIP + đồ thị</th><th>Lợi ích cần<br>đúng cạnh thật?</th><th>Fid+: bỏ giải thích<br>so với bỏ ngẫu nhiên</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="l">Visual Genome (cấp 1)</td><td>0.0611</td><td><b>0.0718</b></td><td>Chưa <span class="g">(bỏ cạnh còn 77%)</span></td><td><b>0.118</b> <span class="g">so với 0.003</span></td></tr>
+      <tr><td class="l">DB15K (cấp 2)</td><td>0.0475</td><td><b>0.3143</b></td><td><b>Có</b> <span class="g">(xáo cạnh còn 37%)</span></td><td><b>0.511</b> <span class="g">so với 0.023</span></td></tr>
+      <tr><td class="l">FB15K-237-IMG (cấp 2)</td><td>0.0122</td><td><b>0.1186</b></td><td>Chưa <span class="g">(xáo cạnh còn 93%)</span></td><td><b>0.335</b> <span class="g">so với 0.011</span></td></tr>
+      <tr><td class="l">ViHeritage-MMKG (cấp 3)</td><td>0.112</td><td><b>0.219</b> <span class="g">AdaMF</span><br><b>0.258</b> <span class="g">GAT</span></td><td><b>Có</b> <span class="g">(bỏ cạnh mất hết)</span></td><td><b>0.535</b> <span class="g">so với 0.145 (AdaMF)</span><br><b>0.103</b> <span class="g">so với 0.002 (GAT)</span></td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>Đồ thị giúp rõ nhất ở <b>truy vấn gián tiếp</b>: trên DB15K, MRR gấp 6.6 lần CLIP.</li>
+    <li>Ở DB15K và ViHeritage, lợi ích <b>cần đúng cạnh thật</b>; ở Visual Genome và FB15K-237-IMG thì chưa chứng minh được.</li>
+    <li>Bỏ giải thích làm ảnh mất điểm <b>nhiều hơn hẳn</b> bỏ ngẫu nhiên: giải thích đến từ chính cơ chế xếp hạng.</li>
+  </ul>
+  <div class="foot">MRR trên tập test, trung bình ba lần huấn luyện; cấp 2 và 3 là nhóm truy vấn gián tiếp. Fid+: mức giảm xác suất của ảnh trả về khi bỏ phần tử.</div>
+</body>
+</html>

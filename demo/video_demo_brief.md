@@ -1,113 +1,160 @@
-# KỊCH BẢN VÀ HƯỚNG DẪN THỰC HIỆN VIDEO DEMO
+# Kịch bản video demo Project 03 (Nhóm 02)
 
-## THÔNG TIN CHUNG
-- **Đề tài:** PROJECT 03: TRUY VẤN ĐA PHƯƠNG THỨC CÓ GIẢI THÍCH BẰNG ĐỒ THỊ
-- **Môn học:** Học máy với dữ liệu đồ thị -- Trường ĐH Khoa học Tự nhiên, ĐHQG-HCM
-- **Nhóm thực hiện:** Nhóm 02
-- **Thời lượng video:** Tối đa 5:00 (chuẩn bị video dự phòng theo quy định đề bài tại Mục 8 & 9, phục vụ chiếu hoặc chạy trực tiếp trong 20 phút bảo vệ).
-- **Mục tiêu demo:** Minh họa trực quan khả năng truy vấn văn bản tìm ảnh, so sánh hiệu năng giữa baseline CLIP thuần và mô hình đồ thị (GAT / AdaMF), chứng minh năng lực vượt trội trên truy vấn gián tiếp, và trực quan hóa giải thích xAI có kiểm chứng tính trung thực nhân quả (Fidelity).
+Đề, mục 8: "Demo chạy trực tiếp khi vấn đáp, chuẩn bị video dự phòng không quá 5 phút" và "Notebook hoặc giao diện nhỏ: nhập truy vấn,
+trả về top-k kết quả và hiển thị quan hệ/đường đi giải thích". Video là bản quay sẵn của phần demo trực tiếp, nên quay đúng giao diện
+dưới đây. Mục tiêu: 4:45.
 
----
+Mỗi lần quay phải thấy đủ ba việc: **nhập truy vấn → top-k ảnh → đồ thị giải thích**, và trả lời được ba câu hỏi của đề:
+kết quả nào phù hợp nhất, tri thức quan hệ giúp ở đâu (nhất là truy vấn gián tiếp), vì sao mô hình trả về kết quả này.
 
-## CẤU TRÚC PHÂN ĐOẠN VIDEO DEMO (TỔNG CỘNG 5 PHÚT)
+## 1. Chuẩn bị
 
-| Phân đoạn | Thời lượng | Nội dung trọng tâm | Thao tác trên màn hình |
-| :--- | :---: | :--- | :--- |
-| **Phần 1: Giới thiệu & Xác thực môi trường** | 0:00 - 0:35 (35s) | Giới thiệu giao diện demo, load checkpoint đóng băng, xác thực mã băm SHA-256 chống data leakage | Mở giao diện Notebook / Web UI, chạy lệnh kiểm tra hash `test_protocol.json` và checkpoint |
-| **Phần 2: Demo Cấp độ 1 (CLIP + GAT)** | 0:35 - 0:35 (60s) | Thử nghiệm trên Flickr30k Entities: so sánh kết quả CLIP vs. GAT, xem attention weight trên bounding box | Nhập câu truy vấn trực tiếp mô tả đối tượng, hiển thị top-5 ảnh và trọng số chú ý cục bộ |
-| **Phần 3: Demo Cấp độ 2 (AdaMF trên MMKG)** | 1:35 - 2:50 (75s) | Điểm nhấn chính: so sánh truy vấn trực tiếp vs. truy vấn gián tiếp trên DB15K | Nhập Direct query (CLIP tốt) và Indirect query (CLIP rớt hạng, AdaMF đưa lên top-1) |
-| **Phần 4: Demo Cấp độ 3 (xAI & Fidelity Test)** | 2:50 - 4:05 (75s) | Trích xuất đồ thị con giải thích và thực hiện kiểm thử can thiệp xóa cạnh (Fidelity perturbation) | Bấm trích xuất đường đi giải thích; chạy thử xóa cạnh giải thích $\rightarrow$ rank tụt; xóa cạnh ngẫu nhiên $\rightarrow$ rank giữ nguyên |
-| **Phần 5: Phân tích thất bại & Dữ liệu tiếng Việt** | 4:05 - 4:50 (45s) | Minh họa 1 trường hợp thất bại để chỉ rõ giới hạn; hiển thị mẫu đồ thị MMKG tiếng Việt | Mở case study thất bại định tính; chiếu nhanh cấu trúc thư mục Data Card tiếng Việt |
-| **Phần 6: Kết luận & Chuyển tiếp vấn đáp** | 4:50 - 5:00 (10s) | Tóm tắt các minh chứng kỹ thuật đã đạt được | Hiện slide kết thúc demo, sẵn sàng cho giảng viên đặt câu hỏi |
+| Cấp | Notebook (thư mục `demo/`) | Dữ liệu, mô hình |
+|---|---|---|
+| 1 | `demo_cap1_visual_genome.ipynb` | Visual Genome, CLIP + GAT (checkpoint chính đã khóa) |
+| 2 | `demo_cap2_db15k_fb15k.ipynb` | DB15K và FB15K-237-IMG, CLIP + AdaMF |
+| 3 | `demo_cap3_viheritage.ipynb` | ViHeritage-MMKG, CLIP + GAT và CLIP + AdaMF |
 
----
+1. Notebook cấp 2 cần bản `src/` mới: hoặc chép thư mục `src` của repo vào `MyDrive/MultimodalXAI/src`, hoặc push nhánh `demo`
+   lên GitHub để notebook tự tải (bỏ qua file dữ liệu lớn). Notebook cấp 1 và cấp 3 đã chứa sẵn toàn bộ mã.
+2. Mở từng notebook trên Colab (GPU), Runtime → Run all. Ô cuối in một link `https://….gradio.live`; mở ở tab riêng, toàn màn hình.
+3. Chọn trước một lần mọi ca sẽ quay. Kết quả được lưu đệm, khi quay sẽ hiện ngay.
+4. Quay 1920×1080, trình duyệt phóng 100% và bấm F11 (toàn màn hình) để thấy cả ô chọn ca lẫn toàn bộ trang kết quả.
+   Ẩn thanh dấu trang và email tài khoản. Quay từng đoạn rồi ghép.
+5. Chỉ đọc số có trên màn hình hoặc trong báo cáo. Chỗ ghi **[đọc trên màn hình]** là số trang web tính tại chỗ.
+6. Quay xong: Runtime → Disconnect để link ngừng hoạt động.
 
-## KỊCH BẢN CHI TIẾT TỪNG PHÂN ĐOẠN
+**Cách đọc màn hình (giống nhau ở cả ba cấp):**
+- Dòng trên cùng: câu truy vấn, neo và quan hệ (nếu có), và "Ảnh đúng: CLIP hạng a → hạng b".
+- Bên trái: ảnh đang xem, ✓ nếu là ảnh đúng. Bên phải: đồ thị trả lời "Vì sao trả về X?".
+- Màu trên đồ thị:
+  - nút xanh ngọc là neo, nút cam là chính bức ảnh trả về, nút xám là nút khác;
+  - cạnh xanh dương là phần tử của giải thích S, dày theo Δ (số trong ngoặc);
+  - cạnh chấm xanh nhạt là đường nối về neo;
+  - cạnh xám nét đứt là quan hệ được hỏi.
+- Nút **Bỏ giải thích S** làm mờ các cạnh xanh và hiện hạng của ảnh sau khi bỏ S, so với bỏ cùng số phần tử ngẫu nhiên.
 
-### Phân đoạn 1: Giới thiệu hệ thống và xác thực môi trường (0:00 - 0:35)
-- **Mục tiêu:** Tạo ấn tượng chuyên nghiệp, khẳng định ngay tính trung thực học thuật và quy chuẩn chống data leakage.
-- **Thao tác màn hình:**
-  1. Mở màn hình giao diện demo (Jupyter Notebook / Streamlit app).
-  2. Hiển thị thông tin phiên bản mô hình, seed ngẫu nhiên (`2026`, `2027`), và chạy hàm kiểm tra mã băm SHA-256 của checkpoint và file danh mục dữ liệu.
-- **Lời thuyết minh mẫu:**
-  > *"Kính chào quý thầy cô. Đây là phần video demo cho Project 03: Truy vấn đa phương thức có giải thích bằng đồ thị của Nhóm 02. Hệ thống demo được đóng gói độc lập, vận hành trên các checkpoint mô hình đã đóng băng hoàn toàn. Trước khi truy vấn, hệ thống thực hiện xác thực mã băm SHA-256 đối với bộ đặc trưng và test set để bảo đảm không xảy ra rò rỉ dữ liệu qua bất kỳ bước tinh chỉnh nào."*
+## 2. Kịch bản
 
----
+### Đoạn 0 · 0:00 đến 0:15 · Mở đầu
+- **Màn hình:** tab cấp 1.
+- **Lời:** "Đây là demo Project 03 của Nhóm 02: truy vấn đa phương thức có giải thích bằng đồ thị. Hệ thống nhận một câu truy vấn,
+  trả về top-k ảnh, xếp hạng lại bằng đồ thị và cho thấy quan hệ nào đã đưa ảnh lên. Nhóm demo ba cấp trên cùng một giao diện."
 
-### Phân đoạn 2: Demo Cấp độ 1 - Truy vấn tăng cường đồ thị GAT (0:35 - 1:35)
-- **Mục tiêu:** Minh họa cách thức GAT cải thiện điểm số so với baseline CLIP thuần và giải thích dựa trên attention weight cục bộ.
-- **Thao tác màn hình:**
-  1. Chọn tập dữ liệu **Flickr30k Entities**.
-  2. Nhập câu truy vấn kiểm thử (ví dụ: *"a girl in blue shirt jumping into water"*).
-  3. Bấm **Chạy truy vấn (Run Retrieval)**:
-     - Cột trái: Kết quả xếp hạng của mô hình baseline CLIP thuần túy (ảnh đúng đứng ở rank 4 hoặc 5).
-     - Cột phải: Kết quả xếp hạng sau khi rerank bằng CLIP + GAT ($\alpha = 0.6$) (ảnh đúng được đẩy lên rank 1).
-  4. Bật chế độ hiển thị giải thích Cấp độ 1: Trực quan hóa các bounding box đối tượng trong ảnh kèm trọng số attention lớn nhất giữa cụm từ và đối tượng.
-- **Lời thuyết minh mẫu:**
-  > *"Ở Cấp độ 1, với câu truy vấn mô tả trực tiếp đối tượng trên Flickr30k, CLIP thuần túy đã tìm được ảnh nhưng chỉ xếp ở vị trí thứ 4 do nhầm lẫn nền nước với các bối cảnh khác. Khi kích hoạt mạng GAT, thông tin cấu trúc giữa thực thể 'girl' và hành động 'jumping' được tổng hợp, giúp đẩy ảnh chính xác lên vị trí Top-1. Trọng số attention cho thấy mô hình tập trung cao nhất vào vùng đối tượng cô gái và liên kết hành động liên quan."*
+### Đoạn 1 · 0:15 đến 1:15 · Cấp 1, Visual Genome
+- **Thao tác:**
+  1. Chọn ca `[thành công] Guy holding up peace sign (CLIP 15 → 1)`.
+  2. Rê chuột lên cạnh dày nhất.
+  3. Bấm **Bỏ giải thích S**.
+- **Màn hình:**
+  - "Ảnh đúng: CLIP hạng 15 → CLIP + GAT hạng 1".
+  - Đồ thị: bức ảnh ở giữa, cạnh dày nhất là "chứa ×5" tới peace sign.
+  - Sau khi bấm: ảnh xuống hạng 4.
+- **Lời:** "Ở cấp 1, CLIP lấy 50 ảnh ứng viên, GAT chạy trên scene graph của từng ảnh để chấm điểm đồ thị; điểm cuối gồm 0.6 phần CLIP
+  và 0.4 phần đồ thị. Với câu này, CLIP xếp ảnh đúng hạng 15, CLIP + GAT đưa lên hạng 1. Đồ thị trả lời vì sao: ảnh chứa năm
+  peace sign, đó là phần đóng góp lớn nhất. Bỏ các cạnh xanh này, ảnh rơi xuống hạng 4, còn bỏ ngẫu nhiên cùng số cạnh thì
+  **[đọc trên màn hình]**. Vậy giải thích lấy từ chính hàm xếp hạng."
+- **Thao tác (ca thất bại, khoảng 15 giây):** chọn `[thất bại, đồ thị làm hại] A man on the road (CLIP 1 → 3)`.
+- **Lời:** "Ở ca thất bại, ảnh sai cũng chứa road và man nên được cộng điểm. Mô hình thưởng cho vật có mặt nhưng chưa hiểu quan hệ
+  'on'. Ablation cũng cho thấy bỏ cạnh vẫn giữ khoảng 77% mức tăng."
 
----
+### Đoạn 2 · 1:15 đến 2:35 · Cấp 2, DB15K
+- **Thao tác:**
+  1. Sang tab cấp 2, chọn ca đầu tiên `[thành công] … influenced by relation points to Richard Dawkins. (CLIP 55 → 1)`.
+  2. Bấm **Bỏ giải thích S**.
+- **Màn hình:**
+  - Neo: Richard Dawkins · Quan hệ: influenced by.
+  - "Ảnh đúng: CLIP hạng 55 → CLIP + AdaMF hạng 1".
+  - Đồ thị: cạnh *influenced* (0.198) nối Christopher Hitchens thẳng với neo, và một bộ ba thứ hai (0.129).
+- **Lời:** "Cấp 2 dùng đồ thị tri thức đa phương thức với AdaMF. Truy vấn gián tiếp cho biết thực thể neo và quan hệ. Ảnh của
+  Christopher Hitchens không cho thấy quan hệ với Richard Dawkins nên CLIP chỉ xếp hạng 55; AdaMF đưa lên hạng 1. Lý do nằm ngay
+  trên đồ thị: bộ ba Hitchens influenced Dawkins nối thẳng với neo. Bỏ hai bộ ba này, ảnh **[đọc trên màn hình]**; bỏ hai bộ ba
+  ngẫu nhiên thì **[đọc trên màn hình]**. Trên toàn bộ test, MRR gián tiếp tăng từ 0.0475 lên 0.3143."
+- **Thao tác (ca thất bại, khoảng 15 giây):** chọn `[thất bại, không cứu được] … Arthur C. Clarke by influenced. (CLIP 19 → 366)`.
+- **Lời:** "Ở ca thất bại, mô hình trả về chính thực thể neo. Nút neo cũng là ảnh trả về, và đồ thị chỉ ra bộ ba đã dẫn mô hình đến
+  kết quả sai."
 
-### Phân đoạn 3: Demo Cấp độ 2 - Đột phá trên truy vấn gián tiếp với AdaMF (1:35 - 2:50)
-- **Mục tiêu:** Trình diễn năng lực cốt lõi nhất của đồ án: MMKG giải quyết bài toán truy vấn gián tiếp mà mô hình thị giác--ngôn ngữ thuần túy bất khả thi.
-- **Thao tác màn hình:**
-  1. Chuyển sang cơ sở tri thức **DB15K** (hoặc FB15k-237).
-  2. **Thử nghiệm 1 (Direct Query):** Nhập *"Eiffel Tower in Paris"*. Cả CLIP và AdaMF đều đưa thực thể đích vào Top-1.
-  3. **Thử nghiệm 2 (Indirect Query - Trọng tâm):** Nhập câu truy vấn gián tiếp: *"The monument designed by Gustave Eiffel for the 1889 World's Fair"*.
-     - Kết quả CLIP baseline: Thực thể đích bị trôi xuống rank $>50$ (do trong ảnh chỉ có hình tháp, không có chữ Gustave Eiffel hay năm 1889).
-     - Kết quả AdaMF Hybrid ($\alpha = 0.2$): Nhờ khai thác bộ ba quan hệ `(Gustave_Eiffel, designed, Eiffel_Tower)` và `(Eiffel_Tower, built_for, 1889_Exposition)`, mô hình suy luận bắc cầu và đưa đúng thực thể đích lên vị trí Top-1.
-  4. Hiển thị trực quan trọng số cổng thích nghi AdaMF: biểu diễn tỷ lệ đóng góp giữa văn bản ($\gamma_T$) và hình ảnh ($\gamma_V$).
-- **Lời thuyết minh mẫu:**
-  > *"Điểm nhấn học thuật lớn nhất nằm ở Cấp độ 2 khi xử lý các truy vấn gián tiếp. Khi người dùng tìm kiếm 'Công trình do Gustave Eiffel thiết kế cho Hội chợ Thế giới 1889', CLIP hoàn toàn thất bại vì đặc trưng thị giác bề mặt không thể nhìn thấy tên kiến trúc sư hay mốc lịch sử. Nhưng trên đồ thị MMKG, mô hình AdaMF đã kích hoạt đường truyền tri thức đa chặng, giúp thực thể đích vươn từ vị trí ngoài Top-50 lên thẳng vị trí số 1. Trọng số cổng AdaMF tự thích nghi gán tỷ trọng tri thức quan hệ cao để dẫn đường chính xác."*
+### Đoạn 3 · 2:35 đến 3:55 · Cấp 3, ViHeritage (tiếng Việt)
+- **Thao tác:**
+  1. Sang tab cấp 3, chọn mô hình **CLIP + GAT**, cách diễn đạt **Câu hỏi**.
+  2. Chọn ca `[thành công] Thành phố Huế có những di tích nào?`.
+  3. Đổi cách diễn đạt sang **Câu mô tả**, rồi đổi mô hình sang **CLIP + AdaMF**.
+- **Màn hình:**
+  - Neo: Huế · Quan hệ: nằm ở tỉnh; ảnh hạng 1 là Chùa Thiên Mụ ✓.
+  - Đồ thị: cạnh dày nhất "thuộc quần thể" tới Quần thể di tích Cố đô Huế; nét chấm nối quần thể này với Huế; thêm các di tích
+    khác nằm ở tỉnh Huế.
+  - Với câu mô tả "ảnh địa danh ở xứ Huế bên dòng sông Hương", ảnh hạng 1 **[kiểm tra trên màn hình]**.
+  - Với AdaMF, giải thích chỉ còn một bộ ba.
+- **Lời:** "Cấp 3 chạy trên ViHeritage-MMKG, đồ thị tri thức tiếng Việt về di sản do nhóm tự xây: 150 thực thể, 427 bộ ba, 438 ảnh
+  từ Wikidata và Wikimedia Commons, có data card ghi nguồn và giấy phép. Câu hỏi về di tích ở Huế trả về Chùa Thiên Mụ ở hạng 1.
+  Đồ thị cho thấy đường đi hai bước: Chùa Thiên Mụ thuộc Quần thể di tích Cố đô Huế, quần thể này nằm ở tỉnh Huế. Đổi sang câu mô
+  tả, kết quả **[đọc]**: với truy vấn gián tiếp, điểm chủ yếu đến từ neo và quan hệ, không phụ thuộc cách đặt câu. AdaMF cũng trả
+  về Chùa Thiên Mụ, và giải thích của nó chỉ còn đúng bộ ba này."
+- **Thao tác (ca thất bại, khoảng 15 giây):** vẫn AdaMF, chọn `[thất bại] ảnh một ngôi chùa Phật giáo`. Lăng Minh Mạng hạng 1 ✗.
+- **Lời:** "Câu hỏi tìm chùa nhưng mô hình trả về Lăng Minh Mạng. Đồ thị chỉ ra bộ ba 'Lăng Minh Mạng nằm ở tỉnh Huế', không liên quan
+  quan hệ 'là một' được hỏi. Giải thích trung thành với mô hình, nhưng không bảo đảm hợp lý theo kiến thức miền."
 
----
+### Đoạn 4 · 3:55 đến 4:35 · Tổng kết (một slide)
 
-### Phân đoạn 4: Demo Cấp độ 3 - Khung giải thích xAI & Kiểm chứng Fidelity (2:50 - 4:05)
-- **Mục tiêu:** Chứng minh giải thích không phải là bịa đặt hậu nghiệm mà có tính trung thực nhân quả thực sự đối với thuật toán chấm điểm.
-- **Thao tác màn hình:**
-  1. Bấm nút **Trích xuất giải thích (Extract Explanation Subgraph)** cho kết quả Top-1 vừa tìm được ở Phân đoạn 3.
-  2. Hệ thống hiển thị đồ thị con giải thích tối giản:
-     - Gồm thực thể nguồn, thực thể trung gian, thực thể đích và các cạnh quan hệ liên kết.
-     - Hiển thị chỉ số Sparsity ($88\%$, rất cô đọng) và Validity ($1.00$).
-  3. **Thực hiện kiểm thử can thiệp (Perturbation Test / Fidelity Check):**
-     - Bấm nút **Xóa cạnh giải thích (Mask Explanation Edges)**: Điểm số kết hợp tụt giảm mạnh, thứ hạng của thực thể lập tức rơi từ Top-1 xuống Top-45 $\rightarrow$ Chứng minh Fidelity đạt mức cao.
-     - Bấm nút **Xóa cạnh ngẫu nhiên đối chứng (Mask Random Edges)**: Thứ hạng của thực thể đích vẫn được bảo toàn ở Top-1 $\rightarrow$ Chứng minh sự sụt giảm ở trên không phải do ngẫu nhiên mà bắt nguồn từ chính các cạnh giải thích.
-- **Lời thuyết minh mẫu:**
-  > *"Tại Cấp độ 3, chúng tôi không chỉ đưa ra kết quả mà còn mở chiếc hộp đen ra quyết định. Hệ thống trích xuất đường đi suy luận tối giản với độ thưa đạt trên 85%. Để chứng minh tính trung thực nhân quả (Fidelity), chúng tôi tiến hành can thiệp: khi xóa bỏ các cạnh giải thích, thứ hạng của thực thể rơi ngay lập tức từ Top-1 xuống Top-45. Ngược lại, khi xóa một tập cạnh ngẫu nhiên cùng kích thước, thứ hạng vẫn giữ vững ở Top-1. Điều này chứng minh giải thích sinh ra phản ánh đúng cơ chế tính điểm bên trong của mô hình."*
+Ảnh slide có sẵn: `demo/slide_tong_ket.png` (nguồn `demo/slide_tong_ket.html`). Nội dung:
 
----
+| Cấp | Dữ liệu (MRR test) | CLIP | CLIP + đồ thị | Ablation | Fid+ (ngẫu nhiên) |
+|---|---|---|---|---|---|
+| 1 | Visual Genome | 0.0611 | 0.0718 | bỏ cạnh vẫn giữ 77% mức tăng | 0.118 (0.003) |
+| 2 | DB15K, gián tiếp | 0.0475 | 0.3143 | xáo cạnh chỉ giữ 37% | 0.511 (0.023) |
+| 2 | FB15K-237-IMG, gián tiếp | 0.0122 | 0.1186 | xáo cạnh vẫn giữ 93% | 0.335 (0.011) |
+| 3 | ViHeritage, gián tiếp | 0.112 | 0.219 AdaMF, 0.258 GAT | bỏ cạnh mất toàn bộ | 0.535 (0.145) AdaMF, 0.103 (0.002) GAT |
 
-### Phân đoạn 5: Phân tích trường hợp thất bại & Dữ liệu tự xây tiếng Việt (4:05 - 4:50)
-- **Mục tiêu:** Thể hiện sự khách quan, trung thực khoa học, nêu rõ các giới hạn còn lại đúng theo tiêu chuẩn học thuật.
-- **Thao tác màn hình:**
-  1. Chọn một trường hợp truy vấn thất bại (Failure case study): Ví dụ một truy vấn có nhiều thực thể đồng dạng hoặc quan hệ gây nhiễu, phân tích vì sao mô hình đưa ra xếp hạng chưa chính xác.
-  2. Mở tab **Custom MMKG tiếng Việt**: Chiếu cấu trúc thư mục dữ liệu đã thu thập tại `dataset/mmkg_tv`, file Data Card minh chứng nguồn ảnh và bảng bộ ba quan hệ.
-- **Lời thuyết minh mẫu:**
-  > *"Tính trung thực học thuật cũng được thể hiện qua việc phân tích các trường hợp thất bại. Ở ví dụ này, khi câu truy vấn có các thực thể mang liên kết dày đặc với nhau, mô hình bị nhiễu do ưu tiên đỉnh có bậc cao hơn ngữ nghĩa thực sự. Cuối cùng, nhóm trình bày tiến độ của tập MMKG tiếng Việt miền đặc thù, đã hoàn tất thu thập ảnh và xây dựng bảng metadata, định vị rõ ranh giới các artifact đã kiểm chứng và các phần đang hoàn thiện."*
+- **Lời:** "Đồ thị giúp rõ nhất ở truy vấn gián tiếp. Trên DB15K và ViHeritage, lợi ích cần đúng cạnh thật; trên Visual Genome và
+  FB15K-237-IMG chưa chứng minh được vai trò của cấu trúc. Ở mọi tập, bỏ tập giải thích làm điểm giảm nhiều hơn hẳn bỏ ngẫu nhiên."
 
----
+### Đoạn 5 · 4:35 đến 4:45 · Kết
+- **Lời:** "Mã nguồn, tập chia dữ liệu, data card và báo cáo đã nộp kèm. Cảm ơn thầy cô."
 
-### Phân đoạn 6: Kết luận và chuyển tiếp vấn đáp (4:50 - 5:00)
-- **Mục tiêu:** Kết thúc video gọn gàng, đúng thời lượng quy định.
-- **Thao tác màn hình:**
-  - Hiển thị màn hình tổng kết các chỉ số chính (Flickr30k MRR 0.827, DB15K Indirect MRR 0.316, Fidelity verified) và logo nhóm.
-- **Lời thuyết minh mẫu:**
-  > *"Video demo của Nhóm 02 đến đây là kết thúc. Chúng em xin cảm ơn quý thầy cô và sẵn sàng bước vào phần vấn đáp chi tiết."*
+## 3. Câu hỏi có thể gặp khi vấn đáp
 
----
+1. **"Đề là tìm ảnh, sao truy vấn lại là câu hỏi?"**
+   - Nhánh A chỉ yêu cầu đầu vào là văn bản, đầu ra là ảnh. Câu hỏi "Thành phố Huế có những di tích nào?" là truy vấn gián tiếp
+     đúng kiểu đề nêu (child, plays, football): ảnh Chùa Thiên Mụ không cho thấy "ở Huế", phải đi qua quan hệ *nằm ở tỉnh*.
+   - Mỗi truy vấn ViHeritage có ba cách nói: câu hỏi, câu mô tả và tiếng Anh. Số tiếng Việt trong báo cáo lấy trung bình hai cách nói;
+     với câu tiếng Anh dạng mô tả, đồ thị vẫn hơn CLIP (0.248 và 0.266 so với 0.138).
+   - DB15K, FB15K-237-IMG dùng câu dạng "Find an image of the entity …".
+2. **"Truy vấn trực tiếp DB15K sao không có đồ thị?"** Theo thiết kế, loại truy vấn này chỉ xếp hạng bằng CLIP. Vẽ bộ ba khi đó là
+   giải thích hậu kiểm, đề cấm.
+3. **"Giải thích có phải vẽ thêm sau khi có kết quả?"** Không. Δ là điểm giảm khi bỏ phần tử đó và chấm lại bằng chính mô hình. Bỏ S
+   thì hạng đổi, bỏ ngẫu nhiên cùng số thì gần như không (Fid+ ở bảng tổng kết).
+4. **"Vì sao α_CLIP gần 0 ở truy vấn gián tiếp?"** α chọn trên validation. CLIP không thấy quan hệ trong ảnh nên validation chọn dựa vào
+   đồ thị; CLIP vẫn tạo tập ứng viên và xếp hạng truy vấn trực tiếp.
+5. **"Có rò rỉ dữ liệu không?"** Bộ ba giải thích chỉ là bộ ba train, không trùng validation/test; α, K* chọn trên validation; ảnh
+   ứng viên là ảnh test.
+6. **"GAT hay AdaMF tốt hơn trên ViHeritage?"** Không phân biệt được trên test (hiệu 0.039, p = 0.29).
 
-## CHECKLIST KỸ THUẬT VÀ PHÒNG NGỪA RỦI RO KHI DEMO
+## 4. Lưu ý theo từng cấp
 
-### 1. Chuẩn bị trước buổi bảo vệ
-- [ ] Chạy sẵn môi trường ảo: `source venv/bin/activate`.
-- [ ] Khởi chạy notebook / giao diện demo sẵn trên máy cục bộ, kiểm tra cổng mạng (`localhost:8501` hoặc `localhost:8888`).
-- [ ] Cache sẵn đặc trưng CLIP cho các truy vấn mẫu để phản hồi demo tức thì dưới 1 giây.
-- [ ] Chuẩn bị sẵn file video quay màn hình chất lượng cao (1080p, âm thanh rõ ràng, thời lượng $\le$ 4:50) lưu trên Desktop và USB dự phòng trường hợp máy tính gặp sự cố.
+| | Cấp 1: Visual Genome | Cấp 2: DB15K | Cấp 2: FB15K-237-IMG | Cấp 3: ViHeritage |
+|---|---|---|---|---|
+| Truy vấn | câu tiếng Anh tự do, không có neo | gián tiếp: neo + quan hệ; trực tiếp: câu tự do | như DB15K | câu tiếng Việt + neo + quan hệ |
+| Ứng viên | CLIP top-50 trong 10 443 ảnh test | CLIP top-1000 | CLIP top-1000 | toàn bộ ảnh test |
+| α_CLIP | 0.6 | 0.0 hoặc 0.1 | 0.1 | AdaMF 0.0; GAT 0.0 hoặc 0.1 |
+| Phần tử giải thích | quan hệ scene graph, cạnh "ảnh chứa vật" | bộ ba train | bộ ba train | bộ ba train |
+| Cách đo Δ | bỏ quan hệ, chấm lại GAT (Δ cỡ 10⁻³) | học lại nhúng của thực thể | như DB15K | AdaMF: học lại nhúng; GAT: che cạnh |
+| K* | 12 | 2 | 8 | AdaMF 1; GAT 8 |
+| Không được nói | "cải thiện nhờ quan hệ" (bỏ cạnh vẫn giữ 77%) | | "cải thiện nhờ cấu trúc" (xáo cạnh giữ 93%) | "GAT tốt hơn AdaMF" |
 
-### 2. Các câu hỏi vấn đáp tiềm năng của giảng viên khi xem demo
-1. **"Làm sao chứng minh kết quả demo không bị overfit hay rò rỉ dữ liệu (data leakage)?"**
-   - *Cách trả lời:* Mô hình chạy trên tập test cố định hoàn toàn độc lập với tập train. Checkpoint và ma trận test được khóa mã băm SHA-256 bất biến. Trọng số $\alpha$ được tối ưu trên validation set trước khi khóa cố định sang test set.
-2. **"Tại sao khi xóa cạnh giải thích thì điểm lại giảm, cơ chế tính điểm Fidelity là gì?"**
-   - *Cách trả lời:* Điểm xếp hạng phụ thuộc vào hàm chấm điểm bộ ba của AdaMF và lan truyền GAT. Khi cạnh giải thích bị mask, đường dẫn tri thức bị đứt đoạn khiến $S_{\text{graph}}$ tụt mạnh, dẫn đến điểm lai ghép $S_{\text{hybrid}}$ giảm và thứ hạng rớt xuống.
-3. **"Khác biệt cơ bản giữa Shuffled Edges v1 và v2 là gì?"**
-   - *Cách trả lời:* Bản v1 bị trùng 171 cạnh với test set. Bản v2 đã loại bỏ triệt để 100% cạnh trùng (overlap 0/0) bằng phương pháp test-aware exclusion, đảm bảo tính trong sạch tuyệt đối cho phép thử triệt tiêu quan hệ.
+**Cấp 1 (Visual Genome):**
+- Khoảng 75% phần tử giải thích là cạnh "ảnh chứa vật". Hãy nói mô hình dựa vào vật có trong ảnh.
+- Attention không dùng làm giải thích (Fid+ −0.007).
+
+**Cấp 2:**
+- Cạnh chấm xanh nhạt chỉ để nối về neo, không phải phần tử được đo.
+- Ảnh DB15K là ảnh đại diện của thực thể nên có thể trông không liên quan (ví dụ bản đồ). Dữ liệu có bộ ba nhiễu như
+  "Maurice Sendak type Island".
+
+**Cấp 3:**
+- Với α_CLIP = 0, chữ trong câu không đổi thứ hạng của truy vấn gián tiếp; đây là lý do ca Lăng Minh Mạng.
+- Hình Huế trong báo cáo dùng GAT (8 bộ ba). Nói rõ đang chọn mô hình nào.
+- AdaMF ở K* = 1: Fid+ cao nhưng PS 0.144, tức một bộ ba cần thiết nhưng chưa đủ.
+
+**Chung:**
+- Nói "ba lần huấn luyện", không nói seed.
+- Giải thích trung thành với mô hình không có nghĩa là đúng theo kiến thức.

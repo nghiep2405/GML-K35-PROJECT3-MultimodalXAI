@@ -38,9 +38,22 @@
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \DeclareRobustCommand{\code}[1]{\texttt{\detokenize{#1}}}
-% Trình bày bảng thống nhất: tiêu đề cột hai dòng và độ lệch chuẩn cỡ nhỏ ngay sau giá trị trung bình.
+% Tiêu đề cột nhiều dòng và độ lệch chuẩn cạnh giá trị trung bình.
 \newcommand{\twoline}[2]{\begin{tabular}[b]{@{}c@{}}#1\\#2\end{tabular}}
-\newcommand{\pmsd}[1]{\,{\scriptsize$\pm$#1}}
+\newcommand{\pmsd}[1]{\,\ensuremath{\pm #1}}
+
+% Giãn khoảng cách giữa các cột để sát lề. Chỉ co bảng khi vượt bề rộng.
+\newsavebox{\reporttablebox}
+\NewDocumentEnvironment{reporttabular}{m +b}{%
+  \sbox{\reporttablebox}{\begin{tabular}{@{}#1@{}}#2\end{tabular}}%
+  \ifdim\wd\reporttablebox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\reporttablebox}}%
+  \else
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}#1@{}}%
+      #2%
+    \end{tabular*}%
+  \fi
+}{}
 
 \lstdefinestyle{codeblock}{
   backgroundcolor=\color{SoftGray},

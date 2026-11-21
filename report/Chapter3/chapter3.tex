@@ -8,11 +8,11 @@ Cả ba cấp độ dùng chung một quy trình theo đề: truy vấn $\righta
 
 \begin{table}[H]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{3pt}
 \caption{Dữ liệu, mô hình và bộ giải thích theo cấp độ}
 \label{tab:level-overview}
-\begin{tabularx}{\columnwidth}{lYYY}
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
 \toprule
 Cấp & Dữ liệu & Điểm đồ thị & Giải thích\\
 \midrule
@@ -57,7 +57,7 @@ $E_i$ là tập cạnh. Các đồ thị được xây dựng độc lập, khô
 có cạnh kết nối giữa các ảnh khác nhau.
 
 \textbf{Biểu diễn các đỉnh.}
-Mỗi đồ thị gồm một đỉnh đại diện cho toàn bộ ảnh và các đỉnh
+Mỗi đồ thị gồm một đỉnh đại diện cho toàn bộ tấm ảnh và các đỉnh
 đại diện cho những thực thể xuất hiện trong ảnh. Đỉnh ảnh
 được khởi tạo bằng vectơ đặc trưng 512 chiều trích xuất từ
 ảnh gốc. Đối với mỗi đỉnh thực thể, nhóm sử dụng tên thực
@@ -161,9 +161,9 @@ nối giữa chúng. Đặc trưng đỉnh được chiếu từ 512 xuống
 128 chiều. Đặc trưng cạnh, gồm CLIP text embedding
 512 chiều của tên quan hệ và cờ
 \texttt{edge\_is\_reverse}, được chiếu từ 513 xuống
-128 chiều. Nhờ đó, các quan hệ khác nhau như
-\texttt{holding}, \texttt{wearing} hoặc \texttt{on}
-có thể tạo ra trọng số chú ý khác nhau.
+128 chiều. Vì GAT sử dụng đặc trưng cạnh khi tính trọng số chú ý,
+các cạnh mang quan hệ khác nhau như \texttt{holding}, \texttt{wearing}
+hoặc \texttt{on} có thể nhận trọng số chú ý khác nhau.
 
 Mỗi lớp GAT gồm bốn attention head, mỗi head có
 32 chiều, cho đầu ra tổng cộng 128 chiều. Sau mỗi lớp,
@@ -249,7 +249,12 @@ loại điểm bằng z-score trên 50 ảnh ứng viên.
 trong đó $m \in \{\mathrm{CLIP},\mathrm{graph}\}$,
 $\mu_{q,m}$ và $\sigma_{q,m}$ lần lượt là
 trung bình và độ lệch chuẩn của điểm số
-tương ứng trên 50 ảnh ứng viên. Việc chuẩn hóa
+tương ứng trên 50 ảnh ứng viên. Giá trị $10^{-6}$ là cận dưới
+của mẫu số, giúp tránh chia cho 0 và hạn chế khuếch đại sai số
+tính toán khi độ lệch chuẩn rất nhỏ. Nếu $\sigma_{q,m}<10^{-6}$,
+mẫu số được đặt bằng $10^{-6}$. Khi tất cả ảnh ứng viên có cùng
+điểm, tử số bằng 0 nên điểm chuẩn hóa của mọi ảnh đều bằng 0.
+Việc chuẩn hóa
 giúp hai loại điểm có thang đo tương đương
 trước khi kết hợp.
 
@@ -282,7 +287,17 @@ theo điểm $S_{\mathrm{final}}$ giảm dần.
 \subsection{Giải thích cấp độ 1}
 \label{sec:level1-xai-method}
 
-Đơn vị giải thích là một quan hệ của scene graph trong ảnh, gồm cạnh gốc và cạnh ngược của nó; cạnh ảnh $\rightarrow$ thực thể (\texttt{contains}) cũng là một đơn vị. Đóng góp của đơn vị $u$ là $\Delta_u = S_{\text{graph}} - S_{\text{graph}}^{\setminus u}$, trong đó $S_{\text{graph}}^{\setminus u}$ được tính lại bằng chính hai tầng GAT của checkpoint sau khi bỏ $u$. Giải thích của một ảnh là tối đa $K^\star$ đơn vị có $\Delta$ dương lớn nhất; vì GAT có hai tầng, mỗi đơn vị nằm trên đường đi dài tối đa hai bước về nút ảnh. Trọng số attention không được dùng làm giải thích vì bộ mã hóa đồ thị không nhận truy vấn, nên attention giống nhau với mọi truy vấn; attention chỉ là đường cơ sở. $K^\star$ là giá trị nhỏ nhất trong $\{1,2,3,5,8,12,16\}$ mà trung vị tỉ lệ mức giảm điểm khi bỏ top-$K$ so với khi bỏ mọi đơn vị có $\Delta$ dương đạt 0.8, chọn trên 300 truy vấn validation.
+Đơn vị giải thích là một quan hệ của scene graph trong ảnh, gồm cạnh gốc và cạnh ngược của nó. Đóng góp của đơn vị $u$ là $\Delta_u = S_{\text{graph}} - S_{\text{graph}}^{\setminus u}$, trong đó $S_{\text{graph}}^{\setminus u}$ được tính lại bằng chính hai tầng GAT của checkpoint sau khi bỏ $u$. Giải thích của một ảnh là tối đa $K^\star$ đơn vị có $\Delta$ dương lớn nhất; vì GAT có hai tầng, mỗi đơn vị nằm trên đường đi dài tối đa hai bước về nút ảnh. Trọng số attention không được dùng làm giải thích vì bộ mã hóa đồ thị không nhận truy vấn, nên attention giống nhau với mọi truy vấn; attention chỉ là đường cơ sở.
+
+$K^\star$ là số đơn vị giải thích tối đa được giữ lại cho mỗi ảnh.
+Để chọn giá trị này, nhóm thử lần lượt $K \in \{1,2,3,5,8,12,16\}$
+trên 300 truy vấn validation. Với mỗi truy vấn, nhóm bỏ đồng thời
+$K$ đơn vị có đóng góp dương lớn nhất rồi tính lại điểm đồ thị.
+Mức giảm điểm này được so với mức giảm khi bỏ tất cả đơn vị có
+đóng góp dương. Ví dụ, nếu bỏ top-$K$ làm điểm giảm $0{,}08$,
+còn bỏ tất cả làm điểm giảm $0{,}10$, thì top-$K$ đạt 80\% mức giảm.
+Nhóm lấy trung vị tỷ lệ này trên các truy vấn validation và chọn
+$K$ nhỏ nhất đạt ít nhất 80\%.
 
 \section{Cấp độ 2: Truy vấn đa phương thức với đồ thị tri thức}
 \label{sec:level2-methodology}
@@ -332,7 +347,13 @@ Trong đó $z_q$ chuẩn hóa điểm theo từng truy vấn và trọng số đ
 \subsection{Bộ giải thích cho mô hình MMKG}
 Với AdaMF, điểm của ảnh phụ thuộc đồ thị qua nhúng cấu trúc của thực thể $e^\star$ gắn với ảnh, và nhúng này được học từ các bộ ba train chứa $e^\star$. Theo ý tưởng của Kelpie~\cite{rossi2022kelpie}, nhóm học lại riêng nhúng cấu trúc của $e^\star$ (mọi tham số khác giữ nguyên) từ các bộ ba của nó, một lần với đủ bộ ba và các lần bỏ bớt, cùng khởi tạo, cùng mẫu âm và cùng số bước. Chênh lệch điểm giữa hai bản học lại là đóng góp của các bộ ba bị bỏ; chênh lệch này được trừ vào điểm gốc của checkpoint rồi xếp hạng lại bằng đúng hàm xếp hạng. Bộ ba giải thích được nối thành đường đi một hoặc hai bước từ thực thể neo của truy vấn khi có. Với KG-GAT, điểm còn phụ thuộc vào việc truyền tin trên đồ thị lúc suy luận, nên nhóm che trực tiếp từng cạnh trong vùng tiếp nhận hai bước của $e^\star$ và thực thể neo rồi tính lại nhúng bằng chính mô hình. $K^\star$ được chọn trên validation theo cùng quy tắc với cấp 1.
 
-Ngoài phép đo xấp xỉ trên, trên ViHeritage nhóm kiểm chứng fidelity bằng huấn luyện lại thật: bỏ $\mathcal{S}$ khỏi tập train, huấn luyện lại từ đầu với đúng cấu hình, khởi tạo và số epoch của checkpoint, rồi so với một lần huấn luyện lại không bỏ gì để loại nhiễu do chính việc huấn luyện lại.
+Ngoài phép đo xấp xỉ trên, nhóm kiểm chứng fidelity của AdaMF trên
+ViHeritage bằng cách huấn luyện lại toàn bộ mô hình. Với mỗi truy vấn
+được kiểm chứng, $\mathcal{S}$ là tập các bộ ba train được chọn làm
+bằng chứng giải thích cho ảnh đứng đầu. Nhóm bỏ $\mathcal{S}$ khỏi tập
+train, huấn luyện lại từ đầu với đúng cấu hình, khởi tạo và số epoch
+của checkpoint, rồi so sánh với một lượt huấn luyện lại trên tập train
+đầy đủ để kiểm soát ảnh hưởng của việc huấn luyện lại.
 
 \subsection{Xây dựng ViHeritage-MMKG}
 \label{sec:viheritage-construction}

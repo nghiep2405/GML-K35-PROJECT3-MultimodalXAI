@@ -2,11 +2,11 @@
 % trang phụ lục; nếu khai báo trong phụ lục, bảng toàn khổ bị đẩy sang một trang riêng.
 \begin{table*}[!t]
 \centering
-\footnotesize
+\normalsize
 \renewcommand{\arraystretch}{0.95}
 \caption{Siêu tham số huấn luyện}
 \label{tab:hyperparameters}
-\begin{tabularx}{\textwidth}{L{3.4cm}YYYY}
+\begin{tabularx}{\linewidth}{@{}L{3.4cm}YYYY@{}}
 \toprule
 Tham số & Visual Genome (GAT) & DB15K (AdaMF) & FB15K-237-IMG (AdaMF) & ViHeritage (AdaMF / GAT)\\
 \midrule
@@ -25,11 +25,11 @@ $\alpha_{\mathrm{CLIP}}$ & 0.6 & 0.0 hoặc 0.1 & 0.1 & 0.0 / 0.0 hoặc 0.1\\
 
 \begin{table*}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{4pt}
 \caption{Phân công trách nhiệm của thành viên}
 \label{tab:contributions}
-\begin{tabularx}{\textwidth}{lL{5.2cm}Y}
+\begin{tabularx}{\linewidth}{@{}lL{5.2cm}Y@{}}
 \toprule
 STT & Họ tên, MSSV & Nhiệm vụ chính\\
 \midrule

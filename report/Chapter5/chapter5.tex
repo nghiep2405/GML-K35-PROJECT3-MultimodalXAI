@@ -13,11 +13,11 @@ lần huấn luyện độc lập.
 
 \begin{table}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{4pt}
 \caption{Kết quả truy hồi ảnh trên Visual Genome (Full Graph: ba lần huấn luyện)}
 \label{tab:vg-full-graph-results}
-\begin{tabular}{lrrrr}
+\begin{reporttabular}{lrrrr}
 \toprule
 Cấu hình & R@1 & R@5 & R@10 & MRR\\
 \midrule
@@ -25,7 +25,7 @@ CLIP-only & 0.0295 & 0.0793 & 0.1165 & 0.0611\\
 Full Graph, trung bình & \textbf{0.0363} & \textbf{0.0961} & \textbf{0.1381} & \textbf{0.0718}\\
 Full Graph, độ lệch chuẩn & 0.0002 & 0.0001 & 0.0001 & 0.0002\\
 \bottomrule
-\end{tabular}
+\end{reporttabular}
 \end{table}
 
 Theo Bảng~\ref{tab:vg-full-graph-results}, Full Graph đạt MRR trung bình 0.0718 so với 0.0611 của CLIP-only (tăng 17.4\%); Recall@1 tăng từ 0.0295 lên 0.0363 và Recall@10 từ 0.1165 lên 0.1381. Độ lệch chuẩn giữa các lần huấn luyện chỉ khoảng 0.0002 MRR. Hình~\ref{fig:vg-convergence} cho thấy diễn biến training loss và validation MRR; điểm đánh dấu là checkpoint có validation MRR cao nhất, được dùng cho test.
@@ -41,11 +41,11 @@ Theo Bảng~\ref{tab:vg-full-graph-results}, Full Graph đạt MRR trung bình 0
 
 \begin{table*}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{4pt}
 \caption{So sánh các cấu hình trên Visual Genome (mỗi cấu hình một lần huấn luyện)}
 \label{tab:vg-ablation}
-\begin{tabular}{lrrrrrr}
+\begin{reporttabular}{lrrrrrr}
 \toprule
 Cấu hình & Epoch & $\alpha_{\mathrm{CLIP}}$ & R@1 & R@5 & R@10 & MRR\\
 \midrule
@@ -54,7 +54,7 @@ No-edge & 85 & 0.6 & 0.0346 & 0.0921 & 0.1333 & 0.0692\\
 Random-edges & 99 & 0.6 & 0.0356 & 0.0943 & 0.1365 & 0.0708\\
 Full Graph & 98 & 0.6 & \textbf{0.0361} & \textbf{0.0960} & \textbf{0.1380} & \textbf{0.0717}\\
 \bottomrule
-\end{tabular}
+\end{reporttabular}
 \end{table*}
 
 Bảng~\ref{tab:vg-ablation} so sánh bốn cấu hình, mỗi cấu hình một lần huấn luyện với cùng khởi tạo. Thứ tự Full Graph, Random-edges, No-edge, CLIP-only giữ trên cả bốn chỉ số. No-edge, không truyền tin giữa các đỉnh, đã tăng MRR khoảng 13\% so với CLIP-only, tức giữ khoảng 77\% mức tăng của Full Graph; phần này đến từ lớp chiếu và cơ chế kết hợp điểm được huấn luyện. Random-edges, hoán vị đỉnh đích nhưng giữ bậc, giữ khoảng 92\%. Full Graph chỉ cao hơn Random-edges khoảng 1.2\% MRR. Như vậy CLIP + GAT cải thiện rõ so với CLIP, nhưng phần lớn lợi ích không đến từ việc biểu diễn đúng quan hệ giữa các thực thể; kết luận này mới dựa trên một lần chạy ablation.
@@ -71,11 +71,11 @@ Trong 20\,000 truy vấn test bốc ngẫu nhiên, 5\,243 truy vấn có ảnh �
 
 \begin{table*}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{3.5pt}
 \caption{Năm ca thành công và năm ca thất bại trên Visual Genome: hạng của ảnh đúng theo từng cấu hình và sau khi bỏ tập giải thích $S$ ($K^\star = 12$)}
 \label{tab:vg-cases}
-\begin{tabularx}{\textwidth}{lYrrrrrY}
+\begin{tabularx}{\linewidth}{@{}lYrrrrrY@{}}
 \toprule
 Loại & Truy vấn & CLIP & \twoline{CLIP +}{GAT} & No-edge & Random & Bỏ $S$ & Phần tử đóng góp lớn nhất ($\Delta \times 10^{-3}$)\\
 \midrule
@@ -114,26 +114,26 @@ Checkpoint và $\alpha_{\mathrm{CLIP}}$ được chọn trên validation: $\alph
 
 \begin{table}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{1.8pt}
 \caption{Kết quả test trên DB15K và FB15K-237-IMG (trung bình ba lần huấn luyện, độ lệch chuẩn không quá 0.004 ở mọi ô; R@K tính trên mọi truy vấn)}
 \label{tab:level2-main}
-\begin{tabular}{lrrrrrr}
+\begin{reporttabular}{lrrrrrr}
 \toprule
  & & & & \multicolumn{3}{c}{MRR}\\
 \cmidrule(l){5-7}
 Mô hình & R@1 & R@5 & R@10 & Gộp & \twoline{Trực}{tiếp} & \twoline{Gián}{tiếp}\\
 \midrule
-\multicolumn{7}{l}{\textit{DB15K}}\\
+\multicolumn{7}{@{}l}{\textit{DB15K}}\\
 CLIP & 0.2123 & 0.3002 & 0.3412 & 0.2577 & 0.5520 & 0.0475\\
 CLIP + AdaMF & \textbf{0.3395} & 0.4955 & \textbf{0.5519} & \textbf{0.4133} & 0.5520 & \textbf{0.3143}\\
 CLIP + GAT & 0.3368 & \textbf{0.4967} & 0.5491 & 0.4114 & 0.5520 & 0.3110\\
 \midrule
-\multicolumn{7}{l}{\textit{FB15K-237-IMG}}\\
+\multicolumn{7}{@{}l}{\textit{FB15K-237-IMG}}\\
 CLIP & 0.0760 & 0.1181 & 0.1394 & 0.0991 & 0.3475 & 0.0122\\
 CLIP + AdaMF & \textbf{0.2581} & \textbf{0.3214} & \textbf{0.3492} & \textbf{0.2892} & \textbf{0.7770} & \textbf{0.1186}\\
 \bottomrule
-\end{tabular}
+\end{reporttabular}
 \end{table}
 
 Trên DB15K, truy vấn trực tiếp giữ thứ hạng CLIP theo thiết kế, nên toàn bộ mức tăng nằm ở nhóm gián tiếp: MRR gián tiếp tăng từ 0.0475 lên 0.3143, gấp 6.6 lần; nhóm tail (0.0699 lên 0.4714) tăng mạnh hơn nhóm head (0.0303 lên 0.1933). Trên FB15K-237-IMG, mô hình xếp hạng lại cả hai nhóm; MRR trực tiếp tăng từ 0.3475 lên 0.7770 và gián tiếp từ 0.0122 lên 0.1186. Độ lệch chuẩn giữa các lần huấn luyện nhỏ hơn 0.003 ở mọi chỉ số.
@@ -147,28 +147,28 @@ Mỗi đối chứng được huấn luyện một lần, chọn checkpoint và 
 
 \begin{table}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{4pt}
 \caption{Ablation cấu trúc đồ thị (MRR test, mỗi biến thể một lần huấn luyện)}
 \label{tab:level2-ablation}
-\begin{tabular}{lrrrr}
+\begin{reporttabular}{lrrrr}
 \toprule
 Cấu hình & $\alpha_{\mathrm{CLIP}}$ & Gộp & Gián tiếp & Giữ lại\\
 \midrule
-\multicolumn{5}{l}{\textit{DB15K}}\\
-Đồ thị gốc & 0.0 & 0.4145 & 0.3164 & 100\%\\
-Xáo cạnh & 0.2 & 0.3156 & 0.1468 & 37\%\\
-Đồ thị ngẫu nhiên & 1.0 & 0.2577 & 0.0475 & 0\%\\
-Bỏ cạnh & 1.0 & 0.2577 & 0.0475 & 0\%\\
+\multicolumn{5}{@{}l}{\textit{DB15K}}\\
+Full Graph & 0.0 & 0.4145 & 0.3164 & 100\%\\
+Shuffled Edges & 0.2 & 0.3156 & 0.1468 & 37\%\\
+Random Graph & 1.0 & 0.2577 & 0.0475 & 0\%\\
+No Edges & 1.0 & 0.2577 & 0.0475 & 0\%\\
 \midrule
-\multicolumn{5}{l}{\textit{FB15K-237-IMG}}\\
-Đồ thị gốc & 0.1 & 0.2896 & 0.1198 & 100\%\\
-Xáo cạnh & 0.1 & 0.2879 & 0.1121 & 93\%\\
-Đồ thị ngẫu nhiên & 0.1 & 0.2869 & 0.1121 & 93\%\\
-Bỏ cạnh & 1.0 & 0.0991 & 0.0122 & 0\%\\
+\multicolumn{5}{@{}l}{\textit{FB15K-237-IMG}}\\
+Full Graph & 0.1 & 0.2896 & 0.1198 & 100\%\\
+Shuffled Edges & 0.1 & 0.2879 & 0.1121 & 93\%\\
+Random Graph & 0.1 & 0.2869 & 0.1121 & 93\%\\
+No Edges & 1.0 & 0.0991 & 0.0122 & 0\%\\
 \bottomrule
-\end{tabular}
-\par\smallskip{\footnotesize Giữ lại: phần mức tăng MRR gián tiếp so với CLIP còn lại, (biến thể $-$ CLIP) / (đồ thị gốc $-$ CLIP).}
+\end{reporttabular}
+\par\smallskip{\raggedright Giữ lại: phần mức tăng MRR gián tiếp so với CLIP còn lại, (biến thể $-$ CLIP) / (đồ thị gốc $-$ CLIP).\par}
 \end{table}
 
 Trên DB15K, khi bỏ cạnh hoặc dùng đồ thị ngẫu nhiên, validation chọn $\alpha_{\mathrm{CLIP}} = 1$, tức điểm đồ thị không còn giúp gì; xáo cạnh (giữ bậc theo quan hệ) chỉ giữ 37\% mức tăng gián tiếp. Phần lớn cải thiện cần đúng cạnh thật. Trên FB15K-237-IMG, kết luận ngược lại: xáo cạnh và đồ thị ngẫu nhiên vẫn giữ khoảng 93\% mức tăng gián tiếp và toàn bộ mức tăng trực tiếp. Pipeline FB15K-237-IMG học bằng mục tiêu truy hồi trên truy vấn huấn luyện; ablation đổi thực thể neo nhưng giữ ảnh đích, nên mô hình vẫn học được thực thể nào khớp với ảnh nào. Vì vậy trên FB15K-237-IMG không chứng minh được mức tăng đến từ cấu trúc quan hệ; DB15K là bằng chứng chính ở cấp 2. Ablation mới chạy một lần.
@@ -180,25 +180,25 @@ Mỗi tập có 20 truy vấn (10 trực tiếp, 5 head, 5 tail) chọn theo lu�
 
 \begin{table}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{4pt}
 \caption{MRR trên bộ 20 truy vấn (AdaMF: trung bình các lần huấn luyện)}
 \label{tab:level2-benchmark}
-\begin{tabular}{lrr}
+\begin{reporttabular}{lrr}
 \toprule
 Nhóm (n) & CLIP & CLIP + AdaMF\\
 \midrule
-\multicolumn{3}{l}{\textit{DB15K}}\\
+\multicolumn{3}{@{}l}{\textit{DB15K}}\\
 Trực tiếp (10) & 0.306 & 0.306\\
 Gián tiếp (10) & 0.003 & \textbf{0.296}\\
 Tất cả (20) & 0.154 & \textbf{0.301}\\
 \midrule
-\multicolumn{3}{l}{\textit{FB15K-237-IMG}}\\
+\multicolumn{3}{@{}l}{\textit{FB15K-237-IMG}}\\
 Trực tiếp (10) & 0.410 & \textbf{0.878}\\
 Gián tiếp (10) & 0.012 & 0.025\\
 Tất cả (20) & 0.211 & \textbf{0.451}\\
 \bottomrule
-\end{tabular}
+\end{reporttabular}
 \end{table}
 
 Trên DB15K, 4 trong 10 truy vấn gián tiếp được đưa từ hạng vài trăm của CLIP lên top 5 ở mọi lần huấn luyện, ví dụ truy vấn về vợ, chồng của Angelina Jolie từ hạng 363 lên 2 và người kế nhiệm Robert Byrd từ hạng 242 lên 1. Trên FB15K-237-IMG, mức tăng gần như chỉ ở nhóm trực tiếp, khớp với kết quả ablation. Mười truy vấn mỗi nhóm quá ít để kiểm định; kết quả trên toàn bộ tập test ở Bảng~\ref{tab:level2-main} là bằng chứng chính.
@@ -227,11 +227,11 @@ Mỗi ảnh được giải thích theo ba tầng: thực thể quyết định 
 
 \begin{table}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{2pt}
 \caption{Kết quả test trên ViHeritage-MMKG, câu tiếng Việt (trung bình $\pm$ độ lệch chuẩn mẫu; R@K tính trên cả 142 truy vấn; 88 truy vấn trực tiếp giữ thứ hạng CLIP, MRR 0.156)}
 \label{tab:viheritage-results}
-\begin{tabular}{lrrrrr}
+\begin{reporttabular}{lrrrrr}
 \toprule
  & & & & \multicolumn{2}{c}{MRR}\\
 \cmidrule(l){5-6}
@@ -241,7 +241,7 @@ CLIP & 0.053 & 0.183 & 0.324 & 0.139 & 0.112\\
 CLIP + AdaMF & 0.069 & 0.248 & 0.430 & 0.180\pmsd{0.004} & 0.219\pmsd{0.012}\\
 CLIP + GAT & \textbf{0.080} & \textbf{0.282} & \textbf{0.465} & \textbf{0.195}\pmsd{0.014} & \textbf{0.258}\pmsd{0.036}\\
 \bottomrule
-\end{tabular}
+\end{reporttabular}
 \end{table}
 
 Bảng~\ref{tab:viheritage-results} cho thấy đồ thị giúp rõ ở truy vấn gián tiếp: so với CLIP, MRR tăng 0.107 với AdaMF (CI 95\% $[0.030, 0.185]$, Wilcoxon $p = 0.006$, 36 truy vấn tốt hơn và 18 kém hơn) và 0.146 với GAT (CI 95\% $[0.065, 0.230]$, $p = 0.0007$). Hiệu số GAT trừ AdaMF là 0.039, CI 95\% $[-0.008, 0.089]$, $p = 0.29$, nên hai mô hình không phân biệt được trên test. Với câu tiếng Anh, MRR gián tiếp là 0.248 (AdaMF) và 0.266 (GAT) so với 0.138 của CLIP. Theo quan hệ, mức tăng lớn nhất ở \textit{thuộc quần thể}, \textit{danh hiệu di sản}, \textit{tôn giáo} và \textit{nằm ở tỉnh}; ngược lại, với \textit{là một} và \textit{xây dựng vào thế kỷ}, điểm đồ thị làm kết quả kém hơn CLIP.
@@ -257,11 +257,11 @@ Bảng~\ref{tab:xai-all} tổng hợp các chỉ số theo cùng định nghĩa 
 
 \begin{table*}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{3pt}
 \caption{Đánh giá giải thích tại $K^\star$ (trung bình $\pm$ độ lệch chuẩn giữa các lần huấn luyện; $\text{Fid}^{-}$ và Fid làm nhiễu là trung vị trong mỗi lần)}
 \label{tab:xai-all}
-\begin{tabular}{llrrrrrrrrrr}
+\begin{reporttabular}{llrrrrrrrrrr}
 \toprule
 Dữ liệu, mô hình & Bộ giải thích & $K^\star$ & Fid+ & \twoline{Fid+}{ngẫu nhiên} & \twoline{Fid làm}{nhiễu} & Fid$-$ & PN & \twoline{PN}{ngẫu nhiên} & PS & Sparsity & Ổn định\\
 \midrule
@@ -271,8 +271,8 @@ FB15K-237-IMG, AdaMF & Học lại nhúng & 8 & 0.335\pmsd{0.041} & 0.011 & 0.04
 ViHeritage, AdaMF & Học lại nhúng & 1 & 0.535\pmsd{0.059} & 0.145 & 0.059 & 0.861 & 0.773 & 0.401 & 0.144 & 0.786 & 0.396\\
 ViHeritage, GAT & Che cạnh & 8 & 0.103\pmsd{0.080} & 0.002 & 0.024 & $-$0.112 & 0.370 & 0.072 & 0.981 & 0.762 & 0.364\\
 \bottomrule
-\end{tabular}
-\par\smallskip{\footnotesize Cấp 1: Visual Genome; cấp 2: DB15K, FB15K-237-IMG; cấp 3: ViHeritage. Ổn định: Jaccard trung bình của tập giải thích giữa các cặp mô hình huấn luyện độc lập khi chúng trả về cùng ảnh. Validity cấu trúc đạt 100\% ở mọi dòng: với Visual Genome, mọi phần tử là quan hệ có trong scene graph của chính ảnh và nằm trong vùng tiếp nhận hai bước; với các tập còn lại, mọi phần tử là bộ ba train, không trùng validation/test. Số truy vấn: Visual Genome 500, DB15K và FB15K-237-IMG 70, ViHeritage 54 với GAT và 50 với AdaMF.}
+\end{reporttabular}
+\par\smallskip{\raggedright Cấp 1: Visual Genome; cấp 2: DB15K, FB15K-237-IMG; cấp 3: ViHeritage. Ổn định: Jaccard trung bình của tập giải thích giữa các cặp mô hình huấn luyện độc lập khi chúng trả về cùng ảnh. Validity cấu trúc đạt 100\% ở mọi dòng: với Visual Genome, mọi phần tử là quan hệ có trong scene graph của chính ảnh và nằm trong vùng tiếp nhận hai bước; với các tập còn lại, mọi phần tử là bộ ba train, không trùng validation/test. Số truy vấn: Visual Genome 500, DB15K và FB15K-237-IMG 70, ViHeritage 54 với GAT và 50 với AdaMF.\par}
 \end{table*}
 
 \begin{figure}[!t]
@@ -284,7 +284,7 @@ ViHeritage, GAT & Che cạnh & 8 & 0.103\pmsd{0.080} & 0.002 & 0.024 & $-$0.112 
 
 \textbf{Fidelity.} Ở mọi mô hình, bỏ đúng tập giải thích làm xác suất của ảnh trả về giảm nhiều hơn hẳn bỏ cùng số phần tử ngẫu nhiên. Trên ViHeritage (54 truy vấn với GAT, 50 với AdaMF), hiệu số Fid+ so với ngẫu nhiên là 0.39 (CI 95\% $[0.35, 0.44]$, $p < 10^{-10}$) với AdaMF và 0.10 ($[0.06, 0.14]$, $p < 10^{-4}$) với GAT; PN cao hơn ngẫu nhiên 0.38 và 0.30. Làm nhiễu, tức thay đầu kia của mỗi phần tử trong $\mathcal{S}$ bằng một thực thể ngẫu nhiên cùng vai trò, cũng làm xác suất của ảnh trả về giảm ở mọi mô hình (trung vị 0.024 đến 0.431, cao nhất trên DB15K), nên kết quả phụ thuộc đúng vào các thực thể mà giải thích chỉ ra. Giải thích cũng tốt hơn heuristic: chọn bộ ba có bậc cao nhất cho Fid+ 0.02 đến 0.21 ở cấp 2 và 3; trên Visual Genome, chọn cùng số quan hệ có attention lớn nhất cho $-0.007$, thấp hơn giải thích 0.125 (CI 95\% $[0.119, 0.131]$). Khi huấn luyện lại AdaMF từ đầu sau khi bỏ bộ ba giải thích, Fid+ là 0.327 so với 0.180 khi bỏ bộ ba ngẫu nhiên ($p = 0.0002$) và 0.197 khi bỏ bộ ba bậc cao ($p = 0.0008$); PN là 0.62 so với 0.52 ($p = 0.075$). Tương quan Spearman giữa Fid+ xấp xỉ và Fid+ khi huấn luyện lại là 0.32, nên phép đo xấp xỉ đúng về hướng nhưng chỉ tương quan vừa phải theo từng truy vấn.
 
-\textbf{Đủ và gọn.} Fid$-$ âm ở Visual Genome, DB15K, FB15K-237-IMG và GAT ViHeritage: chỉ giữ tập giải thích làm ảnh được tin hơn. Riêng AdaMF trên ViHeritage, $K^\star = 1$ cho Fid+ cao nhưng Fid$-$ 0.861 và PS 0.144: một bộ ba là cần thiết nhưng chưa đủ. Hình~\ref{fig:xai-kcurve} cho thấy đánh đổi này; với $K = 2$, Fid$-$ về khoảng 0 và PS tăng lên 0.68 nhưng sparsity giảm từ 0.76 xuống 0.60. Quy tắc chọn $K^\star$ chỉ dựa vào mức giảm điểm khi bỏ, nên ưu tiên tính cần thiết hơn tính đủ. Ngược lại, giải thích của GAT ở cả Visual Genome và ViHeritage có PS cao nhưng Fid+ thấp vì đóng góp phân tán qua nhiều cạnh trong vùng tiếp nhận; trên Visual Genome, Fid+ vẫn tăng khi $K$ vượt $K^\star = 12$ trong khi sparsity giảm còn 0.58 ở $K = 16$.
+\textbf{Sufficiency and sparsity.} Fid$-$ âm ở Visual Genome, DB15K, FB15K-237-IMG và GAT ViHeritage: chỉ giữ tập giải thích làm ảnh được tin hơn. Riêng AdaMF trên ViHeritage, $K^\star = 1$ cho Fid+ cao nhưng Fid$-$ 0.861 và PS 0.144: một bộ ba là cần thiết nhưng chưa đủ. Hình~\ref{fig:xai-kcurve} cho thấy đánh đổi này; với $K = 2$, Fid$-$ về khoảng 0 và PS tăng lên 0.68 nhưng sparsity giảm từ 0.76 xuống 0.60. Quy tắc chọn $K^\star$ chỉ dựa vào mức giảm điểm khi bỏ, nên ưu tiên tính cần thiết hơn tính đủ. Ngược lại, giải thích của GAT ở cả Visual Genome và ViHeritage có PS cao nhưng Fid+ thấp vì đóng góp phân tán qua nhiều cạnh trong vùng tiếp nhận; trên Visual Genome, Fid+ vẫn tăng khi $K$ vượt $K^\star = 12$ trong khi sparsity giảm còn 0.58 ở $K = 16$.
 
 \begin{figure*}[!t]
 \centering

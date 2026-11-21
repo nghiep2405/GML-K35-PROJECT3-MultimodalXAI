@@ -28,29 +28,28 @@ Thống kê về số đỉnh, số cạnh của các đồ thị
 trong khi các loại quan hệ phổ biến nhất
 được tổng hợp tại Bảng~\ref{tab:vg-relations}.
 
-\begin{table*}[!t]
+\begin{table}[H]
 \centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
+\normalsize
 \caption{Thống kê đồ thị trên Visual Genome \textit{split\_v2}}
 \label{tab:vg-graph-stats}
-\begin{tabular}{lrrrr}
+\begin{reporttabular}{lrrrr}
 \toprule
-Tập & Số đồ thị & Số đỉnh TB & Cạnh gốc TB & Cạnh hai chiều TB\\
+Tập & Số đồ thị & \twoline{Số đỉnh}{TB} & \twoline{Cạnh gốc}{TB} & \twoline{Cạnh hai}{chiều TB}\\
 \midrule
 Train & 83\,540 & 25.017 & 38.384 & 76.768\\
 Validation & 10\,443 & 24.910 & 38.177 & 76.355\\
 Test & 10\,443 & 24.832 & 38.040 & 76.081\\
 \bottomrule
-\end{tabular}
-\end{table*}
+\end{reporttabular}
+\end{table}
 
-\begin{table*}[!t]
+\begin{table}[H]
 \centering
-\footnotesize
+\normalsize
 \caption{Mười loại cạnh phổ biến nhất trên Visual Genome}
 \label{tab:vg-relations}
-\begin{tabular}{lrlr}
+\begin{reporttabular}{lrlr}
 \toprule
 Quan hệ & Số lần & Quan hệ & Số lần\\
 \midrule
@@ -60,8 +59,8 @@ Quan hệ & Số lần & Quan hệ & Số lần\\
 \texttt{in} & 134\,479 & \texttt{holding} & 21\,565\\
 \texttt{wearing} & 80\,867 & \texttt{on top of} & 20\,652\\
 \bottomrule
-\end{tabular}
-\end{table*}
+\end{reporttabular}
+\end{table}
 
 \subsection{DB15K và FB15K-237-IMG}
 
@@ -72,13 +71,13 @@ Hai pipeline sử dụng encoder văn bản \texttt{openai/clip-vit-base-patch32
 \subsection{ViHeritage-MMKG}
 Bảng~\ref{tab:viheritage-stats} tóm tắt tập dữ liệu tự xây (cách xây ở Mục~\ref{sec:viheritage-construction}). Quy mô nằm trong khoảng đề gợi ý (50 đến 150 thực thể, 300 đến 1\,000 bộ ba, 200 đến 500 ảnh). Khoảng 35\% bộ ba là quan hệ suy ra. Kiểm tra liên kết ảnh và thực thể trên 100 ảnh lấy mẫu phân tầng cho độ chính xác 0.935 (P18: 1.000; category P373: 0.929; category con: 0.833, nên mọi ảnh lấy từ category con bị loại; tổng cộng 12 ảnh bị loại). Data card ghi nguồn và giấy phép của từng ảnh; dữ liệu Wikidata theo CC0, văn bản Wikipedia theo CC BY-SA 4.0, ảnh giữ giấy phép gốc, chỉ dùng cho học tập.
 
-\begin{table}[!t]
+\begin{table}[H]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{4pt}
 \caption{Thống kê ViHeritage-MMKG}
 \label{tab:viheritage-stats}
-\begin{tabular}{lr}
+\begin{reporttabular}{lr}
 \toprule
 Thành phần & Số lượng\\
 \midrule
@@ -89,7 +88,7 @@ Bộ ba train / val / test & 318 / 53 / 56\\
 Truy vấn test trực tiếp / gián tiếp & 88 / 54\\
 Truy vấn val trực tiếp / gián tiếp & 86 / 50\\
 \bottomrule
-\end{tabular}
+\end{reporttabular}
 \end{table}
 
 \section{Tiền xử lý dữ liệu và xây dựng đồ thị}
@@ -117,7 +116,7 @@ Kiểm định official validation phát hiện 2\,423 dòng trùng dư; trong c
 
 \textbf{Lọc và hợp nhất ảnh.} Nhóm loại 703 ảnh có kích thước nhỏ hơn $64\times64$. Kiểm tra trùng chính xác phát hiện 1\,854 cụm, trong đó 1\,577 cụm liên kết nhiều thực thể. Chính sách bảo thủ loại toàn bộ các cụm chéo thực thể để giảm nhập nhằng nhãn; đồng thời gộp 293 dòng ảnh trùng trong cùng thực thể. Tổng cộng 5\,209 dòng ánh xạ có rủi ro bị loại, còn 139\,814 ảnh canonical. Kiểm tra ngữ nghĩa chỉ có bằng chứng xem trực tiếp 10 ảnh được chọn theo seed; 200 nhãn chấp nhận trong pilot không tương đương 200 ảnh được đánh giá độc lập. Do đó, tính đúng ngữ nghĩa của toàn bộ ánh xạ vẫn là giới hạn dữ liệu.
 
-\textbf{Adapter và bản chia ảnh.} Các bộ ba được chuyển sang thứ tự OpenKE $h\ t\ r$, kèm bảng ID thực thể/quan hệ và ràng buộc kiểu sinh từ train. Sáu tệp adapter được xác minh giống từng byte với bản xem trước đã khóa. Văn bản đạt độ phủ 14\,541/14\,541 thực thể. Ảnh được chia gần đúng 80/10/10 bằng SHA-256 của cụm ảnh trùng chính xác, seed 2026; không có cụm trùng xuất hiện ở nhiều retrieval split. Đây là giao thức KG transductive kết hợp truy hồi tách biệt ảnh, không phải tách biệt thực thể.
+\textbf{Adapter và bản chia ảnh.} Các bộ ba được chuyển sang thứ tự OpenKE $(h,t,r)$, kèm bảng ID thực thể/quan hệ và ràng buộc kiểu sinh từ train. Sáu tệp adapter được xác minh giống từng byte với bản xem trước đã khóa. Văn bản đạt độ phủ 14\,541/14\,541 thực thể. Ảnh được chia gần đúng 80/10/10 bằng SHA-256 của cụm ảnh trùng chính xác, seed 2026; không có cụm trùng xuất hiện ở nhiều retrieval split. Đây là giao thức KG transductive kết hợp truy hồi tách biệt ảnh, không phải tách biệt thực thể.
 
 \textbf{Đặc trưng và modality mask.} Đặc trưng ảnh CLIP có kích thước $139\,814\times512$, kiểu float32, giá trị hữu hạn và chuẩn hóa L2. Ở bước bàn giao dữ liệu, đặc trưng ảnh được lấy trung bình theo thực thể rồi chuẩn hóa lại, tạo tensor thị giác $14\,541\times512$; tensor văn bản có cùng kích thước. Có 14\,261 thực thể có ảnh, đạt độ phủ khoảng 98.07\%; 280 thực thể thiếu ảnh được điền vector 0 và đánh dấu bằng modality mask. Mask phải được áp dụng trước dung hợp để vector thiếu ảnh không được coi là quan sát thật. Chỉ mục ảnh, chỉ mục thực thể và checksum khóa thứ tự các dòng tensor. Kiểm thử một mini-batch có mask ghi nhận điểm số/gradient hữu hạn, tham số được cập nhật và trọng số chú ý của phương thức ảnh bị thiếu bằng 0.
 
@@ -128,12 +127,11 @@ Cả hai bộ dữ liệu hỗ trợ truy vấn trực tiếp và truy vấn gi�
 
 \begin{table}[H]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{3pt}
 \caption{Dữ liệu truy hồi sau tiền xử lý ở Cấp độ 2}
 \label{tab:level2-preprocessed-data}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lrr}
+\begin{reporttabular}{lrr}
 \toprule
 Thành phần & DB15K clean & FB15K-237-IMG\\
 \midrule
@@ -144,8 +142,7 @@ Truy vấn test & 5\,477 & 33\,156\\
 Tổng truy vấn & 141\,488 & 604\,084\\
 Dòng liên quan truy vấn--ảnh & 290\,087 & 4\,392\,803\\
 \bottomrule
-\end{tabular}%
-}
+\end{reporttabular}
 \end{table}
 
 Riêng FB15K-237-IMG có 111\,906/13\,971/13\,937 ảnh train/validation/test; kiểm định cuối đạt 15/15 tiêu chí về schema, số lượng, checksum, adapter, đặc trưng và tính nhất quán truy vấn--đáp án--ứng viên. Manifest và mã giao thức phân biệt bản DB15K tái lập nguồn, DB15K clean và FB15K-237-IMG adapter. Việc chọn checkpoint, phép chuẩn hóa và hệ số dung hợp chỉ dùng validation, sau đó khóa cấu hình trước khi đánh giá test. Trong pipeline mô hình Cấp độ 2, đặc trưng thị giác thực thể được gộp từ ảnh train để hạn chế sử dụng thông tin ảnh đánh giá; bước này cần được phân biệt với tensor gộp cấp thực thể được bàn giao ở giai đoạn dữ liệu.
@@ -190,26 +187,26 @@ CLIP ViT-B/32 tạo thứ hạng ban đầu trên tập ảnh ứng viên theo s
 
 \begin{table}[!t]
 \centering
-\footnotesize
+\normalsize
 \setlength{\tabcolsep}{3.5pt}
 \caption{Số truy vấn test theo nhóm}
 \label{tab:level2-test-counts}
-\begin{tabular}{lrrrrr}
+\begin{reporttabular}{lrrrrr}
 \toprule
 Bộ dữ liệu & Tổng & Trực tiếp & Gián tiếp & Head & Tail\\
 \midrule
 DB15K & 5\,477 & 2\,282 & 3\,195 & 1\,805 & 1\,390\\
 FB15K-237-IMG & 33\,156 & 8\,592 & 24\,564 & 12\,108 & 12\,456\\
 \bottomrule
-\end{tabular}
+\end{reporttabular}
 \end{table}
 
 MRR được tính bằng trung bình nghịch đảo hạng ảnh liên quan tốt nhất của mỗi truy vấn. R@K là tỷ lệ truy vấn có ít nhất một ảnh liên quan trong top K. Cách tính hạng dùng quy tắc optimistic, đếm số điểm lớn hơn điểm ảnh đúng tốt nhất. Kết quả mô hình đầy đủ được trình bày bằng trung bình và độ lệch chuẩn mẫu của ba lần huấn luyện, với mẫu số $n-1$.
 \subsection{ViHeritage-MMKG}
-AdaMF dùng \texttt{dim} 50, learning rate $5\times10^{-4}$, margin 6; KG-GAT dùng \texttt{dim} 100, learning rate $2\times10^{-3}$, margin 6 (cấu hình thắng của lưới 8 cấu hình trên validation). Hai mô hình dùng chung batch 64, 32 mẫu âm, tối đa 1\,500 epoch, đánh giá mỗi 25 epoch, patience 12, mô hình đầy đủ huấn luyện ba lần. Truy vấn trực tiếp giữ thứ hạng CLIP như DB15K. Với câu tiếng Việt, chỉ số chính là trung bình reciprocal rank của hai cách nói; bản tiếng Anh báo cáo riêng.
+AdaMF dùng \texttt{dim} 50, learning rate $5\times10^{-4}$, margin 6; KG-GAT dùng \texttt{dim} 100, learning rate $2\times10^{-3}$, margin 6 (cấu hình thắng của lưới 8 cấu hình trên validation). Hai mô hình dùng chung batch 64, 32 mẫu âm, tối đa 1\,500 epoch, đánh giá mỗi 25 epoch, patience 12, mô hình đầy đủ huấn luyện ba lần. Truy vấn trực tiếp giữ thứ hạng CLIP như DB15K. Với câu tiếng Việt, chỉ số chính là trung bình reciprocal rank (RR là nghịch đảo thứ hạng của ảnh liên quan đầu tiên trong danh sách kết quả) của hai cách nói. Bản tiếng Anh được báo cáo riêng.
 
 \subsection{Đánh giá giải thích}
-Mỗi truy vấn được giải thích tại ảnh hạng 1 hệ thống trả về. Visual Genome dùng 500 truy vấn test bốc ngẫu nhiên cố định. DB15K và FB15K-237-IMG dùng 70 truy vấn gián tiếp test cố định (60 truy vấn bốc ngẫu nhiên cố định và 10 truy vấn gián tiếp của bộ 20 truy vấn); ViHeritage dùng 54 truy vấn gián tiếp test với GAT và 50 với AdaMF. Truy vấn trực tiếp không được giải thích bằng bộ ba vì trên DB15K và ViHeritage điểm đồ thị không tham gia xếp hạng chúng. Mọi chỉ số được tính trên cả ba lần huấn luyện rồi báo cáo trung bình và độ lệch chuẩn; so với đường cơ sở bằng kiểm định Wilcoxon cặp một phía và khoảng tin cậy bootstrap 95\%. Phân tích ca dùng luật chọn cố định, không nhìn giải thích (luật riêng của Visual Genome ở Mục~\ref{sec:level1-xai-results}). Ở cấp 2 và 3, ca thành công là truy vấn gián tiếp mà CLIP xếp ảnh đúng ở hạng thấp và mô hình đưa lên hạng 1; ca thất bại gồm ca bị đồ thị làm hại (CLIP xếp đúng ở top đầu nhưng tụt hạng sau xếp hạng lại) và ca không cứu được.
+Mỗi truy vấn được giải thích tại ảnh hạng 1 hệ thống trả về. Visual Genome dùng 500 truy vấn test bốc ngẫu nhiên cố định. DB15K và FB15K-237-IMG dùng 70 truy vấn gián tiếp test cố định (60 truy vấn bốc ngẫu nhiên cố định và 10 truy vấn gián tiếp của bộ 20 truy vấn); ViHeritage dùng 54 truy vấn gián tiếp test với GAT và 50 với AdaMF. Truy vấn trực tiếp không được giải thích bằng bộ ba vì trên DB15K và ViHeritage điểm đồ thị không tham gia xếp hạng chúng. Mọi chỉ số được tính trên cả ba lần huấn luyện rồi báo cáo trung bình và độ lệch chuẩn; so với đường cơ sở bằng kiểm định Wilcoxon cặp một phía và khoảng tin cậy bootstrap 95\%. Phân tích ca dùng luật chọn cố định, không nhìn giải thích (luật riêng của Visual Genome ở Mục~\ref{sec:level1-xai-results}). Ở cấp 2 và 3, ca thành công là truy vấn gián tiếp mà CLIP xếp ảnh đúng ở hạng thấp và mô hình đưa lên hạng 1; ca thất bại gồm ca bị đồ thị làm hại (CLIP xếp đúng ở top đầu nhưng tụt hạng sau xếp hạng lại) và ca không cứu được (ảnh đúng có trong tập ứng viên do CLIP chọn nhưng vẫn ở hạng thấp sau khi mô hình xếp hạng lại).
 
 \section{Cấu hình cơ sở và kiểm thử triệt tiêu}
 \label{sec:baselines-ablations}

@@ -1,6 +1,8 @@
 \documentclass[aspectratio=169,10pt]{beamer}
 
-% Packages for Vietnamese typesetting
+% ---------------------------------------------------------------------------
+% Packages
+% ---------------------------------------------------------------------------
 \usepackage[T5]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
@@ -8,550 +10,895 @@
 \usepackage{tabularx}
 \usepackage{colortbl}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,calc,positioning,shapes.geometric}
+\usetikzlibrary{arrows.meta,calc,positioning,shapes.geometric,fit,backgrounds}
+\usepackage{graphicx}
+\usepackage{amsmath}
 
-% Color definitions (Matching HCMUS Report)
+% ---------------------------------------------------------------------------
+% Palette (minimalist academic, HCMUS blue)
+% ---------------------------------------------------------------------------
 \definecolor{HCMUSBlue}{HTML}{165A9F}
 \definecolor{DarkNavy}{HTML}{0D2E52}
-\definecolor{SoftBlue}{HTML}{EAF3FA}
-\definecolor{SoftGray}{HTML}{F4F5F6}
-\definecolor{AccentGreen}{HTML}{287D3C}
-\definecolor{AccentRed}{HTML}{DC2626}
-\definecolor{AccentOrange}{HTML}{D97706}
+\definecolor{Ink}{HTML}{1A1A1A}
+\definecolor{Slate}{HTML}{5B6570}
+\definecolor{SoftBg}{HTML}{F4F7FA}
+\definecolor{LineGray}{HTML}{D8DEE6}
+\definecolor{L1Blue}{HTML}{165A9F}
+\definecolor{L2Orange}{HTML}{C2560F}
+\definecolor{L3Aqua}{HTML}{0E8A6A}
+\definecolor{WarnRed}{HTML}{B3261E}
+\definecolor{GoldAmber}{HTML}{B7791F}
 
-% Beamer Theme Customization
-\usetheme{Madrid}
-\usecolortheme{whale}
-
-\setbeamercolor{palette primary}{bg=HCMUSBlue,fg=white}
-\setbeamercolor{palette secondary}{bg=DarkNavy,fg=white}
-\setbeamercolor{palette tertiary}{bg=SoftBlue,fg=DarkNavy}
-\setbeamercolor{titlelike}{parent=palette primary,fg=white,bg=HCMUSBlue}
-\setbeamercolor{frametitle}{bg=HCMUSBlue,fg=white}
-\setbeamercolor{block title}{bg=HCMUSBlue,fg=white}
-\setbeamercolor{block body}{bg=SoftBlue!40,fg=black}
+% ---------------------------------------------------------------------------
+% Theme: quiet, information-first (no busy headers)
+% ---------------------------------------------------------------------------
+\usetheme{default}
+\setbeamercolor{normal text}{fg=Ink,bg=white}
+\setbeamercolor{structure}{fg=HCMUSBlue}
+\setbeamercolor{frametitle}{fg=DarkNavy,bg=white}
+\setbeamercolor{title}{fg=DarkNavy}
+\setbeamercolor{subtitle}{fg=Slate}
 \setbeamercolor{item}{fg=HCMUSBlue}
-\setbeamercolor{subitem}{fg=DarkNavy}
+\setbeamercolor{itemize item}{fg=HCMUSBlue}
+\setbeamercolor{enumerate item}{fg=HCMUSBlue}
+\setbeamercolor{description item}{fg=DarkNavy}
+\setbeamercolor{block title}{fg=white,bg=HCMUSBlue}
+\setbeamercolor{block body}{fg=Ink,bg=SoftBg}
+\setbeamercolor{block title alerted}{fg=white,bg=WarnRed}
+\setbeamercolor{block body alerted}{fg=Ink,bg=SoftBg}
+\setbeamercolor{block title example}{fg=white,bg=L3Aqua}
+\setbeamercolor{block body example}{fg=Ink,bg=SoftBg}
+\setbeamercolor{footnote}{fg=Slate}
+\setbeamercolor{footnote mark}{fg=HCMUSBlue}
 
 \setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{headline}{}
+\setbeamertemplate{itemize item}{\raisebox{0.35ex}{\scriptsize$\blacktriangleright$}}
+\setbeamertemplate{itemize subitem}{\raisebox{0.35ex}{\scriptsize$\circ$}}
+\setbeamertemplate{enumerate item}{\insertenumlabel.}
+\setbeamertemplate{blocks}[rounded][shadow=false]
 
-% Custom Footline
-\setbeamertemplate{footline}{
+% Frametitle: title + thin rule
+\setbeamertemplate{frametitle}{%
+  \vspace{0.15cm}%
+  \begin{beamercolorbox}[wd=\textwidth,sep=0pt]{frametitle}%
+    \insertframetitle\strut
+    \vspace{-0.15cm}
+    {\color{HCMUSBlue}\rule{\textwidth}{1.2pt}}
+  \end{beamercolorbox}\vspace{0.25cm}
+}
+
+% Footline: minimal
+\setbeamertemplate{footline}{%
   \leavevmode%
   \hbox{%
-    \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.5ex,dp=1ex,left]{palette primary}%
-      \hspace*{2ex}\textbf{Nhóm 02} -- Học máy với dữ liệu đồ thị
-    \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.5ex,dp=1ex,center]{palette primary}%
-      \textbf{Project 03: Multimodal XAI}
-    \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.5ex,dp=1ex,right]{palette primary}%
-      \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.2ex,dp=1ex,left]{normal text}%
+      \hspace*{0.4cm}\footnotesize{\color{Slate}Multimodal Retrieval with Graph-based Explainability\ \ {\color{LineGray}|}\ \ Nhóm 02\ \ {\color{LineGray}|}\ \ Machine Learning with Graphs}%
+      \hfill\insertframenumber{}/\inserttotalframenumber\hspace*{0.4cm}%
     \end{beamercolorbox}%
   }%
   \vskip0pt%
 }
 
-% Column types
+\setbeamertemplate{headline}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
-% Presentation Metadata
-\title[Multimodal XAI Retrieval]{\LARGE\textbf{PROJECT 03: TRUY VẤN ĐA PHƯƠNG THỨC CÓ GIẢI THÍCH BẰNG ĐỒ THỊ}}
-\subtitle{\large Báo cáo Đồ án Môn học -- Học máy với dữ liệu đồ thị}
-\author[Nhóm 02]{%
-  \textbf{Nhóm thực hiện: 02}\\
-  \footnotesize Chung Gia Khánh (23120282) -- Lê Hoàng Mỹ Hạ (23120038)\\
-  Hàn Vũ Phương Uyên (23120106) -- Trần Gia Hiển (23120123) -- Nguyễn An Nghiệp (23127234)%
+% Level tag in frametitle area
+\newcommand{\leveltag}[2]{%
+  \tikz[baseline=(x.base)]{\node[fill=#1,text=white,inner xsep=5pt,inner ysep=1.5pt,
+    rounded corners=2pt,font=\scriptsize\bfseries](x){#2};}\ %
 }
-\institute[KHTN - ĐHQG-HCM]{%
-  \textbf{Giảng viên hướng dẫn:} TS. Lê Ngọc Thành -- ThS. Huỳnh Lâm Hải Đăng\\[1mm]
-  Khoa Công nghệ Thông tin -- Trường ĐH Khoa học Tự nhiên, ĐHQG-HCM%
+\newcommand{\srcref}[1]{\,\textsuperscript{\scriptsize\textcolor{Slate}{[#1]}}}
+
+% ---------------------------------------------------------------------------
+\title[Multimodal Retrieval + Graph XAI]{Multimodal Retrieval with Graph-based Explainability}
+\subtitle{Project 03 --- Machine Learning with Graphs --- Group 02}
+\author[]{%
+  \footnotesize
+  Chung Gia Khánh (23120282) \quad Lê Hoàng Mỹ Hạ (23120038) \quad Hàn Vũ Phương Uyên (23120106)\\
+  Trần Gia Hiển (23120123) \quad Nguyễn An Nghiệp (23127234)
 }
-\date{Tháng 11 năm 2026}
+\institute[]{%
+  \scriptsize
+  Faculty of Information Technology, University of Science, VNU-HCM\\
+  Advisors: Dr. Lê Ngọc Thành \quad MSc. Huỳnh Lâm Hải Đăng
+}
+\date{November 2026}
 
 \begin{document}
 
-% Slide 1: Title Slide
+% ===========================================================================
+% 01 --- Title
+% ===========================================================================
 \begin{frame}[plain]
   \begin{tikzpicture}[remember picture,overlay]
-    \fill[HCMUSBlue] (current page.north west) rectangle ($(current page.north east)+(0,-1.0cm)$);
-    \fill[DarkNavy] ($(current page.north west)+(0,-1.0cm)$) rectangle ($(current page.north east)+(0,-1.15cm)$);
-    \node[anchor=north west] at ($(current page.north west)+(0.8cm,-0.12cm)$) {
-      \includegraphics[height=0.78cm]{logo_khtn.png}
+    \fill[HCMUSBlue] (current page.north west) rectangle ($(current page.north east)+(0,-0.10cm)$);
+    \fill[DarkNavy] ($(current page.north west)+(0,-0.10cm)$) rectangle ($(current page.north east)+(0,-0.16cm)$);
+    \node[anchor=north west] at ($(current page.north west)+(0.7cm,-0.22cm)$) {
+      \includegraphics[height=0.72cm]{assets/logos/logo_khtn.png}
     };
-    \node[anchor=north east, text=white] at ($(current page.north east)+(-0.8cm,-0.32cm)$) {
-      \scriptsize\textbf{TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN -- ĐHQG-HCM}
+    \node[anchor=north east, text=white, font=\scriptsize\bfseries] at ($(current page.north east)+(-0.7cm,-0.30cm)$) {
+      UNIVERSITY OF SCIENCE --- VNU-HCM
     };
+    \fill[SoftBg] (current page.south west) rectangle ($(current page.south west)+(16.9cm,2.1cm)$);
+    \draw[LineGray, line width=0.6pt] (current page.south west) ++(0,2.1cm) -- ++(16.9cm,0);
   \end{tikzpicture}
-  \vspace{0.6cm}
-  \titlepage
-\end{frame}
-
-% Slide 2: Agenda
-\begin{frame}{Nội dung trình bày}
-  \begin{columns}[t]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\textbf{Phần I: Cơ sở và Thiết kế hệ thống}}
-        \begin{itemize}
-          \item Bối cảnh và Phát biểu bài toán
-          \item Kiến trúc hệ thống tổng thể 3 cấp độ
-          \item Giao thức phòng chống data leakage
-        \end{itemize}
-      \end{block}
-      \begin{block}{\textbf{Phần II: Cấp độ 1 -- Tăng cường đồ thị cục bộ}}
-        \begin{itemize}
-          \item Mô hình cơ sở CLIP và GAT reranking
-          \item Kết quả thực nghiệm và ablation study
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\textbf{Phần III: Cấp độ 2 -- Đồ thị tri thức MMKG}}
-        \begin{itemize}
-          \item Dung hợp đặc trưng AdaMF-based
-          \item Đột phá trên truy vấn gián tiếp (Indirect query)
-          \item Kiểm thử hoán đổi cạnh (Shuffled Edges v2)
-        \end{itemize}
-      \end{block}
-      \begin{block}{\textbf{Phần IV: Cấp độ 3, Demo và Kết luận}}
-        \begin{itemize}
-          \item Trích xuất xAI và kiểm chứng Fidelity
-          \item Kịch bản Video Demo ($\le$ 5 phút)
-          \item Phân công đóng góp và Vấn đáp
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide 3: Problem Statement
-\begin{frame}{Bối cảnh và Phát biểu bài toán}
-  \begin{columns}[c]
-    \begin{column}{0.58\textwidth}
-      \textbf{Thách thức của các mô hình Dual-Encoder (CLIP thuần):}
-      \begin{itemize}
-        \item \textbf{Thiếu hụt tri thức quan hệ:} Nhận diện tốt diện mạo tổng thể nhưng bỏ sót quan hệ cú pháp và ngữ nghĩa liên kết giữa các thực thể.
-        \item \textbf{Thất bại trên truy vấn gián tiếp:} Khi câu hỏi không chứa từ khóa trực diện mà cần liên kết tri thức bắc cầu (ví dụ: \textit{"Công trình do Gustave Eiffel thiết kế cho Hội chợ 1889"}), CLIP không thể suy luận.
-        \item \textbf{Thiếu Explainability (Hộp đen):} Chỉ trả về điểm vô hướng, không cho biết lý do vì sao một kết quả được xếp hạng cao.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.38\textwidth}
-      \begin{block}{\textbf{Mục tiêu nghiên cứu}}
-        \small
-        Xây dựng hệ thống truy hồi đa phương thức kết hợp thông tin quan hệ từ đồ thị (\textbf{Scene Graph} \& \textbf{MMKG}), đạt bước nhảy vọt trên truy vấn gián tiếp và sinh giải thích \textbf{xAI trung thực nhân quả (Fidelity)}.
-      \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide 4: Overall Framework
-\begin{frame}{Kiến trúc hệ thống tổng thể}
+  \vspace{1.6cm}
   \begin{center}
-    \begin{tikzpicture}[node distance=0.6cm, auto, >=Latex]
-      \tikzstyle{block} = [draw, fill=SoftBlue, rounded corners, minimum height=1.1cm, minimum width=2.6cm, align=center, font=\scriptsize\bfseries]
-      \tikzstyle{arrow} = [thick, ->, >=stealth]
-      
-      \node[block, fill=DarkNavy, text=white] (input) {Truy vấn $q$\\+ Kho ảnh};
-      \node[block, fill=HCMUSBlue, text=white, right=0.6cm of input] (stage1) {Tầng 1: Lọc ứng viên\\(Frozen CLIP, Top-$k$)};
-      \node[block, fill=SoftBlue, right=0.6cm of stage1] (stage2) {Tầng 2: Điểm đồ thị\\(GAT / AdaMF Hybrid)};
-      \node[block, fill=AccentGreen, text=white, right=0.6cm of stage2] (stage3) {Tầng 3: xAI \& Fidelity\\(Subgraph Extraction)};
+    {\Large\bfseries\color{DarkNavy} Multimodal Retrieval with Graph-based Explainability}\\[0.45cm]
+    {\normalsize\color{HCMUSBlue} Can graph-enhanced representations improve multimodal retrieval,\\
+     and can their contributions be meaningfully explained?}\\[0.5cm]
+    {\small Project 03 --- Machine Learning with Graphs --- Group 02}\\[0.25cm]
+    {\footnotesize\color{Slate}
+      Chung Gia Khánh (23120282) \;$\cdot$\; Lê Hoàng Mỹ Hạ (23120038) \;$\cdot$\; Hàn Vũ Phương Uyên (23120106) \;$\cdot$\; Trần Gia Hiển (23120123) \;$\cdot$\; Nguyễn An Nghiệp (23127234)}
+  \end{center}
+  \vspace{0.45cm}
+  \begin{center}
+    \footnotesize\color{Slate}
+    Advisors: Dr. Lê Ngọc Thành \quad$\cdot$\quad MSc. Huỳnh Lâm Hải Đăng \quad$\cdot$\quad November 2026
+  \end{center}
+\end{frame}
 
-      \draw[arrow] (input) -- (stage1);
-      \draw[arrow] (stage1) -- (stage2);
-      \draw[arrow] (stage2) -- (stage3);
-    \end{tikzpicture}
+% ===========================================================================
+% 02 --- Research problem
+% ===========================================================================
+\begin{frame}{CLIP Matches Vectors, Not Relations}
+  \begin{columns}[c]
+    \begin{column}{0.50\textwidth}
+      \begin{itemize}
+        \item CLIP ranks images by \textbf{cosine similarity} of frozen embeddings --- effective, but structure-blind.
+        \item Two images with the same objects but different \textbf{relations} receive similar scores.
+        \item A score gives \textbf{no reason} for why a result was returned.
+      \end{itemize}
+      \vspace{0.15cm}
+      \begin{block}{Research question}
+        \small Can graph structure (scene graphs, MMKG) improve ranking --- especially for
+        \textbf{indirect} queries --- and can the used relations be \textbf{quantified as explanations}?
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \resizebox{\linewidth}{!}{%
+      \begin{tikzpicture}[
+        img/.style={draw=LineGray, rounded corners=2pt, minimum width=2.1cm, minimum height=1.5cm,
+                    fill=SoftBg, align=center, font=\scriptsize},
+        lbl/.style={font=\scriptsize\itshape, text=Slate, align=center},
+        q/.style={draw=HCMUSBlue, fill=HCMUSBlue, text=white, rounded corners=3pt,
+                  align=center, font=\small\bfseries, inner sep=5pt}
+      ]
+        \node[q] (q) {``a child playing\\football''};
+        \node[img, below left=0.55cm and 0.15cm of q] (a) {image A\\[1pt]
+          \textcolor{Slate}{objects: child, ball}\\[-1pt]\textcolor{WarnRed}{relation: ?}};
+        \node[img, below right=0.55cm and 0.15cm of q] (b) {image B\\[1pt]
+          \textcolor{Slate}{objects: child, ball}\\[-1pt]\textcolor{L3Aqua}{relation: plays}};
+        \draw[-{Latex[length=2mm]}, HCMUSBlue, thick] (q) -- (a);
+        \draw[-{Latex[length=2mm]}, HCMUSBlue, thick] (q) -- (b);
+        \node[lbl, below=0.12cm of a] {vector similarity:\\hard to separate};
+        \node[lbl, below=0.12cm of b] {path \texttt{child--plays--football}\\
+          links query to the right image};
+        \node[font=\scriptsize\itshape, text=Slate, anchor=north west] at (-2.6,-4.35)
+          {Illustrative example (not an experimental result)};
+      \end{tikzpicture}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% 03 --- Objectives / three levels
+% ===========================================================================
+\begin{frame}{Three Levels: Retrieval $\rightarrow$ Knowledge $\rightarrow$ Explanation}
+  \begin{center}
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    box/.style={draw, rounded corners=4pt, inner sep=8pt, align=center, minimum width=4.6cm,
+                minimum height=2.5cm, font=\small},
+    arrow/.style={-{Latex[length=3mm]}, line width=1.2pt, Slate}
+  ]
+    \node[box, fill=SoftBg, draw=L1Blue] (l1) {
+      \textcolor{L1Blue}{\textbf{Level 1 --- Graph-enhanced retrieval}}\\[0.28cm]
+      \footnotesize Frozen CLIP + scene-graph GAT\\
+      on Visual Genome\\[0.15cm]
+      \scriptsize\textit{Does the graph improve ranking?}
+    };
+    \node[box, fill=SoftBg, draw=L2Orange, right=0.9cm of l1] (l2) {
+      \textcolor{L2Orange}{\textbf{Level 2 --- Multimodal KG}}\\[0.28cm]
+      \footnotesize AdaMF on DB15K \& FB15K-237-IMG\\
+      direct vs.\ indirect queries\\[0.15cm]
+      \scriptsize\textit{Do relations help where vectors fail?}
+    };
+    \node[box, fill=SoftBg, draw=L3Aqua, right=0.9cm of l2] (l3) {
+      \textcolor{L3Aqua}{\textbf{Level 3 --- Graph-based XAI}}\\[0.28cm]
+      \footnotesize Intervention-based fidelity,\\
+      validity, sparsity + ViHeritage-MMKG\\[0.15cm]
+      \scriptsize\textit{Which graph evidence drove the score?}
+    };
+    \draw[arrow] (l1) -- (l2);
+    \draw[arrow] (l2) -- (l3);
+  \end{tikzpicture}}
   \end{center}
   \vspace{0.2cm}
   \begin{columns}[t]
-    \begin{column}{0.32\textwidth}
-      \begin{block}{\textbf{Cấp độ 1}}
-        \footnotesize
-        Flickr30k Entities + GAT.\\
-        Kiểm chứng vai trò thực chất của cạnh đồ thị tĩnh vs. adapter effect.
-      \end{block}
+    \begin{column}{0.32\textwidth}\centering\footnotesize
+      \textbf{Shared protocol}\\query $\rightarrow$ frozen CLIP $\rightarrow$ top-$k$ candidates\\
+      $\rightarrow$ graph score $\rightarrow$ fusion $\rightarrow$ rerank
     \end{column}
-    \begin{column}{0.32\textwidth}
-      \begin{block}{\textbf{Cấp độ 2}}
-        \footnotesize
-        DB15K / FB15k-237 + AdaMF.\\
-        Giải quyết triệt để truy vấn gián tiếp qua suy luận đa chặng MMKG.
-      \end{block}
+    \begin{column}{0.32\textwidth}\centering\footnotesize
+      \textbf{Assignment mapping}\\Tasks 1--2 (Levels 1--2),\\Task 3 + self-built data (Level 3)
     \end{column}
-    \begin{column}{0.32\textwidth}
-      \begin{block}{\textbf{Cấp độ 3}}
-        \footnotesize
-        Trích xuất đường đi xAI.\\
-        Đo Fidelity qua can thiệp xóa cạnh; khảo sát chuyển giao tiếng Việt.
-      \end{block}
+    \begin{column}{0.32\textwidth}\centering\footnotesize
+      \textbf{Branch}\\Text-to-image (Branch A)\\on 3 public + 1 self-built dataset
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 5: Level 1 Methodology
-\begin{frame}{Cấp độ 1: Mô hình cơ sở và tăng cường đồ thị GAT}
-  \begin{columns}[c]
-    \begin{column}{0.50\textwidth}
-      \textbf{Xây dựng đồ thị tĩnh (Flickr30k Entities):}
-      \begin{itemize}
-        \item Đỉnh (nodes): Biểu diễn các thực thể và vùng ảnh (bounding boxes).
-        \item Cạnh (edges): Quan hệ không gian và đồng xuất hiện ngữ nghĩa giữa các cụm từ.
-      \end{itemize}
-      \vspace{0.2cm}
-      \textbf{Mạng nơ-ron chú ý đồ thị GAT:}
-      \begin{itemize}
-        \item Cơ chế self-attention học trọng số chú ý $\alpha_{ij}$ phản ánh mức độ quan trọng ngữ nghĩa giữa các đối tượng.
-        \item Trích xuất biểu diễn đồ thị $h_{\text{graph}}(v_i)$ qua readout pooling.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\textbf{Cơ chế kết hợp điểm số}}
-        Điểm số cuối cùng kết hợp tuyến tính lồi:
-        \begin{equation*}
-          S_{\text{final}} = \alpha_{\text{CLIP}} \cdot S_{\text{CLIP}} + (1 - \alpha_{\text{CLIP}}) \cdot S_{\text{graph}}
-        \end{equation*}
-        \footnotesize
-        \textbf{Nguyên tắc nghiêm ngặt:} Trọng số $\alpha_{\text{CLIP}} = 0.6$ được quét và tối ưu trên validation set, đóng băng cố định trước khi suy luận trên test set một lần duy nhất.
-      \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide 6: Level 1 Results & Ablation
-\begin{frame}{Cấp độ 1: Kết quả thực nghiệm và kiểm thử triệt tiêu}
+% ===========================================================================
+% 04 --- Overall framework
+% ===========================================================================
+\begin{frame}{One Shared Protocol, Three Graph Settings}
+  \begin{center}
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    pstep/.style={draw=LineGray, fill=SoftBg, rounded corners=3pt, align=center,
+                 minimum height=1.35cm, minimum width=2.35cm, font=\scriptsize\bfseries,
+                 inner sep=4pt},
+    lab/.style={font=\scriptsize\itshape, text=Slate, align=center},
+    arrow/.style={-{Latex[length=2.5mm]}, HCMUSBlue, line width=1pt}
+  ]
+    \node[pstep] (s1) {Text query $q$};
+    \node[pstep, right=0.42cm of s1] (s2) {Frozen CLIP\\encoder};
+    \node[pstep, right=0.42cm of s2] (s3) {Top-$k$ candidates\\(cosine)};
+    \node[pstep, right=0.42cm of s3] (s4) {Graph score\\GAT / AdaMF};
+    \node[pstep, right=0.42cm of s4] (s5) {Fusion \& rerank\\$\alpha z(S_{\rm CLIP})+(1{-}\alpha)z(S_{\rm graph})$};
+    \node[pstep, right=0.42cm of s5] (s6) {Result +\\graph evidence};
+    \draw[arrow] (s1) -- (s2); \draw[arrow] (s2) -- (s3);
+    \draw[arrow] (s3) -- (s4); \draw[arrow] (s4) -- (s5);
+    \draw[arrow] (s5) -- (s6);
+    \node[lab, below=0.18cm of s3] {$k{=}50$ (VG)\\$k{=}1000$ (KG)\\all test (ViHeritage)};
+    \node[lab, below=0.18cm of s6] {intervention\\$\rightarrow$ fidelity};
+  \end{tikzpicture}}
+  \end{center}
+  \vspace{0.35cm}
   \begin{columns}[t]
-    \begin{column}{0.54\textwidth}
-      \textbf{Hiệu năng qua 3 seed độc lập (2026--2028):}
-      \vspace{0.1cm}
-      \footnotesize
-      \begin{tabularx}{\textwidth}{L{2.8cm}C{1.1cm}C{1.1cm}C{1.1cm}}
-        \toprule
-        \textbf{Cấu hình} & \textbf{R@1} & \textbf{R@10} & \textbf{MRR}\\
-        \midrule
-        CLIP Baseline & 0.6120 & 0.8845 & 0.7232\\
-        CLIP + GAT (2026) & 0.7385 & 0.9310 & 0.8251\\
-        CLIP + GAT (2027) & 0.7410 & 0.9340 & 0.8290\\
-        CLIP + GAT (2028) & 0.7390 & 0.9330 & 0.8278\\
-        \midrule
-        \textbf{Mean $\pm$ SD} & \textbf{0.7395} & \textbf{0.9327} & \textbf{0.8273}\\
-        & $\pm 0.001$ & $\pm 0.001$ & $\pm 0.002$\\
-        \bottomrule
-      \end{tabularx}
-      \normalsize
-      \vspace{0.2cm}
-      $\rightarrow$ Tăng trưởng vượt bậc $+0.1041$ điểm MRR tuyệt đối.
-    \end{column}
-    \begin{column}{0.44\textwidth}
-      \textbf{Kiểm thử triệt tiêu (Ablation Study):}
-      \vspace{0.1cm}
-      \footnotesize
-      \begin{tabularx}{\textwidth}{L{2.5cm}C{1.2cm}C{1.2cm}}
-        \toprule
-        \textbf{Cấu hình} & \textbf{R@1} & \textbf{MRR}\\
-        \midrule
-        CLIP Baseline & 0.6120 & 0.7232\\
-        No-Edges (Adapter) & 0.6840 & 0.7810\\
-        Random-Edges & 0.6380 & 0.7450\\
-        \textbf{Full Graph (GAT)} & \textbf{0.7385} & \textbf{0.8251}\\
-        \bottomrule
-      \end{tabularx}
-      \vspace{0.2cm}
-      \begin{alertblock}{\textbf{Phát hiện học thuật cốt lõi}}
-        Khoảng $55\%$ mức tăng đến từ adapter effect (chiếu không gian đặc trưng), và $45\%$ đến từ cấu trúc kết nối cạnh thực tế!
-      \end{alertblock}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide 7: Level 2 MMKG Motivation
-\begin{frame}{Cấp độ 2: Động lực học đồ thị nâng cao trên MMKG}
-  \begin{columns}[c]
-    \begin{column}{0.54\textwidth}
-      \textbf{Giới hạn bắt buộc phải nâng cấp lên Cấp độ 2:}
-      \begin{itemize}
-        \item Đồ thị cục bộ (scene graph) chỉ gói gọn trong một ảnh, không thể suy luận tri thức bách khoa mở rộng bên ngoài.
-        \item Khi gặp \textbf{truy vấn gián tiếp}, người dùng không nhắc tên trực tiếp đối tượng mà mô tả quan hệ trung gian $\rightarrow$ GAT đơn lẻ bất lực.
-      \end{itemize}
-      \vspace{0.2cm}
-      \textbf{Mở rộng sang Đồ thị tri thức đa phương thức:}
-      \begin{itemize}
-        \item Cấu trúc đa quan hệ: bộ ba $(h, r, t)$ với 279 quan hệ (DB15K).
-        \item Biểu diễn đa phương thức: mỗi thực thể gồm $e_{\text{text}}$ (văn bản) và $e_{\text{img}}$ (thị giác).
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.44\textwidth}
-      \begin{block}{\textbf{Tập dữ liệu MMKG chuẩn}}
-        \small
-        \textbf{DB15K}: 14.708 thực thể, 12.842 ảnh, 99.028 bộ ba.\\
-        \textbf{FB15k-237}: 14.541 thực thể, 310.116 bộ ba, 237 quan hệ.
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\textcolor{white}{Level 1}}\footnotesize
+        Per-image \textbf{scene graph}; GAT with edge features; $\alpha{=}0.6$ (validation).
       \end{block}
-      \begin{block}{\textbf{Phân loại nhóm truy vấn}}
-        \small
-        \textbf{Direct Query}: Tên thực thể xuất hiện rõ.\\
-        \textbf{Indirect Query}: Đòi hỏi suy luận liên kết từ anchor entity tới target entity.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\textcolor{white}{Level 2}}\footnotesize
+        \textbf{MMKG} triples; AdaMF fusion + RotatE scoring; $\alpha$ per dataset (validation).
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\textcolor{white}{Level 3}}\footnotesize
+        Explanations \textbf{from the ranking function}; measured by intervention on all levels.
       \end{block}
     \end{column}
   \end{columns}
-\end{frame}
-
-% Slide 8: Level 2 AdaMF Fusion
-\begin{frame}{Cấp độ 2: Dung hợp đặc trưng đa phương thức AdaMF}
-  \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
-      \textbf{Cơ chế dung hợp thích nghi AdaMF-based:}
-      Thay vì nối ghép thô (concatenation), mô hình tính tương tác động:
-      \begin{equation*}
-        e_{\text{fused}} = \gamma_T \odot W_T e_{\text{text}} + \gamma_V \odot W_V e_{\text{img}}
-      \end{equation*}
-      \begin{itemize}
-        \item Trọng số $\gamma_T, \gamma_V$ sinh ra từ gating network.
-        \item Tự động ưu tiên thông tin thị giác khi ảnh giàu chi tiết và bù đắp bằng ngữ nghĩa văn bản khi ảnh mờ nhạt hoặc trừu tượng.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.46\textwidth}
-      \begin{block}{\textbf{Xếp hạng lai ghép (Hybrid Reranking)}}
-        \begin{equation*}
-          S_{\text{hybrid}} = \alpha \cdot S_{\text{CLIP}} + (1 - \alpha) \cdot S_{\text{KGC}}
-        \end{equation*}
-        \footnotesize
-        \textbf{Khóa tham số:} $\alpha_{\text{CLIP}} = 0.2$ trên validation set (ưu tiên 80\% trọng số cho điểm đồ thị tri thức MMKG).
-      \end{block}
-      \begin{exampleblock}{\textbf{Phạm vi học thuật rõ ràng}}
-        \footnotesize
-        Triển khai cơ chế dung hợp AdaMF-based phục vụ truy vấn và xếp hạng lại, không tuyên bố tái lập 100\% toàn bộ hệ thống AdaMF-MAT gốc.
-      \end{exampleblock}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% Slide 9: Level 2 Retrieval Performance
-\begin{frame}{Cấp độ 2: Hiệu năng truy vấn trực tiếp và gián tiếp}
-  \begin{block}{\textbf{Bảng kết quả kiểm chứng độc lập trên DB15K (Seed 2027, 5.477 queries, top-1000 pool)}}
-    \centering\small
-    \begin{tabularx}{0.95\textwidth}{L{3.2cm}C{1.6cm}C{1.6cm}C{1.8cm}Y}
-      \toprule
-      \textbf{Cấu hình mô hình} & \textbf{R@10} & \textbf{MRR} & \textbf{Indirect MRR} & \textbf{Tình trạng audit}\\
-      \midrule
-      CLIP-only Baseline & 0.3412 & 0.2577 & 0.0475 & VERIFIED\\
-      \textbf{Full Graph (AdaMF)} & \textbf{0.5556} & \textbf{0.4145} & \textbf{0.3164} & \textbf{VERIFIED (Top-1)}\\
-      Shuffled Edges v2 & 0.4448 & 0.3156 & 0.1468 & VERIFIED (0/0 overlap)\\
-      Random Graph ($\alpha=1$) & 0.3412 & 0.2577 & 0.0475 & VERIFIED\\
-      \bottomrule
-    \end{tabularx}
-  \end{block}
   \vspace{0.2cm}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \textbf{Truy vấn trực tiếp (Direct):}
-      CLIP thuần đã đạt hiệu năng tương đối khá; MMKG hỗ trợ nâng thêm độ chính xác.
-    \end{column}
-    \begin{column}{0.50\textwidth}
-      \textbf{Truy vấn gián tiếp (Indirect -- Điểm nhấn cốt lõi):}
-      Indirect MRR tăng từ \textbf{0.0475} lên \textbf{0.3164} (\textbf{gấp 6.6 lần baseline CLIP thuần})!
-    \end{column}
-  \end{columns}
+  {\footnotesize\color{Slate} Checkpoint, $\alpha$, and all hyperparameters selected on validation; test run once with a locked configuration.}
 \end{frame}
 
-% Slide 10: Level 2 Shuffled Edges Ablation
-\begin{frame}{Cấp độ 2: Phân tích triệt tiêu cấu trúc và hoán đổi cạnh}
+% ===========================================================================
+% 05 --- Level 1 methodology
+% ===========================================================================
+\begin{frame}{\leveltag{L1Blue}{LEVEL 1} Scene Graph + GAT Rerank CLIP's Top-50}
   \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
-      \textbf{Phương pháp luận hoán đổi cạnh (Shuffled Edges):}
-      \begin{itemize}
-        \item Hoán đổi các đỉnh trong cùng loại quan hệ nhằm bảo toàn degree distribution nhưng phá hủy hoàn toàn ngữ nghĩa bộ ba.
-        \item \textbf{Shuffled Edges v1:} Phát hiện có 171 cạnh trùng tập test (tiềm ẩn rò rỉ).
-        \item \textbf{Shuffled Edges v2:} Đạt \textbf{overlap 0/0} bằng phương pháp test-aware exclusion $\rightarrow$ Báo cáo hoàn toàn minh bạch.
+    \begin{column}{0.55\textwidth}
+      \begin{center}
+      \resizebox{\linewidth}{!}{%
+      \begin{tikzpicture}[
+        n/.style={draw=LineGray, fill=SoftBg, rounded corners=2pt, align=center,
+                  font=\scriptsize, inner sep=4pt, minimum height=0.8cm, minimum width=2.2cm},
+        e/.style={font=\scriptsize\itshape, text=Slate, align=center},
+        ar/.style={-{Latex[length=2mm]}, Slate, thick}
+      ]
+        \node[n, fill=HCMUSBlue, text=white] (img) {image $v_i$\\(CLIP 512-d)};
+        \node[n, right=1.3cm of img] (obj) {entity nodes\\(CLIP name 512-d)};
+        \node[n, right=1.3cm of obj] (gat) {2-layer GAT\\4 heads $\times$ 32-d};
+        \node[n, fill=L1Blue, text=white] at ([xshift=1.3cm]gat.east) (h) {$h_{\rm graph}$\\128-d};
+        \draw[ar] (img) -- (obj);
+        \draw[ar] (obj) -- (gat);
+        \draw[ar] (gat) -- (h);
+        \node[e, below=0.3cm of img] {\texttt{contains} edge};
+        \node[e, below=0.3cm of obj] {relations + reverse\\edge features 512-d};
+        \node[e, below=0.3cm of gat] {query proj.\\512 $\rightarrow$ 128-d};
+      \end{tikzpicture}}
+      \end{center}
+      \vspace{0.15cm}
+      \begin{itemize}\footnotesize
+        \item Independent graph per image; directed relations + added reverse edges + \texttt{edge\_is\_reverse} flag.
+        \item Graph score $S_{\rm graph}=\tilde e_q^{\top} h_{\rm graph}(v_i)$; both scores z-scored per query over the candidate set.
       \end{itemize}
     \end{column}
-    \begin{column}{0.46\textwidth}
-      \begin{block}{\textbf{Bóc tách giá trị cấu trúc đồ thị}}
-        \begin{itemize}
-          \item \textbf{Full Graph vs. Shuffled Edges v2:} Chênh lệch $+0.0989$ điểm MRR $\rightarrow$ Khẳng định giá trị thực sự của ngữ nghĩa quan hệ bộ ba.
-          \item \textbf{Shuffled Edges v2 vs. No-Edges:} Chênh lệch $+0.0579$ điểm MRR $\rightarrow$ Việc giữ lại degree distribution vẫn mang lại tiên nghiệm cấu trúc nhất định.
-        \end{itemize}
+    \begin{column}{0.43\textwidth}
+      \begin{block}{Score fusion}\footnotesize
+        \[
+          \scalebox{0.90}{$S_{\rm final}=\alpha_{\rm CLIP}\,z(S_{\rm CLIP})+(1-\alpha_{\rm CLIP})\,z(S_{\rm graph})$}
+        \]
+        $\alpha_{\rm CLIP}=0.6$ chosen on validation (grid 0--1, step 0.1).
       \end{block}
+      \vspace{0.10cm}
+      \begin{block}{Training}\footnotesize
+        AdamW, lr $10^{-4}$, 100 epochs, batch 8 queries $\times$ (1 positive + 50 hard negatives); 3 seeds; checkpoint = best validation MRR.
+      \end{block}
+      \vspace{0.10cm}
+      {\footnotesize\color{Slate} GAT reranks only CLIP's top-50 --- it cannot rescue a correct image outside that pool.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 11: Level 3 xAI Framework
-\begin{frame}{Cấp độ 3: Khung giải thích xAI dựa trên đồ thị}
+% ===========================================================================
+% 06 --- Level 1 results
+% ===========================================================================
+\begin{frame}{\leveltag{L1Blue}{LEVEL 1} Graph Reranking Improves Retrieval on Visual Genome}
   \begin{columns}[c]
-    \begin{column}{0.50\textwidth}
-      \textbf{Nguyên tắc giải thích có tính nhân quả:}
-      \begin{itemize}
-        \item Giải thích không được là ngụy biện hậu nghiệm (post-hoc rationalization).
-        \item Phải phản ánh trực tiếp luồng tính điểm của GAT attention và liên kết bộ ba AdaMF.
-      \end{itemize}
-      \vspace{0.2cm}
-      \textbf{Trích xuất đồ thị con giải thích:}
-      \begin{equation*}
-        \mathcal{P} = \{ (e_{\text{query}}, r_1, e_1), (e_1, r_2, e_{\text{target}}) \}
-      \end{equation*}
-      Tối ưu hóa tập cạnh con tối thiểu bảo toàn thứ hạng của thực thể đích.
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/charts/l1_retrieval.png}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\textbf{Bộ tiêu chuẩn định lượng 3 chỉ số}}
-        \begin{itemize}
-          \item \textbf{Fidelity$^-$ (Tính trung thực qua can thiệp):} Mức sụt giảm điểm số khi can thiệp xóa (mask) các cạnh giải thích.
-          \item \textbf{Validity (Tính hợp lệ):} Tỷ lệ đường đi logic hợp lệ, không chứa vòng lặp rỗng.
-          \item \textbf{Sparsity (Độ thưa):} Tỷ lệ nén cạnh giải thích so với đồ thị tổng thể ($>85\%$).
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.42\textwidth}
+      \begin{alertblock}{Main finding}\footnotesize
+        Test MRR \textbf{0.0611 $\rightarrow$ 0.0718 $\pm$ 0.0002} (3 seeds), a \textbf{+17.4\%} relative gain; R@1 0.0295 $\rightarrow$ 0.0363.
+      \end{alertblock}
+      \vspace{0.15cm}
+      \begin{itemize}\footnotesize
+        \item Same split, same frozen CLIP, only the reranking stage differs.
+        \item Small SD across seeds $=$ stable under this protocol (does not imply cross-domain generalization).
+        \item Gains bounded by the top-50 candidate pool.
+      \end{itemize}
+      \vspace{0.15cm}
+      {\footnotesize\color{Slate} Evidence: report Table VII (test, Visual Genome, 3 seeds).}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 12: Level 3 Quantitative Evaluation
-\begin{frame}{Cấp độ 3: Đánh giá định lượng Fidelity, Validity, Sparsity}
+% ===========================================================================
+% 07 --- Level 1 interpretation
+% ===========================================================================
+\begin{frame}{\leveltag{L1Blue}{LEVEL 1} Most of the Gain Survives Without Real Edges}
   \begin{columns}[t]
-    \begin{column}{0.54\textwidth}
-      \textbf{Thực nghiệm can thiệp nhiễu (Perturbation Test):}
-      \vspace{0.1cm}
-      \footnotesize
-      \begin{tabularx}{\textwidth}{L{2.0cm}C{1.1cm}C{1.1cm}C{1.0cm}}
-        \toprule
-        \textbf{Truy vấn ID} & \textbf{Fidelity$^-$} & \textbf{Validity} & \textbf{Sparsity}\\
-        \midrule
-        Q-01 (Indirect) & 0.285 & 1.00 & 0.88\\
-        Q-02 (Indirect) & 0.312 & 1.00 & 0.91\\
-        Q-03 (Direct) & 0.045 & 1.00 & 0.95\\
-        \midrule
-        \textbf{Mean ($\ge 10$ queries)} & \textbf{0.240} & \textbf{0.950} & \textbf{0.890}\\
-        \bottomrule
-      \end{tabularx}
-      \normalsize
-      \vspace{0.2cm}
-      \begin{itemize}
-        \item Xóa cạnh giải thích $\rightarrow$ Thứ hạng rơi tự do.
-        \item Xóa cạnh ngẫu nhiên $\rightarrow$ Thứ hạng được giữ nguyên.
+    \begin{column}{0.50\textwidth}
+      \centering
+      \includegraphics[width=0.86\linewidth]{assets/charts/l1_ablation.png}\\[0.02cm]
+      {\footnotesize\color{Slate} Table VIII --- 1 run per configuration, same init.}\\[0.08cm]
+      \begin{alertblock}{Honest reading}\footnotesize
+        On Visual Genome the gain comes mostly from \textbf{learned feature transforms}, not relation structure --- a \textbf{small, single-run} residual.
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{itemize}\footnotesize
+        \item \textbf{No-edge} (learned projection, no message passing) keeps \textbf{77\%} of the gain; \textbf{random-edges} keeps \textbf{92\%}.
+        \item Full Graph exceeds random-edges by only ${\approx}0.0009$ MRR (single run).
+        \item Explanations agree: \textbf{75\%} of explained elements are \texttt{contains} edges; object--object relations contribute far less.
+        \item Case ``peace sign'': CLIP rank 15 $\rightarrow$ 1; removing the explanation set returns it to rank 4.
       \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% 08 --- Level 2 methodology
+% ===========================================================================
+\begin{frame}{\leveltag{L2Orange}{LEVEL 2} MMKG Adds Relations Beyond the Image}
+  \begin{columns}[c]
+    \begin{column}{0.50\textwidth}
+      \begin{itemize}\footnotesize
+        \item Level-1 graphs are \textbf{per-image} --- they cannot bridge entities across knowledge.
+        \item \textbf{Indirect query}: anchor $e$ and relation $r$ given; rank images of the entity filling $(e, r, ?)$ or $(?, r, t)$.
+        \item Entity representation $=$ fused \textbf{structural + text + visual} features (AdaMF attention over modalities; missing modality masked before softmax).
+        \item Scoring: \textbf{RotatE} triple score; MAT adversarial term disabled ($\mu=0$).
+      \end{itemize}
+      \vspace{0.1cm}
+      \begin{center}
+      \resizebox{\linewidth}{!}{%
+      \begin{tikzpicture}[
+        m/.style={draw=LineGray, fill=SoftBg, rounded corners=2pt, font=\scriptsize,
+                  align=center, inner sep=3pt, minimum height=0.62cm},
+        ar/.style={-{Latex[length=2mm]}, Slate}
+      ]
+        \node[m] (t) {text feat.};
+        \node[m, right=0.25cm of t] (v) {visual feat.};
+        \node[m, right=0.25cm of v] (s) {structural\\embedding};
+        \node[m, fill=L2Orange, text=white, right=0.55cm of s] (f) {AdaMF\\fusion};
+        \node[m, right=0.25cm of f] (r) {RotatE\\score};
+        \draw[ar] (t) -- (f); \draw[ar] (v) -- (f); \draw[ar] (s) -- (f);
+        \draw[ar] (f) -- (r);
+      \end{tikzpicture}}
+      \end{center}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Datasets (same protocol as Level 1)}\footnotesize
+        \textbf{DB15K}: 12{,}842 entities, 279 relations, 25{,}925 images; clean split 71{,}300 / 7{,}922 / official test.\\[0.12cm]
+        \textbf{FB15K-237-IMG}: 14{,}541 entities, 237 relations, 139{,}814 images; official KG split + image split (seed 2026).
+      \end{block}
+      \vspace{0.15cm}
+      \begin{block}{Query groups}\footnotesize
+        \textbf{Direct} = entity name given (CLIP already strong).\\
+        \textbf{Indirect} = relation-mediated; 2{,}282/3{,}195 (DB15K) and 8{,}592/24{,}564 (FB15K) direct/indirect test queries.
+      \end{block}
+      \vspace{0.15cm}
+      {\footnotesize\color{Slate} Method implemented from AdaMF-MAT (LREC-COLING 2024), adapted to image retrieval.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% 09 --- Level 2 results
+% ===========================================================================
+\begin{frame}{\leveltag{L2Orange}{LEVEL 2} Indirect Queries Drive the Gains on Both MMKGs}
+  \begin{columns}[c]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/charts/l2_direct_indirect.png}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{alertblock}{Main finding}\footnotesize
+        Indirect MRR: DB15K \textbf{0.0475 $\rightarrow$ 0.3143} ($6.6\times$); FB15K-237-IMG \textbf{0.0122 $\rightarrow$ 0.1186} ($9.7\times$).
+      \end{alertblock}
+      \vspace{0.12cm}
+      \begin{itemize}\footnotesize
+        \item DB15K direct MRR unchanged (0.5520) \textbf{by design}: direct queries keep CLIP ranks.
+        \item FB15K direct also rises (0.3475 $\rightarrow$ 0.7770) --- different training objective (retrieval cross-entropy).
+        \item Level-1 GAT on the \emph{same} pipeline matches AdaMF on DB15K (0.3110 vs.\ 0.3143 indirect; CI includes 0).
+        \item SD $\le 0.003$ across 3 seeds.
+      \end{itemize}
+      \vspace{0.1cm}
+      {\footnotesize\color{Slate} Table X. Do not compare MRR across datasets (different candidate spaces).}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% 10 --- Level 2 ablation
+% ===========================================================================
+\begin{frame}{\leveltag{L2Orange}{LEVEL 2} Real Edges Matter on DB15K, Not on FB15K-237-IMG}
+  \begin{columns}[c]
+    \begin{column}{0.54\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/charts/gain_kept.png}\\[0.1cm]
+      {\footnotesize\color{Slate} Indirect MRR gain over CLIP retained under each intervention (1 run each).}
     \end{column}
     \begin{column}{0.44\textwidth}
-      \begin{alertblock}{\textbf{Bài học từ các Failure Cases}}
-        Khi mô hình xếp hạng sai kết quả, đồ thị con giải thích đôi khi vẫn hiển thị một đường đi logic hợp lý bề mặt.
-        \vspace{0.1cm}\\
-        $\rightarrow$ \textbf{Cảnh báo:} Giải thích faithful to model không đồng nghĩa với ground-truth validity!
+      \begin{itemize}\footnotesize
+        \item \textbf{DB15K}: removing edges or using a random graph drops validation to $\alpha{=}1$ (graph contributes nothing); degree-preserving shuffling keeps only \textbf{37\%}.
+        \item \textbf{FB15K-237-IMG}: shuffled and random graphs keep ${\approx}\textbf{93\%}$ --- the pipeline learns entity--image associations \emph{without} relation structure.
+        \item \textbf{Conclusion}: structure is causally supported on DB15K only; FB15K ablation cannot attribute gains to relations.
+      \end{itemize}
+      \vspace{0.12cm}
+      \begin{block}{Controls}\footnotesize
+        Random graphs built from train only; shuffled-edge swaps exclude validation/test collisions (disclosed test-aware exclusion).
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% 11 --- Level 3 method
+% ===========================================================================
+\begin{frame}{\leveltag{L3Aqua}{LEVEL 3} Explanations Come From the Ranking Function}
+  \begin{center}
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    pstep/.style={draw=LineGray, fill=SoftBg, rounded corners=3pt, align=center,
+                 minimum height=1.15cm, minimum width=2.7cm, font=\scriptsize\bfseries, inner sep=4pt},
+    arrow/.style={-{Latex[length=2.5mm]}, L3Aqua, line width=1pt},
+    note/.style={font=\scriptsize\itshape, text=Slate, align=center}
+  ]
+    \node[pstep] (a) {Retrieval result\\(rank-1 image)};
+    \node[pstep, right=0.5cm of a] (b) {Graph evidence $S$\\top-$K^\star$ units by $\Delta$};
+    \node[pstep, right=0.5cm of b] (c) {Intervention\\remove / mask / relearn};
+    \node[pstep, right=0.5cm of c] (d) {Score change\\$\Delta_u = S - S^{\setminus u}$};
+    \node[pstep, right=0.5cm of d] (e) {Fidelity\\vs.\ random control};
+    \draw[arrow] (a) -- (b); \draw[arrow] (b) -- (c);
+    \draw[arrow] (c) -- (d); \draw[arrow] (d) -- (e);
+    \node[note, below=0.15cm of b] {GAT: remove relation,\\re-run 2 layers};
+    \node[note, below=0.15cm of c] {AdaMF: re-learn entity\\embedding without $S$};
+    \node[note, below=0.15cm of e] {same $|S|$ removed\\at random};
+  \end{tikzpicture}}
+  \end{center}
+  \vspace{0.3cm}
+  \begin{columns}[t]
+    \begin{column}{0.32\textwidth}\footnotesize
+      \textbf{Not post-hoc}: the evidence set is defined by \emph{recomputing} the model's own score after intervention --- a plausible path that does not change the score is never produced.
+    \end{column}
+    \begin{column}{0.32\textwidth}\footnotesize
+      \textbf{Metrics}\\
+      \textbf{Fid+}: relative score drop when $S$ is removed (vs.\ random removal).\\
+      \textbf{Fid$-$}: change when only $S$ is kept.\\
+      \textbf{PN/PS}: top-1 lost / kept.\\
+      \textbf{Sparsity}: fraction of units discarded.\\
+      \textbf{Validity}: elements legal in the graph.
+    \end{column}
+    \begin{column}{0.32\textwidth}\footnotesize
+      \textbf{$K^\star$ selection}\\Chosen on validation: smallest $K$ whose median completeness $\ge 0.8$.\\[0.15cm]
+      \textbf{Sample sizes}\\500 (VG), 70 $\times$ 2 (KG), 54/50 (ViHeritage) queries --- well above the required 10.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% 12 --- Level 3 XAI evaluation
+% ===========================================================================
+\begin{frame}{\leveltag{L3Aqua}{LEVEL 3} Fidelity Separates Explanations From Random Removal}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/charts/xai_fidelity.png}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{itemize}\footnotesize
+        \item Removing $S$ drops the returned image's score far more than removing the same number of random elements on \textbf{all five model/dataset pairs}.
+        \item \textbf{Validity = 100\%} (legal relations / train triples); \textbf{sparsity} at $K^\star$: 0.65 (VG) --- 0.80 (KG); heuristics score worse than learned evidence.
+        \item ViHeritage retrain control: Fid+ 0.327 vs.\ 0.180 random ($p{=}0.0002$); Spearman(approx, retrain) $=0.32$.
+      \end{itemize}
+      \vspace{0.1cm}
+      \begin{alertblock}{Limit}\footnotesize
+        Fidelity = \emph{faithfulness to the model}, not truth about the world.
       \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 13: Level 3 Custom MMKG
-\begin{frame}{Cấp độ 3: Khảo sát chuyển giao dữ liệu tiếng Việt}
-  \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
-      \textbf{Mục tiêu xây dựng Custom MMKG tiếng Việt:}
-      \begin{itemize}
-        \item Khảo sát độ bền vững của mô hình và kiểm tra khả năng chuyển giao khi gặp hiện tượng domain shift.
-        \item Quy mô dữ liệu mục tiêu: 50--150 thực thể, 300--1.000 bộ ba, 200--500 hình ảnh.
-      \end{itemize}
-      \vspace{0.2cm}
-      \textbf{Nguyên tắc thu thập và đạo đức dữ liệu:}
-      \begin{itemize}
-        \item Đính kèm Data Card minh bạch nguồn gốc hình ảnh và giấy phép sử dụng.
-        \item Không thu thập dữ liệu cá nhân nhạy cảm.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.46\textwidth}
-      \begin{block}{\textbf{Hiện trạng minh chứng thực nghiệm}}
-        \begin{itemize}
-          \item \textbf{Đã hoàn tất:} Thu thập ảnh và bảng bộ ba metadata tại \texttt{dataset/mmkg\_tv}.
-          \item \textbf{Minh bạch học thuật:} Chưa nghiệm thu artifact checkpoint chính thức tại thư mục bàn giao $\rightarrow$ Báo cáo ghi nhận rõ tình trạng và kế hoạch hoàn thiện.
-        \end{itemize}
+% ===========================================================================
+% 13 --- Vietnamese MMKG
+% ===========================================================================
+\begin{frame}{\leveltag{L3Aqua}{LEVEL 3} ViHeritage-MMKG: A Vietnamese Heritage Graph}
+  \begin{columns}[t]
+    \begin{column}{0.38\textwidth}
+      \begin{block}{Dataset (assignment-scaled)}\scriptsize
+        \textbf{Domain}: Vietnamese cultural heritage \& landmarks.\\[0.05cm]
+        \begin{tabularx}{\linewidth}{@{}L{2.3cm}X@{}}
+          Entities (imaged) & 150 (88)\\
+          Rel.\ / triples & 15 / 427 (tr 318, val 53, te 56)\\
+          Images (tr/val/te) & 438 (264 / 86 / 88)\\
+          Test queries & 88 dir + 54 ind.\\
+          Audit / Verified & 0.935 / 1.0; 35\% derived\\
+        \end{tabularx}
       \end{block}
+      \vspace{0.05cm}
+      {\scriptsize\color{Slate} Sources: Wikidata (CC0), Wikimedia, vi.wikipedia (CC BY-SA 4.0). Data card ships with dataset.}
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/charts/viheritage.png}\\[0.05cm]
+      {\scriptsize\color{Slate} Table XIII --- Vietnamese queries, 3 seeds.}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \begin{itemize}\scriptsize
+        \item Indirect MRR \textbf{0.112 $\rightarrow$ 0.219} (AdaMF) / \textbf{0.258} (GAT); $p\le0.006$.
+        \item \textbf{Text-leak control}: masking all text keeps 0.230 --- not name leakage.
+        \item \textbf{Ablation}: corrupted edges fall \emph{below} CLIP --- every gain needs real edges.
+        \item Case: ``di tích ở Huế'' $\rightarrow$ Chùa Thiên Mụ rank 1.
+      \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 14: Data Leakage Prevention
-\begin{frame}{Phòng chống data leakage và kiểm soát tính tái lập}
-  \begin{block}{\textbf{Bốn trụ cột phòng chống data leakage của đồ án}}
-    \begin{enumerate}
-      \item \textbf{Khóa chữ ký mã băm (Artifact Hash Locking):} Mọi ma trận đặc trưng, tập split và checkpoint được gắn mã SHA-256 bất biến trong \texttt{test\_protocol.json}.
-      \item \textbf{Kiểm soát trùng lặp ảnh (Visual Genome Split v2):} Phân cụm pHash ($\le 6$) và SHA-256 đảm bảo các ảnh tương đồng bắt buộc nằm chung một tập train/val/test.
-      \item \textbf{Giao thức Frozen Test:} Tập test chỉ được suy luận đúng một lần sau khi siêu tham số $\alpha$ đã được khóa hoàn toàn trên validation set.
-      \item \textbf{Kiểm soát chồng lấn cạnh (Edge Overlap Audit):} Đạt \texttt{overlap = 0/0} trên DB15K Shuffled Edges v2; ghi nhận rõ ràng tính chất test-aware exclusion.
-    \end{enumerate}
-  \end{block}
+% ===========================================================================
+% 14 --- Cross-level findings
+% ===========================================================================
+\begin{frame}{What the Evidence Supports --- and What It Does Not}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\textcolor{white}{Supported by experiments}}\footnotesize
+        \begin{itemize}
+          \item Graph-augmented ranking beats CLIP on every dataset tested (3 seeds for full models).
+          \item Largest, most consistent gains on \textbf{indirect} queries ($6.6\times$ / $9.7\times$ / ${\approx}2\times$).
+          \item \textbf{Relation structure} causes the gain on \textbf{DB15K} (37\% kept) and \textbf{ViHeritage} (gain vanishes when edges corrupted).
+          \item Explanations \textbf{faithful}: Fid+ $\gg$ random on all 5 pairs; validity 100\%.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{\textcolor{white}{Not claimed / open}}\footnotesize
+        \begin{itemize}
+          \item On \textbf{Visual Genome}, most gain survives edge removal --- relation structure is a minor, single-run residual.
+          \item On \textbf{FB15K-237-IMG}, corrupted graphs keep ${\approx}93\%$ --- gains not attributed to relations.
+          \item AdaMF vs.\ GAT on DB15K is a \textbf{statistical tie} (CI includes 0).
+          \item Fidelity $\ne$ truth; single-run ablations; top-50 ceiling; no cross-dataset MRR comparison.
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+  \vspace{0.1cm}
+  \begin{center}
+    \footnotesize\itshape\color{Slate}
+    ``The graph helps where queries require reasoning over relations.'' --- report \S VII
+  \end{center}
 \end{frame}
 
-% Slide 15: Demo Section
-\begin{frame}{Kịch bản Video Demo và thực nghiệm trực tiếp}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \textbf{Cấu trúc Video Demo ($\le$ 5 phút):}
-      \begin{enumerate}
-        \item \textbf{0:00--0:35:} Xác thực hash artifact và load checkpoint đóng băng.
-        \item \textbf{0:35--1:35:} Demo Cấp độ 1 (CLIP vs. GAT trên Flickr30k).
-        \item \textbf{1:35--2:50:} Demo Cấp độ 2 (So sánh Direct vs. Indirect query trên DB15K).
-        \item \textbf{2:50--4:05:} Demo Cấp độ 3 (Trích xuất xAI và can thiệp Fidelity).
-        \item \textbf{4:05--5:00:} Case study thất bại và tổng kết.
+% ===========================================================================
+% 15 --- Conclusions & demo
+% ===========================================================================
+\begin{frame}{Conclusions \& Live Demo}
+  \begin{columns}[t]
+    \begin{column}{0.55\textwidth}
+      \begin{enumerate}\footnotesize
+        \item \textbf{Retrieval}: frozen CLIP + edge-aware GAT raises Visual Genome MRR 0.0611 $\rightarrow$ 0.0718 ($+17.4\%$, 3 seeds) --- caveat: most of the gain does not require real edges.
+        \item \textbf{Knowledge}: AdaMF lifts indirect-query MRR up to $9.7\times$; ablations attribute the gain to real relations on DB15K (not FB15K).
+        \item \textbf{Explanation}: intervention-based explanations with high fidelity vs.\ random, 100\% validity, sparsity 0.65--0.80 --- on a self-built Vietnamese MMKG (150 entities, 427 triples).
       \end{enumerate}
+      \vspace{0.1cm}
+      \begin{block}{Limitations stated upfront}\footnotesize
+        single-run ablations $\cdot$ FB15K structure not isolated $\cdot$ fidelity $\ne$ world-truth $\cdot$ AI-assisted checks without multi-rater agreement.
+      \end{block}
     \end{column}
-    \begin{column}{0.50\textwidth}
+    \begin{column}{0.43\textwidth}
+      \begin{block}{\textcolor{white}{Demo plan (4--5 min)}}\footnotesize
+        \begin{enumerate}
+          \item \textbf{L1}: text query $\rightarrow$ CLIP top-5 $\rightarrow$ GAT rerank + evidence.
+          \item \textbf{L2}: direct vs.\ indirect query on DB15K.
+          \item \textbf{L3}: remove-$S$ vs.\ remove-random, show score drop.
+          \item \textbf{ViHeritage}: Vietnamese query + data card.
+        \end{enumerate}
+      \end{block}
+      \vspace{0.1cm}
+      \begin{exampleblock}{Backup}\footnotesize
+        Pre-recorded video $\le$ 5 min (assignment \S 8) + cached checkpoints if live run fails.
+      \end{exampleblock}
+      \vspace{0.1cm}
       \begin{center}
-        \begin{tikzpicture}
-          \node[draw=HCMUSBlue, fill=SoftBlue!60, rounded corners=6pt, inner sep=8pt, align=center] {
-            \large\textbf{\color{HCMUSBlue} TRÌNH CHIẾU VIDEO DEMO}\\[2mm]
-            \footnotesize\textit{(Thời lượng dự phòng: $\le$ 5 phút)}\\[3mm]
-            \scriptsize Hỗ trợ chạy trực tiếp trên Notebook / Web UI\\tại buổi vấn đáp theo yêu cầu của Giảng viên.
-          };
-        \end{tikzpicture}
+        \small\bfseries\color{HCMUSBlue} Thank you --- questions welcome
       \end{center}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 16: Conclusions & Contributions
-\begin{frame}{Kết luận và Đóng góp chính}
+% ===========================================================================
+% BACKUP SLIDES (Appendix)
+% ===========================================================================
+\appendix
+
+% ===========================================================================
+% BACKUP 1 --- metrics & protocol
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: Metrics and Evaluation Protocol}
   \begin{columns}[t]
-    \begin{column}{0.50\textwidth}
-      \begin{block}{\textbf{Bốn đóng góp chính của đồ án}}
-        \begin{enumerate}
-          \item Thiết lập pipeline thực nghiệm mẫu mực với cơ chế kiểm soát mã băm chống data leakage nghiêm ngặt.
-          \item Phân lập khoa học giữa đóng góp thực sự của cấu trúc đồ thị ($45\%$) và adapter effect ($55\%$).
-          \item Đột phá trên truy vấn gián tiếp với cơ chế dung hợp AdaMF-based trên MMKG (tăng 6.6 lần MRR).
-          \item Quy trình đánh giá xAI định lượng có kiểm chứng can thiệp nhiễu (Fidelity verified).
-        \end{enumerate}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Retrieval metrics}\footnotesize
+        \textbf{Recall@K}: fraction of queries with $\ge 1$ relevant image in top-$K$.\\[0.1cm]
+        \textbf{MRR}: mean reciprocal rank of the best relevant image; optimistic ranking (count strictly greater scores).\\[0.1cm]
+        \textbf{Direct / Indirect MRR}: computed separately on each query group (assignment \S 7).
+      \end{block}
+      \vspace{0.15cm}
+      \begin{block}{Seeds \& selection}\footnotesize
+        3 seeds for full models (mean $\pm$ sample SD, $n{-}1$); ablations 1 run (flagged). $\alpha$, checkpoint, $K^\star$ --- validation only; test evaluated once.
       \end{block}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\textbf{Hướng phát triển tiếp theo}}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Leakage controls}\footnotesize
         \begin{itemize}
-          \item Sinh đồ thị hoán đổi theo giao thức strict test-blind hoàn toàn.
-          \item Tích hợp hàm mất mát graph-aware contrastive loss vào khâu huấn luyện.
-          \item Hoàn thiện benchmark nghiệm thu trên tập dữ liệu MMKG tiếng Việt tự xây.
-          \item Mở rộng sang bài toán truy vấn video Text-to-Video.
+          \item VG: SHA-256 + pHash clustering \emph{before} split --- near-duplicates stay in one split.
+          \item DB15K: official validation discarded (2{,}423 duplicate rows); clean 90/10 re-split (seed 2027); official test byte-identical.
+          \item FB15K: image clusters hashed before split (seed 2026); cross-entity duplicates dropped.
+          \item Entity visual features averaged over \emph{train} images only.
+          \item Shuffled-edge controls exclude val/test collisions (disclosed, not fully blind).
+          \item ViHeritage: text-masking re-run for name leakage (38.9\% of indirect queries contain the anchor name).
         \end{itemize}
       \end{block}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 17: Team Contribution & Q&A
-\begin{frame}{Bảng phân công đóng góp và Phần vấn đáp}
-  \begin{block}{\textbf{Bảng phân công trách nhiệm thành viên (Nhóm 02)}}
-    \centering\footnotesize
-    \begin{tabularx}{0.96\textwidth}{C{0.6cm}L{3.0cm}C{1.5cm}Y C{1.2cm}}
-      \toprule
-      \textbf{STT} & \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Nhiệm vụ chính phụ trách} & \textbf{Tỷ lệ}\\
-      \midrule
-      1 & Chung Gia Khánh & 23120282 & Trưởng nhóm, kiến trúc tổng thể, audit Level 2 & 20\%\\
-      2 & Lê Hoàng Mỹ Hạ & 23120038 & Tiền xử lý dữ liệu, trích xuất CLIP baseline & 20\%\\
-      3 & Hàn Vũ Phương Uyên & 23120106 & Xây dựng đồ thị cảnh và huấn luyện GAT Level 1 & 20\%\\
-      4 & Trần Gia Hiển & 23120123 & Thực nghiệm dung hợp AdaMF và ablation Level 2 & 20\%\\
-      5 & Nguyễn An Nghiệp & 23127234 & Khung xAI Level 3, đo Fidelity, thu thập MMKG & 20\%\\
-      \bottomrule
-    \end{tabularx}
-  \end{block}
-  \vspace{0.2cm}
-  \begin{center}
-    \Large\textbf{\color{HCMUSBlue} CẢM ƠN QUÝ THẦY CÔ ĐÃ LẮNG NGHE!}\\[1.5mm]
-    \normalsize\textit{Kính mời Thầy Cô đặt câu hỏi cho các thành viên trong nhóm.}
-  \end{center}
+% ===========================================================================
+% BACKUP 2 --- 20-query set
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: The 20-Query Evaluation Set (Level 2)}
+  \begin{columns}[t]
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Construction (fixed before inspecting results)}\footnotesize
+        Per dataset: 10 direct + 10 indirect (5 head, 5 tail) from test; exclude queries whose target entity is absent from train; one query per target entity; fixed seed.
+      \end{block}
+      \vspace{0.15cm}
+      \begin{block}{Usage}\footnotesize
+        Evaluation and explanation illustration only --- \textbf{never} used to tune the model (assignment \S 6).
+      \end{block}
+      \vspace{0.15cm}
+      {\footnotesize Example indirect query: ``an image of the entity that is related to Angelina Jolie by spouse''.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Results (Table XII)}\footnotesize
+        \centering
+        \begin{tabular}{@{}lcc@{}}
+          \toprule
+          Group ($n$) & CLIP & CLIP+AdaMF\\
+          \midrule
+          DB15K direct (10) & 0.306 & 0.306\\
+          DB15K indirect (10) & 0.003 & \textbf{0.296}\\
+          DB15K all (20) & 0.154 & 0.301\\
+          \midrule
+          FB15K direct (10) & 0.410 & 0.878\\
+          FB15K indirect (10) & 0.012 & 0.025\\
+          FB15K all (20) & 0.211 & 0.451\\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+      \vspace{0.1cm}
+      {\footnotesize\color{Slate} 10 indirect queries are too few for significance tests --- full-test Table X is the primary evidence.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% BACKUP 3 --- Case Study 1: Visual Genome
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: Case Study 1 --- Visual Genome (Report Fig. 3)}
+  \begin{columns}[c]
+    \begin{column}{0.65\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/examples/case_vg_success_peacesign.png}\\[0.05cm]
+      {\scriptsize\color{Slate} Orange = image node; blue = object nodes; edge labels = relation + ($\Delta \times 10^{-2}$).}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{block}{\scriptsize Query \& Ranking Progression}\scriptsize
+        \textbf{Query}: ``Guy holding up peace sign''\\
+        \textbf{CLIP rank}: 15\\
+        \textbf{CLIP + GAT rank}: 1\\
+        \textbf{Ablation (remove $S$)}: drops to 4\\
+        \textbf{No-edge}: 4 \quad \textbf{Random-edges}: 2
+      \end{block}
+      \vspace{0.1cm}
+      \begin{alertblock}{\scriptsize Attribution Breakdown}\scriptsize
+        \textbf{Object presence}: \texttt{contains} to \textit{peace sign} ($\times 5$): $\Delta = 5.5 \times 10^{-2}$ each.\\
+        \textbf{Relation binding}: \textit{holding up peace sign}: $\Delta = 0.2 \times 10^{-2}$ ($27\times$ smaller).\\
+        $\rightarrow$ Reranking gains come from matching detected objects rather than relation edges.
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% BACKUP 4 --- Case Study 2: DB15K Indirect Query
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: Case Study 2 --- DB15K Indirect Query (Report Fig. 5)}
+  \begin{columns}[c]
+    \begin{column}{0.65\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/examples/case_db15k_success_hitchens.png}\\[0.05cm]
+      {\scriptsize\color{Slate} Cyan = anchor (Dawkins); orange = target (Hitchens); solid = explanation; dashed = query.}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{block}{\scriptsize Query \& Ranking Progression}\scriptsize
+        \textbf{Query}: Entity influenced by Dawkins\\
+        \textbf{Target}: Christopher Hitchens\\
+        \textbf{CLIP rank}: 55\\
+        \textbf{CLIP + AdaMF rank}: 1 ($K^\star = 2$)
+      \end{block}
+      \vspace{0.1cm}
+      \begin{block}{\scriptsize Modality Ablation ($\Delta$)}\scriptsize
+        \textbf{Structure masked}: $-74.8$\\
+        \textbf{Text masked}: $+0.20$\\
+        \textbf{Visual masked}: $-0.15$\\
+        $\rightarrow$ Retrieval relies almost entirely on KG structure.
+      \end{block}
+      \vspace{0.1cm}
+      \begin{exampleblock}{\scriptsize Primary Triples}\scriptsize
+        (Hitchens, \textit{influenced}, Dawkins): $\Delta = 0.198$, directly bridging anchor to target.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% BACKUP 5 --- Case Study 3: ViHeritage Vietnamese MMKG
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: Case Study 3 --- ViHeritage Vietnamese MMKG (Report Fig. 8)}
+  \begin{columns}[c]
+    \begin{column}{0.65\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{assets/examples/case_viheritage_gat_hue.png}\\[0.05cm]
+      {\scriptsize\color{Slate} Cyan = Huế; orange = Chùa Thiên Mụ; thick = top explanation triples ($K^\star=8$); dashed = asked relation.}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{block}{\scriptsize Query \& Ranking Progression}\scriptsize
+        \textbf{Query}: ``Thành phố Huế có những di tích nào?''\\
+        \textbf{Target}: Chùa Thiên Mụ (Huế)\\
+        \textbf{CLIP rank}: 3\\
+        \textbf{CLIP + GAT rank}: 1\\
+        \textbf{CLIP + AdaMF rank}: 1
+      \end{block}
+      \vspace{0.1cm}
+      \begin{block}{\scriptsize 2-Step Relational Path}\scriptsize
+        Chùa Thiên Mụ $\xrightarrow{\text{thuộc quần thể}}$ Quần thể Cố đô Huế $\xrightarrow{\text{nằm ở tỉnh}}$ Huế.
+      \end{block}
+      \vspace{0.1cm}
+      \begin{exampleblock}{\scriptsize Fidelity Verification}\scriptsize
+        Fid+ $= 0.49$ vs.\ $0.01$ random ($K^\star{=}8$). Confirms transfer to Vietnamese heritage graph.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% BACKUP 6 --- failure cases
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: Failure-Case Analysis (5 Success + 5 Failure per Level)}
+  \begin{columns}[t]
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Level 1 --- Visual Genome (Table IX)}\footnotesize
+        \textbf{Success (5/5)}: top contributor is always a \texttt{contains} edge to the queried object; removing $S$ drops the image to rank 2--4.\\[0.15cm]
+        \textbf{Failure (5)}: 3 cases where the graph \emph{hurts} (wrong rank-1 image also contains matching objects --- model rewards presence, not attributes/relations, e.g.\ ``black'', ``on the road''); 2 not rescued (rank 2--5). In 3/5, No-edge still ranks the truth at 1 --- the error appears when message passing is added.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Level 2 --- DB15K / FB15K}\footnotesize
+        \textbf{DB15K success}: truth moves from CLIP rank 55--624 to rank 1; one-step paths from the anchor (e.g.\ \texttt{influenced} $\Delta{=}0.198$).\\[0.15cm]
+        \textbf{DB15K failure modes}: (i) two candidates share a near-synonym relation to the anchor; (ii) noisy triples as evidence; (iii) model returns the \emph{anchor} itself.\\[0.15cm]
+        \textbf{FB15K failure}: decisive entity is a hub with thousands of triples; each triple contributes ${\sim}10^{-4}$; masking text sometimes hurts more than structure.
+      \end{block}
+      \vspace{0.1cm}
+      {\footnotesize\color{Slate} Level 3 (ViHeritage): anchor returned for ``near X'' queries (6/10); correct-but-irrelevant triples; Wikidata path errors.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% BACKUP 7 --- hyperparameters
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: Training Configuration (Report Table XV)}
+  \centering\footnotesize
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}l l l l l@{}}
+    \toprule
+    \textbf{Parameter} & \textbf{VG (GAT)} & \textbf{DB15K (AdaMF)} & \textbf{FB15K-237-IMG} & \textbf{ViHeritage} \\
+    \midrule
+    Frozen encoder & CLIP ViT-B/32 (OpenAI) & CLIP ViT-B/32 & CLIP ViT-B/32 & CLIP ViT-B/32; multilingual text \\
+    Graph encoder & 2-layer edge-aware GAT, 4$\times$32, dropout 0.2 & AdaMF (struct/text/img), MAT off & AdaMF, MAT off & AdaMF / 2-layer GAT \\
+    Graph scorer & cosine w.\ image node & RotatE, dim 250, margin 12 & RotatE, dim 64 & RotatE dim 50/100, margin 6 \\
+    Loss & CE, 50 hard negatives & self-adversarial sigmoid, 128 neg & CE, 50 hard negatives & sigmoid, 32 negatives \\
+    LR / batch & $10^{-4}$ AdamW / 8 queries & $10^{-4}$ / 256 triples & $10^{-4}$ / 8 queries & $5{\times}10^{-4}$ / $2{\times}10^{-3}$, 64 triples \\
+    Max epochs & 100 & 500 & 50 & 1{,}500 (patience 12) \\
+    Rerank pool & top-50 CLIP & top-1{,}000 CLIP & top-1{,}000 CLIP & all 88 test images \\
+    $\alpha_{\rm CLIP}$ & 0.6 & 0.0 / 0.1 & 0.1 & 0.0 / 0.1 \\
+    \bottomrule
+  \end{tabular}}
+  \vspace{0.3cm}
+
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      {\footnotesize\color{Slate} All selections (checkpoint, $\alpha$, grid winners) made on validation; test run once per locked configuration.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      {\footnotesize\color{Slate} Re-run order (report Appendix B): Level 1 \texttt{run\_gat.py} + ablations + notebook 11; Level 2 AdaMF notebooks 07/07b/07c/10a; Level 3 notebooks 08a--10d.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% BACKUP 8 --- contributions
+% ===========================================================================
+\begin{frame}[noframenumbering]{Backup: Team Contributions (Report Table XVI)}
+  \centering\footnotesize
+  \begin{tabularx}{\textwidth}{@{}C{0.8cm}L{4.6cm}Y@{}}
+    \toprule
+    \textbf{\#} & \textbf{Member} & \textbf{Primary responsibility} \\
+    \midrule
+    1 & Chung Gia Khánh (23120282) & Overall architecture design, technical audit, controlled-ablation testing, report editing \\
+    2 & Lê Hoàng Mỹ Hạ (23120038) & Data preprocessing, leakage control, CLIP feature extraction \\
+    3 & Hàn Vũ Phương Uyên (23120106) & Scene-graph construction, GAT implementation, Level-1 analysis \\
+    4 & Trần Gia Hiển (23120123) & AdaMF on DB15K \& FB15K-237-IMG, Level-2 controls \\
+    5 & Nguyễn An Nghiệp (23127234) & Graph explanation, XAI evaluation, self-built MMKG data \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.4cm}
+
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Deliverables checklist}\footnotesize
+        Code + environment + re-run guide $\cdot$ fixed splits / split seeds $\cdot$ 12--18-page report + slides + this contribution table $\cdot$ query$\rightarrow$top-$k$ notebook with explanation display $\cdot$ 5 success + 5 failure analyses $\cdot$ 20-query set $\cdot$ ViHeritage data card $\cdot$ live demo + $\le$5-min backup video.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Declared tools (assignment \S 9)}\footnotesize
+        Open-source: AdaMF-MAT code (adapted), PyTorch Geometric, OpenCLIP, sentence-transformers. AI assistance declared in report Appendix C (notebook drafting, Vietnamese query phrasing, link-check assistance, domain-validity pass, report editing) --- members verify and defend all content.
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \end{document}

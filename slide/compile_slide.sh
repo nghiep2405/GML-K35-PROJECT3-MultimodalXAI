@@ -40,7 +40,10 @@ run_pdflatex
 echo "=== Đang biên dịch Slide Beamer (Lần 2) ==="
 run_pdflatex
 
-# Sao chép bản build mới nhất ra file main_slide.pdf để tiện xem trước
+# Sao chép bản build mới nhất ra file main_slide.pdf và output/final_presentation.pdf
 cp "${BUILD_DIR}/main_slide.pdf" "${SCRIPT_DIR}/main_slide.pdf" 2>/dev/null || true
+mkdir -p "${SCRIPT_DIR}/output"
+cp "${BUILD_DIR}/main_slide.pdf" "${SCRIPT_DIR}/output/final_presentation.pdf" 2>/dev/null || true
 
 echo "Biên dịch slide hoàn tất: ${BUILD_DIR}/main_slide.pdf"
+echo "Bản xuất chính thức: ${SCRIPT_DIR}/output/final_presentation.pdf"

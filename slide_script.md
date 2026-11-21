@@ -31,7 +31,7 @@ Phần trình bày đi từ scene graph trong từng ảnh, sang đồ thị tri
 
 ## Slide 2 — Vì sao cần xem xét thông tin quan hệ?
 
-**Tiêu đề trên slide:** CLIP Retrieval Can Struggle with Relational Queries.
+**Tiêu đề trên slide:** CLIP So khớp Vector, Không Nắm bắt Quan hệ (CLIP Retrieval Can Struggle with Relational Queries).
 
 ### Lời thuyết trình
 
@@ -57,7 +57,7 @@ Vì vậy, nhóm khảo sát thông tin quan hệ từ đồ thị. Cần lưu �
 
 ## Slide 3 — Ba cấp độ của đồ án
 
-**Tiêu đề trên slide:** Three Levels: Retrieval → Knowledge → Explanation.
+**Tiêu đề trên slide:** Three Levels: Expanding from Local to Global Knowledge and XAI (Ba Cấp độ: Mở rộng Từ Cục bộ sang Toàn cục và Giải thích).
 
 ### Lời thuyết trình
 
@@ -83,7 +83,7 @@ Cấp độ 3 kiểm tra giải thích bằng các phép can thiệp và đưa p
 
 ## Slide 4 — Pipeline truy hồi chung
 
-**Tiêu đề trên slide:** One Shared Protocol, Three Graph Settings.
+**Tiêu đề trên slide:** Một Quy trình Chung, Ba Thiết lập Đồ thị (One Shared Protocol, Three Graph Settings).
 
 ### Lời thuyết trình
 
@@ -109,7 +109,7 @@ Mọi lựa chọn checkpoint, alpha và cấu hình được thực hiện trê
 
 ## Slide 5 — Scene graph và GAT trên Visual Genome
 
-**Tiêu đề trên slide:** Scene Graph + GAT Rerank CLIP’s Top-50.
+**Tiêu đề trên slide:** Scene Graph + GAT Xếp hạng lại Top-50 của CLIP (Scene Graph + GAT Rerank CLIP’s Top-50).
 
 ### Lời thuyết trình
 
@@ -135,7 +135,7 @@ Nhóm huấn luyện bằng AdamW trong 100 epoch, batch tám truy vấn và 50 
 
 ## Slide 6 — Kết quả truy hồi Visual Genome
 
-**Tiêu đề trên slide:** Graph Reranking Improves Retrieval on Visual Genome.
+**Tiêu đề trên slide:** Rerank Đồ thị Cải thiện Truy hồi trên Visual Genome (Graph Reranking Improves Retrieval on Visual Genome).
 
 ### Lời thuyết trình
 
@@ -161,7 +161,7 @@ Kết quả này cũng chưa trả lời toàn bộ cải thiện đến từ đ
 
 ## Slide 7 — Ablation Visual Genome
 
-**Tiêu đề trên slide:** Most of the Gain Survives Without Real Edges.
+**Tiêu đề trên slide:** Phần lớn Mức tăng Vẫn Duy trì Dù Thiếu Cạnh Thật (Most of the Gain Survives Without Real Edges).
 
 ### Lời thuyết trình
 
@@ -187,7 +187,7 @@ Case “peace sign” đưa ảnh đúng từ hạng 15 lên hạng 1, nhưng sa
 
 ## Slide 8 — AdaMF và đồ thị tri thức đa phương thức
 
-**Tiêu đề trên slide:** MMKG Adds Relations Beyond the Image.
+**Tiêu đề trên slide:** MMKG Bổ sung Quan hệ Vượt ra Ngoài Ảnh Cục bộ (MMKG Adds Relations Beyond the Image).
 
 ### Lời thuyết trình
 
@@ -213,7 +213,7 @@ DB15K có 12.842 thực thể và 25.925 ảnh; FB15K-237-IMG có 14.541 thực 
 
 ## Slide 9 — Kết quả trực tiếp và gián tiếp
 
-**Tiêu đề trên slide:** Indirect Queries Drive the Gains on Both MMKGs.
+**Tiêu đề trên slide:** Truy vấn Gián tiếp Dẫn dắt Mức tăng trên Cả Hai MMKG (Indirect Queries Drive the Gains on Both MMKGs).
 
 ### Lời thuyết trình
 
@@ -239,7 +239,7 @@ Với DB15K, truy vấn trực tiếp không thay đổi vì pipeline chủ đ�
 
 ## Slide 10 — Vai trò cạnh thật trên hai benchmark KG
 
-**Tiêu đề trên slide:** Edge Corruption Hurts More on DB15K than FB15K.
+**Tiêu đề trên slide:** Cạnh Thật Có Ý Nghĩa trên DB15K, Không Thấy trên FB15K (Edge Corruption Hurts More on DB15K than FB15K).
 
 ### Lời thuyết trình
 
@@ -265,7 +265,7 @@ Kết luận của nhóm là đối chứng hỗ trợ đóng góp của quan h�
 
 ## Slide 11 — Sinh giải thích bằng can thiệp
 
-**Tiêu đề trên slide:** Explanations Come From the Ranking Function.
+**Tiêu đề trên slide:** Interventional XAI: Measuring Causality Rather Than Post-Hoc Rationales (Giải thích bằng Can thiệp: Đo lường Nhân quả thay vì Hậu nghiệm).
 
 ### Lời thuyết trình
 
@@ -292,7 +292,7 @@ Nhóm đo Fid+ khi bỏ giải thích, Fid− khi chỉ giữ giải thích, PN/
 
 ## Slide 12 — Kết quả XAI và giới hạn
 
-**Tiêu đề trên slide:** Fidelity Separates Explanations From Random Removal.
+**Tiêu đề trên slide:** Độ Trung thực Tách biệt Giải thích khỏi Xóa Ngẫu nhiên (Fidelity Separates Explanations From Random Removal).
 
 ### Lời thuyết trình
 
@@ -319,7 +319,7 @@ Trên ViHeritage, kiểm chứng AdaMF bằng huấn luyện lại cho Fid+ 0,32
 
 ## Slide 13 — Dữ liệu và kết quả ViHeritage-MMKG
 
-**Tiêu đề trên slide:** ViHeritage-MMKG: A Vietnamese Heritage Graph.
+**Tiêu đề trên slide:** ViHeritage-MMKG: Đồ thị Di sản Văn hóa Việt Nam (ViHeritage-MMKG: A Vietnamese Heritage Graph).
 
 ### Lời thuyết trình
 
@@ -346,7 +346,7 @@ Khi che văn bản thực thể, AdaMF đạt 0,230; nhóm chưa quan sát thấ
 
 ## Slide 14 — Tổng hợp điều bằng chứng hỗ trợ
 
-**Tiêu đề trên slide:** What the Evidence Supports — and What It Does Not.
+**Tiêu đề trên slide:** Những Gì Thực nghiệm Hỗ trợ — và Chưa Thể Khẳng định (What the Evidence Supports — and What It Does Not).
 
 ### Lời thuyết trình
 
@@ -372,7 +372,7 @@ Thông điệp chung là phải kiểm tra đúng nơi đồ thị có đóng g�
 
 ## Slide 15 — Kết luận và chuyển sang demo
 
-**Tiêu đề trên slide:** Conclusions & Live Demo.
+**Tiêu đề trên slide:** Kết luận & Kế hoạch Live Demo (Conclusions & Live Demo).
 
 ### Lời thuyết trình
 

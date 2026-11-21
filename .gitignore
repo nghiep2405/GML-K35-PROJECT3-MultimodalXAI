@@ -25,6 +25,7 @@ venv/
 
 /slide/slide_compiled/
 /slide/main_slide.pdf
+/slide/main_slide_vi.pdf
 /slide/*.aux
 /slide/*.fdb_latexmk
 /slide/*.fls

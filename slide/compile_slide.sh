@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_TIMESTAMP="$(date '+%Y-%m-%d_%H-%M-%S')"
 BUILD_SUBDIR="slide_compiled/${BUILD_TIMESTAMP}"
 BUILD_DIR="${SCRIPT_DIR}/${BUILD_SUBDIR}"
-MAIN_TEX="main_slide.tex"
+TARGET="${1:-all}"
 
 build_suffix=1
 while [[ -e "${BUILD_DIR}" ]]; do
@@ -25,25 +25,42 @@ done
 mkdir -p "${BUILD_DIR}"
 cd "${SCRIPT_DIR}"
 
-run_pdflatex() {
+compile_file() {
+  local tex_file="$1"
+  local job_name
+  job_name="$(basename "${tex_file}" .tex)"
+
+  echo "=== Đang biên dịch ${tex_file} (Lần 1) ==="
   pdflatex \
     -interaction=nonstopmode \
     -halt-on-error \
     -file-line-error \
-    -jobname="${BUILD_SUBDIR}/main_slide" \
-    "${MAIN_TEX}"
+    -jobname="${BUILD_SUBDIR}/${job_name}" \
+    "${tex_file}"
+
+  echo "=== Đang biên dịch ${tex_file} (Lần 2) ==="
+  pdflatex \
+    -interaction=nonstopmode \
+    -halt-on-error \
+    -file-line-error \
+    -jobname="${BUILD_SUBDIR}/${job_name}" \
+    "${tex_file}"
+
+  # Sao chép bản build mới nhất ra thư mục gốc slide và output/
+  mkdir -p "${SCRIPT_DIR}/output"
+  cp "${BUILD_DIR}/${job_name}.pdf" "${SCRIPT_DIR}/${job_name}.pdf" 2>/dev/null || true
+  if [[ "${job_name}" == "main_slide" ]]; then
+    cp "${BUILD_DIR}/${job_name}.pdf" "${SCRIPT_DIR}/output/final_presentation.pdf" 2>/dev/null || true
+  elif [[ "${job_name}" == "main_slide_vi" ]]; then
+    cp "${BUILD_DIR}/${job_name}.pdf" "${SCRIPT_DIR}/output/final_presentation_vi.pdf" 2>/dev/null || true
+  fi
+
+  echo "Biên dịch hoàn tất: ${BUILD_DIR}/${job_name}.pdf -> ${SCRIPT_DIR}/${job_name}.pdf"
 }
 
-echo "=== Đang biên dịch Slide Beamer (Lần 1) ==="
-run_pdflatex
-
-echo "=== Đang biên dịch Slide Beamer (Lần 2) ==="
-run_pdflatex
-
-# Sao chép bản build mới nhất ra file main_slide.pdf và output/final_presentation.pdf
-cp "${BUILD_DIR}/main_slide.pdf" "${SCRIPT_DIR}/main_slide.pdf" 2>/dev/null || true
-mkdir -p "${SCRIPT_DIR}/output"
-cp "${BUILD_DIR}/main_slide.pdf" "${SCRIPT_DIR}/output/final_presentation.pdf" 2>/dev/null || true
-
-echo "Biên dịch slide hoàn tất: ${BUILD_DIR}/main_slide.pdf"
-echo "Bản xuất chính thức: ${SCRIPT_DIR}/output/final_presentation.pdf"
+if [[ "${TARGET}" == "all" ]]; then
+  compile_file "main_slide.tex"
+  compile_file "main_slide_vi.tex"
+else
+  compile_file "${TARGET}"
+fi

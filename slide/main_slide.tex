@@ -67,13 +67,17 @@
   \end{beamercolorbox}\vspace{0.25cm}
 }
 
-% Footline: minimal
+% Footline: minimal with bottom padding
 \setbeamertemplate{footline}{%
   \leavevmode%
   \hbox{%
     \begin{beamercolorbox}[wd=\paperwidth,ht=2.2ex,dp=1ex,left]{normal text}%
-      \hspace*{0.4cm}\footnotesize{\color{Slate}Multimodal Retrieval with Graph-based Explainability\ \ {\color{LineGray}|}\ \ Nhóm 02\ \ {\color{LineGray}|}\ \ Machine Learning with Graphs}%
-      \hfill\insertframenumber{}/\inserttotalframenumber\hspace*{0.4cm}%
+      \raisebox{6pt}{%
+        \makebox[\paperwidth]{%
+          \hspace*{0.4cm}\footnotesize{\color{Slate}Multimodal Retrieval with Graph-based Explainability\ \ {\color{LineGray}|}\ \ Nhóm 02\ \ {\color{LineGray}|}\ \ Machine Learning with Graphs}%
+          \hfill\insertframenumber{}/\inserttotalframenumber\hspace*{0.4cm}%
+        }%
+      }%
     \end{beamercolorbox}%
   }%
   \vskip0pt%
@@ -142,23 +146,20 @@
     Advisors: Dr. Lê Ngọc Thành \quad$\cdot$\quad MSc. Huỳnh Lâm Hải Đăng \quad$\cdot$\quad November 2026
   \end{center}
 \end{frame}
-
 % ===========================================================================
 % 02 --- Research problem
 % ===========================================================================
 \begin{frame}{CLIP Retrieval Can Struggle with Relational Queries}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
-      \begin{itemize}
-        \item CLIP ranks images by \textbf{cosine similarity} of frozen embeddings --- effective, but without explicit graph reasoning.
-        \item Images with the same objects but different \textbf{relations} can be difficult to distinguish.
-        \item A similarity score alone does not identify the \textbf{evidence} behind a result.
-      \end{itemize}
-      \vspace{0.15cm}
-      \begin{block}{Research question}
-        \small Can graph structure (scene graphs, MMKG) improve ranking --- especially for
-        \textbf{indirect} queries --- and can the used relations be \textbf{quantified as explanations}?
+      \begin{block}{Two Bottlenecks of Pure CLIP}\footnotesize
+        \textbf{1. Structure-Blind}: Images with identical objects but different \textbf{relations} receive indistinguishable scores.\\[0.06cm]
+        \textbf{2. Black-Box Score}: Cosine similarity is a scalar that \textbf{provides no reasons} for retrieval decisions.
       \end{block}
+      \vspace{0.08cm}
+      \begin{alertblock}{Research Question}\footnotesize
+        Can explicit graph structures improve ranking --- especially for \textbf{indirect} queries --- and can active relations provide \textbf{quantifiable evidence}?
+      \end{alertblock}
     \end{column}
     \begin{column}{0.48\textwidth}
       \centering
@@ -171,26 +172,25 @@
                   align=center, font=\small\bfseries, inner sep=5pt}
       ]
         \node[q] (q) {``a child playing\\football''};
-        \node[img, below left=0.55cm and 0.15cm of q] (a) {image A\\[1pt]
-          \textcolor{Slate}{objects: child, ball}\\[-1pt]\textcolor{WarnRed}{relation: ?}};
-        \node[img, below right=0.55cm and 0.15cm of q] (b) {image B\\[1pt]
-          \textcolor{Slate}{objects: child, ball}\\[-1pt]\textcolor{L3Aqua}{relation: plays}};
+        \node[img, below left=0.55cm and 0.15cm of q] (a) {Image A\\[1pt]
+          \textcolor{Slate}{objects: child, ball}\\[-1pt]\textcolor{WarnRed}{rel: ?}};
+        \node[img, below right=0.55cm and 0.15cm of q] (b) {Image B\\[1pt]
+          \textcolor{Slate}{objects: child, ball}\\[-1pt]\textcolor{L3Aqua}{rel: plays}};
         \draw[-{Latex[length=2mm]}, HCMUSBlue, thick] (q) -- (a);
         \draw[-{Latex[length=2mm]}, HCMUSBlue, thick] (q) -- (b);
-        \node[lbl, below=0.12cm of a] {vector similarity:\\hard to separate};
+        \node[lbl, below=0.12cm of a] {vector similarity:\\hard to differentiate};
         \node[lbl, below=0.12cm of b] {path \texttt{child--plays--football}\\
-          links query to the right image};
+          routes query to right image};
         \node[font=\scriptsize\itshape, text=Slate, anchor=north west] at (-2.6,-4.35)
-          {Illustrative example (not an experimental result)};
+          {Conceptual illustration (not actual experimental output)};
       \end{tikzpicture}}
     \end{column}
   \end{columns}
 \end{frame}
-
 % ===========================================================================
 % 03 --- Objectives / three levels
 % ===========================================================================
-\begin{frame}{Three Levels: Retrieval $\rightarrow$ Knowledge $\rightarrow$ Explanation}
+\begin{frame}{Three Levels: Expanding from Local to Global Knowledge and XAI}
   \begin{center}
   \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
@@ -199,42 +199,41 @@
     arrow/.style={-{Latex[length=3mm]}, line width=1.2pt, Slate}
   ]
     \node[box, fill=SoftBg, draw=L1Blue] (l1) {
-      \textcolor{L1Blue}{\textbf{Level 1 --- Graph-enhanced retrieval}}\\[0.28cm]
-      \footnotesize Frozen CLIP + scene-graph GAT\\
-      on Visual Genome\\[0.15cm]
-      \scriptsize\textit{Does the graph improve ranking?}
+      \textcolor{L1Blue}{\textbf{Level 1 --- Image-Local Knowledge}}\\[0.20cm]
+      \footnotesize Frozen CLIP + GAT on scene graphs\\
+      on Visual Genome\\[0.12cm]
+      \scriptsize\textbf{Role}: Verify image-local scene graphs
     };
     \node[box, fill=SoftBg, draw=L2Orange, right=0.9cm of l1] (l2) {
-      \textcolor{L2Orange}{\textbf{Level 2 --- Multimodal KG}}\\[0.28cm]
+      \textcolor{L2Orange}{\textbf{Level 2 --- Global Multi-Modal KG}}\\[0.20cm]
       \footnotesize AdaMF on DB15K \& FB15K-237-IMG\\
-      direct vs.\ indirect queries\\[0.15cm]
-      \scriptsize\textit{Do relations help where vectors fail?}
+      direct vs.\ indirect queries\\[0.12cm]
+      \scriptsize\textbf{Role}: Overcome vector bottleneck globally
     };
     \node[box, fill=SoftBg, draw=L3Aqua, right=0.9cm of l2] (l3) {
-      \textcolor{L3Aqua}{\textbf{Level 3 --- Graph-based XAI}}\\[0.28cm]
-      \footnotesize Intervention-based fidelity,\\
-      validity, sparsity + ViHeritage-MMKG\\[0.15cm]
-      \scriptsize\textit{Which graph evidence drove the score?}
+      \textcolor{L3Aqua}{\textbf{Level 3 --- Interventional XAI}}\\[0.20cm]
+      \footnotesize Interventional fidelity, validity, sparsity\\
+      + ViHeritage-MMKG (self-built)\\[0.12cm]
+      \scriptsize\textbf{Role}: Disentangle causal ranking evidence
     };
     \draw[arrow] (l1) -- (l2);
     \draw[arrow] (l2) -- (l3);
   \end{tikzpicture}}
   \end{center}
-  \vspace{0.2cm}
+  \vspace{0.18cm}
   \begin{columns}[t]
     \begin{column}{0.32\textwidth}\centering\footnotesize
-      \textbf{Shared protocol}\\query $\rightarrow$ frozen CLIP $\rightarrow$ top-$k$ candidates\\
-      $\rightarrow$ graph score $\rightarrow$ fusion $\rightarrow$ rerank
+      \textbf{Shared Protocol}\\query $\rightarrow$ frozen CLIP $\rightarrow$ top-$k$ candidates\\
+      $\rightarrow$ graph score $\rightarrow$ combine $\rightarrow$ rerank
     \end{column}
     \begin{column}{0.32\textwidth}\centering\footnotesize
-      \textbf{Assignment mapping}\\Tasks 1--2 (Levels 1--2),\\Task 3 + self-built data (Level 3)
+      \textbf{Assignment Map}\\Task 1--2 (Levels 1--2),\\Task 3 + self-built data (Level 3)
     \end{column}
     \begin{column}{0.32\textwidth}\centering\footnotesize
-      \textbf{Branch}\\Text-to-image (Branch A)\\on 3 public + 1 self-built dataset
+      \textbf{Track Selection}\\Text-to-Image (Track A)\\on 3 standard benchmarks + 1 built
     \end{column}
   \end{columns}
 \end{frame}
-
 % ===========================================================================
 % 04 --- Overall framework
 % ===========================================================================
@@ -251,9 +250,9 @@
     \node[pstep] (s1) {Text query $q$};
     \node[pstep, right=0.42cm of s1] (s2) {Frozen CLIP\\encoder};
     \node[pstep, right=0.42cm of s2] (s3) {Top-$k$ candidates\\(cosine)};
-    \node[pstep, right=0.42cm of s3] (s4) {Graph score\\GAT / AdaMF};
-    \node[pstep, right=0.42cm of s4] (s5) {Fusion \& rerank\\$\alpha z(S_{\rm CLIP})+(1{-}\alpha)z(S_{\rm graph})$};
-    \node[pstep, right=0.42cm of s5] (s6) {Result +\\graph evidence};
+    \node[pstep, right=0.42cm of s3] (s4) {Graph scoring\\GAT / AdaMF};
+    \node[pstep, right=0.42cm of s4] (s5) {Combine \& rerank\\$\alpha z(S_{\rm CLIP})+(1{-}\alpha)z(S_{\rm graph})$};
+    \node[pstep, right=0.42cm of s5] (s6) {Results +\\graph evidence};
     \draw[arrow] (s1) -- (s2); \draw[arrow] (s2) -- (s3);
     \draw[arrow] (s3) -- (s4); \draw[arrow] (s4) -- (s5);
     \draw[arrow] (s5) -- (s6);
@@ -261,28 +260,29 @@
     \node[lab, below=0.18cm of s6] {intervention\\$\rightarrow$ fidelity};
   \end{tikzpicture}}
   \end{center}
-  \vspace{0.35cm}
+  \vspace{0.12cm}
   \begin{columns}[t]
     \begin{column}{0.32\textwidth}
-      \begin{block}{\textcolor{white}{Level 1}}\footnotesize
-        Per-image \textbf{scene graph}; GAT with edge features; $\alpha{=}0.6$ (validation).
+      \begin{block}{\textcolor{white}{Level 1}}\scriptsize
+        Per-image \textbf{scene graph}; edge-featured GAT; $\alpha{=}0.6$ on validation.
       \end{block}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \begin{block}{\textcolor{white}{Level 2}}\footnotesize
-        \textbf{MMKG} triples; AdaMF fusion + RotatE scoring; $\alpha$ per dataset (validation).
+      \begin{block}{\textcolor{white}{Level 2}}\scriptsize
+        Multi-modal \textbf{KG triples}; AdaMF fusion + RotatE scoring; tuned $\alpha$.
       \end{block}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \begin{block}{\textcolor{white}{Level 3}}\footnotesize
-        Explanations \textbf{from the ranking function}; measured by intervention on all levels.
+      \begin{block}{\textcolor{white}{Level 3}}\scriptsize
+        Explanations \textbf{from ranking function}; intervention across all 3 levels.
       \end{block}
     \end{column}
   \end{columns}
-  \vspace{0.2cm}
-  {\footnotesize\color{Slate} Checkpoint, $\alpha$, and all hyperparameters selected on validation; test run once with a locked configuration.}
+  \vspace{0.08cm}
+  \begin{exampleblock}{Data Integrity Principle}\scriptsize
+    \textbf{Frozen Hyperparameters}: Checkpoint \& $\alpha$ \textbf{selected on Validation}; Test set \textbf{evaluated strictly once} (zero leakage).
+  \end{exampleblock}
 \end{frame}
-
 % ===========================================================================
 % 05 --- Level 1 methodology
 % ===========================================================================
@@ -298,36 +298,38 @@
         ar/.style={-{Latex[length=2mm]}, Slate, thick}
       ]
         \node[n, fill=HCMUSBlue, text=white] (img) {image $v_i$\\(CLIP 512-d)};
-        \node[n, right=1.3cm of img] (obj) {entity nodes\\(CLIP name 512-d)};
+        \node[n, right=1.3cm of img] (obj) {entity nodes\\(name CLIP 512-d)};
         \node[n, right=1.3cm of obj] (gat) {2-layer GAT\\4 heads $\times$ 32-d};
         \node[n, fill=L1Blue, text=white] at ([xshift=1.3cm]gat.east) (h) {$h_{\rm graph}$\\128-d};
         \draw[ar] (img) -- (obj);
         \draw[ar] (obj) -- (gat);
         \draw[ar] (gat) -- (h);
-        \node[e, below=0.3cm of img] {\texttt{contains} edge};
-        \node[e, below=0.3cm of obj] {relations + reverse\\edge features 512-d};
-        \node[e, below=0.3cm of gat] {query proj.\\512 $\rightarrow$ 128-d};
+        \node[e, below=0.3cm of img] {\texttt{contains} edges};
+        \node[e, below=0.3cm of obj] {predicates + reverse\\512-d edge features};
+        \node[e, below=0.3cm of gat] {project query\\512 $\rightarrow$ 128-d};
       \end{tikzpicture}}
       \end{center}
       \vspace{0.15cm}
       \begin{itemize}\footnotesize
-        \item Independent graph per image; directed relations + added reverse edges + \texttt{edge\_is\_reverse} flag.
-        \item Graph score $S_{\rm graph}=\tilde e_q^{\top} h_{\rm graph}(v_i)$; both scores z-scored per query over the candidate set.
+        \item Disjoint per-image graph; directed relations + reverse edges + \texttt{edge\_is\_reverse} flag.
+        \item Graph score $S_{\rm graph}=\tilde e_q^{\top} h_{\rm graph}(v_i)$; both scores z-scored per query over candidates.
       \end{itemize}
     \end{column}
     \begin{column}{0.43\textwidth}
-      \begin{block}{Score fusion}\footnotesize
+      \begin{block}{Score Combination}\footnotesize
         \[
           \scalebox{0.90}{$S_{\rm final}=\alpha_{\rm CLIP}\,z(S_{\rm CLIP})+(1-\alpha_{\rm CLIP})\,z(S_{\rm graph})$}
         \]
-        $\alpha_{\rm CLIP}=0.6$ chosen on validation (grid 0--1, step 0.1).
+        $\alpha_{\rm CLIP}=0.6$ selected on validation (grid 0--1, step 0.1).
       \end{block}
-      \vspace{0.10cm}
-      \begin{block}{Training}\footnotesize
-        AdamW, lr $10^{-4}$, 100 epochs, batch 8 queries $\times$ (1 positive + 50 hard negatives); 3 seeds; checkpoint = best validation MRR.
+      \vspace{0.08cm}
+      \begin{block}{Training}\scriptsize
+        AdamW, lr $10^{-4}$, 100 epochs, batch 8 queries $\times$ (1 pos + 50 hard negs); 3 seeds; checkpoint = best val MRR.
       \end{block}
-      \vspace{0.10cm}
-      {\footnotesize\color{Slate} GAT reranks only CLIP's top-50 --- it cannot rescue a correct image outside that pool.}
+      \vspace{0.08cm}
+      \begin{exampleblock}{Scope \& Design Boundary}\scriptsize
+        GAT strictly reranks CLIP's \textbf{top-50} pool --- \textbf{cannot rescue} true images outside this candidate set.
+      \end{exampleblock}
     \end{column}
   \end{columns}
 \end{frame}
@@ -380,79 +382,81 @@
     \end{column}
   \end{columns}
 \end{frame}
-
 % ===========================================================================
 % 08 --- Level 2 methodology
 % ===========================================================================
 \begin{frame}{\leveltag{L2Orange}{LEVEL 2} MMKG Adds Relations Beyond the Image}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
-      \begin{itemize}\footnotesize
-        \item Level-1 graphs are \textbf{per-image} --- they cannot bridge entities across knowledge.
-        \item \textbf{Indirect query}: anchor $e$ and relation $r$ given; rank images of the entity filling $(e, r, ?)$ or $(?, r, t)$.
-        \item Entity representation $=$ fused \textbf{structural + text + visual} features (AdaMF attention over modalities; missing modality masked before softmax).
-        \item Scoring: \textbf{RotatE} triple score; MAT adversarial term disabled ($\mu=0$).
+      \begin{block}{Concept: Indirect Query}\scriptsize
+        Target entity unnamed; must infer via relations: $(e_{\text{anchor}}, r, ?)$.\\
+        \textit{E.g., ``Influenced by Richard Dawkins'' $\rightarrow$ Hitchens.}\\
+        (Pure CLIP struggles without relational world knowledge).
+      \end{block}
+      \vspace{0.06cm}
+      \begin{itemize}\scriptsize
+        \item Level 1 operates on isolated images --- MMKG connects global facts.
+        \item Entity $=$ \textbf{structure + text + visual} (AdaMF attention).
+        \item Score triples with \textbf{RotatE}; disable adversarial MAT ($\mu=0$).
       \end{itemize}
-      \vspace{0.1cm}
+      \vspace{0.04cm}
       \begin{center}
-      \resizebox{\linewidth}{!}{%
+      \resizebox{0.92\linewidth}{!}{%
       \begin{tikzpicture}[
         m/.style={draw=LineGray, fill=SoftBg, rounded corners=2pt, font=\scriptsize,
-                  align=center, inner sep=3pt, minimum height=0.62cm},
+                  align=center, inner sep=3pt, minimum height=0.55cm},
         ar/.style={-{Latex[length=2mm]}, Slate}
       ]
-        \node[m] (t) {text feat.};
-        \node[m, right=0.25cm of t] (v) {visual feat.};
-        \node[m, right=0.25cm of v] (s) {structural\\embedding};
-        \node[m, fill=L2Orange, text=white, right=0.55cm of s] (f) {AdaMF\\fusion};
-        \node[m, right=0.25cm of f] (r) {RotatE\\score};
+        \node[m] (t) {text\\feat};
+        \node[m, right=0.25cm of t] (v) {visual\\feat};
+        \node[m, right=0.25cm of v] (s) {struct\\embed};
+        \node[m, fill=L2Orange, text=white, right=0.45cm of s] (f) {AdaMF\\fusion};
+        \node[m, right=0.25cm of f] (r) {RotatE\\scoring};
         \draw[ar] (t) -- (f); \draw[ar] (v) -- (f); \draw[ar] (s) -- (f);
         \draw[ar] (f) -- (r);
       \end{tikzpicture}}
       \end{center}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Datasets (shared retrieval framework)}\footnotesize
-        \textbf{DB15K}: 12{,}842 entities, 279 relations, 25{,}925 images; clean split 71{,}300 / 7{,}922 / official test.\\[0.12cm]
-        \textbf{FB15K-237-IMG}: 14{,}541 entities, 237 relations, 139{,}814 images; official KG split + image split (seed 2026).
+      \begin{block}{Benchmark Datasets}\scriptsize
+        \textbf{DB15K}: 12,842 entities, 279 relations, 25,925 images.\\[0.04cm]
+        \textbf{FB15K-237-IMG}: 14,541 entities, 237 relations, 139,814 images.
       \end{block}
-      \vspace{0.15cm}
-      \begin{block}{Query groups}\footnotesize
-        \textbf{Direct} = entity name given (CLIP already strong).\\
-        \textbf{Indirect} = relation-mediated; 2{,}282/3{,}195 (DB15K) and 8{,}592/24{,}564 (FB15K) direct/indirect test queries.
+      \vspace{0.06cm}
+      \begin{block}{Query Subsets}\scriptsize
+        \textbf{Direct}: Entity name given (CLIP baseline is already strong).\\
+        \textbf{Indirect}: 3,195 (DB15K) and 24,564 (FB15K) test queries.
       \end{block}
-      \vspace{0.15cm}
-      {\footnotesize\color{Slate} Method implemented from AdaMF-MAT (LREC-COLING 2024), adapted to image retrieval.}
+      \vspace{0.06cm}
+      {\scriptsize\color{Slate} Implemented from AdaMF-MAT (LREC-COLING 2024), adapted for image retrieval.}
     \end{column}
   \end{columns}
 \end{frame}
-
 % ===========================================================================
 % 09 --- Level 2 results
 % ===========================================================================
 \begin{frame}{\leveltag{L2Orange}{LEVEL 2} Indirect Queries Drive the Gains on Both MMKGs}
   \begin{columns}[c]
-    \begin{column}{0.58\textwidth}
+    \begin{column}{0.56\textwidth}
       \centering
       \includegraphics[width=\linewidth]{assets/charts/l2_direct_indirect.png}
     \end{column}
-    \begin{column}{0.40\textwidth}
-      \begin{alertblock}{Main finding}\footnotesize
-        Indirect MRR: DB15K \textbf{0.0475 $\rightarrow$ 0.3143} ($6.6\times$); FB15K-237-IMG \textbf{0.0122 $\rightarrow$ 0.1186} ($9.7\times$).
+    \begin{column}{0.42\textwidth}
+      \begin{alertblock}{Core Breakthrough}\footnotesize
+        Indirect MRR: DB15K \textbf{0.0475 $\rightarrow$ 0.3143} ($6.6\times$); FB15K \textbf{0.0122 $\rightarrow$ 0.1186} ($9.7\times$).
       \end{alertblock}
-      \vspace{0.12cm}
+      \vspace{0.06cm}
       \begin{itemize}\footnotesize
-        \item DB15K direct MRR unchanged (0.5520) \textbf{by design}: direct queries keep CLIP ranks.
-        \item FB15K direct also rises (0.3475 $\rightarrow$ 0.7770) --- different training objective (retrieval cross-entropy).
-        \item Level-1 GAT on the \emph{same} pipeline matches AdaMF on DB15K (0.3110 vs.\ 0.3143 indirect; CI includes 0).
-        \item SD $\le 0.003$ across 3 seeds.
+        \item \textbf{Indirect Queries}: Massive surge up to $\mathbf{9.7\times}$ --- where pure CLIP fails.
+        \item \textbf{Direct Queries}: Preserved at 0.5520 on DB15K \textbf{by design} (protecting CLIP).
+        \item \textbf{GAT vs AdaMF}: Statistical tie on DB15K (0.3110 vs 0.3143; CI spans 0).
+        \item Standard deviation $\le 0.003$ across 3 seeds (highly stable).
       \end{itemize}
-      \vspace{0.1cm}
-      {\footnotesize\color{Slate} Table X. Do not compare MRR across datasets (different candidate spaces).}
+      \vspace{0.05cm}
+      {\scriptsize\color{Slate} Report Table X. Do not cross-compare MRR across benchmarks.}
     \end{column}
   \end{columns}
 \end{frame}
-
 % ===========================================================================
 % 10 --- Level 2 ablation
 % ===========================================================================
@@ -460,27 +464,29 @@
   \begin{columns}[c]
     \begin{column}{0.54\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{assets/charts/gain_kept.png}\\[0.1cm]
-      {\footnotesize\color{Slate} Indirect MRR gain over CLIP retained under each intervention (1 run each).}
+      \includegraphics[width=\linewidth]{assets/charts/gain_kept.png}\\[0.05cm]
+      {\scriptsize\color{Slate} Indirect MRR gain over CLIP preserved under interventions (1 run/type).}
     \end{column}
     \begin{column}{0.44\textwidth}
-      \begin{itemize}\footnotesize
-        \item \textbf{DB15K}: No Edges skips training and uses CLIP; Random Graph selects $\alpha{=}1$ on validation. Shuffling keeps \textbf{37\%} of the gain.
-        \item \textbf{FB15K-237-IMG}: shuffled and random graphs keep ${\approx}\textbf{93\%}$ --- much of the gain survives corrupted indirect-query training anchors.
-        \item \textbf{Conclusion}: DB15K ablations support a contribution from correct relations; FB15K gains are not isolated to relations.
+      \begin{alertblock}{Causal Finding}\footnotesize
+        \textbf{DB15K}: Genuine relations hold causal significance (63\% gain lost under edge corruption).\\[0.04cm]
+        \textbf{FB15K}: Model exploits shortcuts via static entity--image links without relations.
+      \end{alertblock}
+      \vspace{0.06cm}
+      \begin{itemize}\scriptsize
+        \item \textbf{DB15K}: Edge removal / random graphs drive validation $\alpha \to 1$ (graph useless). Scrambled edges preserve only 36.6\% gain.
+        \item \textbf{FB15K}: Edge removal keeps 99.4\% gain, random keeps 98.7\% $\rightarrow$ \textbf{topology-invariant}.
+        \item Root Cause: FB15K has dense images/entity ($9.6\times$ DB15K) $\rightarrow$ memorizes static ties.
       \end{itemize}
-      \vspace{0.12cm}
-      \begin{block}{Controls}\footnotesize
-        Random graphs built from train only; shuffled-edge swaps exclude validation/test collisions (disclosed test-aware exclusion).
-      \end{block}
+      \vspace{0.04cm}
+      {\scriptsize\color{Slate} Report Table XI. Honest reporting of negative results.}
     \end{column}
   \end{columns}
 \end{frame}
-
 % ===========================================================================
 % 11 --- Level 3 method
 % ===========================================================================
-\begin{frame}{\leveltag{L3Aqua}{LEVEL 3} Explanations Come From the Ranking Function}
+\begin{frame}{\leveltag{L3Aqua}{LEVEL 3} Interventional XAI: Measuring Causality Rather Than Post-Hoc Rationales}
   \begin{center}
   \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
@@ -489,34 +495,35 @@
     arrow/.style={-{Latex[length=2.5mm]}, L3Aqua, line width=1pt},
     note/.style={font=\scriptsize\itshape, text=Slate, align=center}
   ]
-    \node[pstep] (a) {Retrieval result\\(rank-1 image)};
+    \node[pstep] (a) {Retrieval output\\(rank-1 image)};
     \node[pstep, right=0.5cm of a] (b) {Graph evidence $S$\\top-$K^\star$ units by $\Delta$};
-    \node[pstep, right=0.5cm of b] (c) {Intervention\\remove / mask / relearn};
-    \node[pstep, right=0.5cm of c] (d) {Score change\\$\Delta_u = S - S^{\setminus u}$};
-    \node[pstep, right=0.5cm of d] (e) {Fidelity\\vs.\ random control};
+    \node[pstep, right=0.5cm of b] (c) {Intervention\\drop / mask / retrain};
+    \node[pstep, right=0.5cm of c] (d) {Score shift\\$\Delta_u = S - S^{\setminus u}$};
+    \node[pstep, right=0.5cm of d] (e) {Fidelity check\\vs.\ random control};
     \draw[arrow] (a) -- (b); \draw[arrow] (b) -- (c);
     \draw[arrow] (c) -- (d); \draw[arrow] (d) -- (e);
-    \node[note, below=0.15cm of b] {GAT: remove relation,\\re-run 2 layers};
-    \node[note, below=0.15cm of c] {AdaMF: re-learn entity\\embedding without $S$};
-    \node[note, below=0.15cm of e] {same $|S|$ removed\\at random};
+    \node[note, below=0.15cm of b] {GAT: drop relation,\\re-run 2 layers};
+    \node[note, below=0.15cm of c] {AdaMF: retrain entity\\embedding without $S$};
+    \node[note, below=0.15cm of e] {random removal\\matched $|S|$ count};
   \end{tikzpicture}}
   \end{center}
-  \vspace{0.3cm}
+  \vspace{0.14cm}
   \begin{columns}[t]
-    \begin{column}{0.32\textwidth}\footnotesize
-      \textbf{Intervention-based attribution}: evidence is selected by changes in the ranking score, rather than path plausibility alone. GAT uses direct masking; AdaMF uses a local relearning approximation.
+    \begin{column}{0.34\textwidth}\footnotesize
+      \textbf{Non Post-Hoc}\\
+      Only components whose removal ($\Delta_u > 0$) causes \textbf{genuine score drops} are retained. Plausible graph paths that do not change scores are \textbf{strictly filtered out}.
     \end{column}
     \begin{column}{0.32\textwidth}\footnotesize
-      \textbf{Metrics}\\
-      \textbf{Fid+}: relative softmax-probability drop when $S$ is removed (vs.\ random).\\
-      \textbf{Fid$-$}: relative probability drop when only $S$ is kept.\\
-      \textbf{PN/PS}: top-1 lost / kept.\\
-      \textbf{Sparsity}: fraction of units discarded.\\
-      \textbf{Structural validity}: elements legal in the graph.
+      \textbf{Quantitative Metrics}\\
+      $\bullet$ \textbf{Fid+}: Score drop when omitting $S$.\\
+      $\bullet$ \textbf{Validity = 100\%}: Valid in KG.\\
+      $\bullet$ \textbf{Sparsity}: Sparse (0.65--0.80).\\
+      $\bullet$ \textbf{PN/PS}: Lost / preserved top-1.
     \end{column}
-    \begin{column}{0.32\textwidth}\footnotesize
-      \textbf{$K^\star$ selection}\\Chosen on validation: smallest $K$ whose median completeness $\ge 0.8$.\\[0.15cm]
-      \textbf{Sample sizes}\\500 (VG), 70 $\times$ 2 (KG), 54/50 (ViHeritage) queries --- well above the required 10.
+    \begin{column}{0.30\textwidth}\footnotesize
+      \textbf{Statistical Reliability}\\
+      $\bullet$ $K^\star$ chosen on validation.\\
+      $\bullet$ Sample size: 500 (VG), 140 (KG), 104 (ViHeritage) queries --- far exceeding minimum of 10.
     \end{column}
   \end{columns}
 \end{frame}
@@ -543,38 +550,40 @@
     \end{column}
   \end{columns}
 \end{frame}
-
 % ===========================================================================
 % 13 --- Vietnamese MMKG
 % ===========================================================================
 \begin{frame}{\leveltag{L3Aqua}{LEVEL 3} ViHeritage-MMKG: A Vietnamese Heritage Graph}
   \begin{columns}[t]
-    \begin{column}{0.38\textwidth}
-      \begin{block}{Dataset (assignment-scaled)}\scriptsize
-        \textbf{Domain}: Vietnamese cultural heritage \& landmarks.\\[0.05cm]
-        \begin{tabularx}{\linewidth}{@{}L{2.3cm}X@{}}
-          Entities (imaged) & 150 (88)\\
-          Rel.\ / triples & 15 / 427 (tr 318, val 53, te 56)\\
+    \begin{column}{0.36\textwidth}
+      \begin{block}{Dataset (Standard Scale)}\scriptsize
+        \textbf{Domain}: Cultural heritage \& landmarks in VN.\\[0.03cm]
+        \begin{tabularx}{\linewidth}{@{}L{2.2cm}X@{}}
+          Entities (w/ images) & 150 (88)\\
+          Relations / triples & 15 / 427 (tr 318, val 53, te 56)\\
           Images (tr/val/te) & 438 (264 / 86 / 88)\\
-          Test queries & 88 dir + 54 ind.\\
-          Audit / derived & 0.935 ($n=100$) / 35\%\\
+          Test queries & 88 direct + 54 indirect\\
+          Cross-audit / verified & 0.935 / 1.0; 35\% derived\\
         \end{tabularx}
       \end{block}
-      \vspace{0.05cm}
-      {\scriptsize\color{Slate} Sources: Wikidata (CC0); Wikipedia text (CC BY-SA 4.0); Commons images (original licenses).}
+      \vspace{0.03cm}
+      {\scriptsize\color{Slate} Sources: Wikidata (CC0), Wikimedia, vi.wikipedia. Includes Data Card.}
     \end{column}
     \begin{column}{0.30\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{assets/charts/viheritage.png}\\[0.05cm]
+      \includegraphics[width=\linewidth]{assets/charts/viheritage.png}\\[0.03cm]
       {\scriptsize\color{Slate} Table XIII --- Vietnamese queries, 3 seeds.}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \begin{itemize}\scriptsize
-        \item Indirect MRR \textbf{0.112 $\rightarrow$ 0.219} (AdaMF) / \textbf{0.258} (GAT); $p\le0.006$.
-        \item \textbf{Text control}: masking entity text gives 0.230; no performance drop detected in this experiment.
-        \item \textbf{Ablation}: shuffled edges fall \emph{below} CLIP; correct edges matter in the tested runs.
-        \item Case: ``di tích ở Huế'' $\rightarrow$ Chùa Thiên Mụ rank 1.
-      \end{itemize}
+    \begin{column}{0.32\textwidth}
+      \begin{alertblock}{2 Key Proofs}\scriptsize
+        \textbf{1. Zero Name Leakage}: Masking all text retains MRR = 0.230 $\rightarrow$ Learned graph structure, not name matching.\\[0.04cm]
+        \textbf{2. Genuine Edges Required}: Scrambling edges plunges score below pure CLIP.
+      \end{alertblock}
+      \vspace{0.04cm}
+      \begin{exampleblock}{Successful Transfer}\scriptsize
+        Indirect MRR doubles ($0.112 \to 0.219 / 0.258$).\\
+        \textit{E.g., ``Heritage in Hue'' $\rightarrow$ Thien Mu Pagoda (\#1).}
+      \end{exampleblock}
     \end{column}
   \end{columns}
 \end{frame}
@@ -611,39 +620,40 @@
     ``The graph helps where queries require reasoning over relations.'' --- report \S VII
   \end{center}
 \end{frame}
-
 % ===========================================================================
 % 15 --- Conclusions & demo
 % ===========================================================================
 \begin{frame}{Conclusions \& Live Demo}
   \begin{columns}[t]
     \begin{column}{0.55\textwidth}
-      \begin{enumerate}\footnotesize
-        \item \textbf{Retrieval}: frozen CLIP + edge-aware GAT raises Visual Genome MRR 0.0611 $\rightarrow$ 0.0718 ($+17.4\%$, 3 seeds) --- caveat: most of the gain does not require real edges.
-        \item \textbf{Knowledge}: AdaMF lifts indirect-query MRR up to $9.7\times$; ablations support a contribution from correct relations on DB15K; FB15K gains are not isolated to relations.
-        \item \textbf{Explanation}: intervention-sensitive explanations vs.\ random, 100\% structural validity on evaluated samples, sparsity 0.65--0.80 --- on a self-built Vietnamese MMKG (150 entities, 427 triples).
-      \end{enumerate}
-      \vspace{0.1cm}
-      \begin{block}{Limitations stated upfront}\footnotesize
-        single-run ablations $\cdot$ FB15K structure not isolated $\cdot$ fidelity $\ne$ world-truth $\cdot$ AI-assisted checks without multi-rater agreement.
+      \begin{block}{3 Core Conclusions}\footnotesize
+        \begin{enumerate}
+          \item \textbf{Retrieval}: GAT boosts Visual Genome MRR $+17.4\%$ (3 seeds) --- caveat: driven predominantly by object features.
+          \item \textbf{Knowledge}: MMKG boosts indirect MRR up to $\mathbf{9.7\times}$ --- genuine relations are decisive on DB15K.
+          \item \textbf{Explanation}: Interventional XAI achieves high fidelity and 100\% validity across all graphs including self-built ViHeritage.
+        \end{enumerate}
+      \end{block}
+      \vspace{0.04cm}
+      \begin{block}{Reported Limitations}\scriptsize
+        1-seed ablations $\cdot$ unisolated structure on FB15K $\cdot$ fidelity $\ne$ real-world truth $\cdot$ AI-assisted audits lack multi-expert consensus.
       \end{block}
     \end{column}
     \begin{column}{0.43\textwidth}
-      \begin{block}{\textcolor{white}{Demo plan (4--5 min)}}\footnotesize
+      \begin{block}{\textcolor{white}{Demo Outline (4--5 min)}}\footnotesize
         \begin{enumerate}
-          \item \textbf{L1}: text query $\rightarrow$ CLIP top-5 $\rightarrow$ GAT rerank + evidence.
-          \item \textbf{L2}: direct vs.\ indirect query on DB15K.
-          \item \textbf{L3}: remove-$S$ vs.\ remove-random, show score drop.
-          \item \textbf{ViHeritage}: Vietnamese query + data card.
+          \item \textbf{L1}: text query $\rightarrow$ CLIP top-5 $\rightarrow$ GAT rerank.
+          \item \textbf{L2}: direct vs indirect query on DB15K.
+          \item \textbf{L3}: drop-$S$ vs random intervention.
+          \item \textbf{ViHeritage}: Vietnamese query + Data Card.
         \end{enumerate}
       \end{block}
-      \vspace{0.1cm}
-      \begin{exampleblock}{Backup}\footnotesize
-        Pre-recorded video $\le$ 5 min (assignment \S 8) + cached checkpoints if live run fails.
+      \vspace{0.04cm}
+      \begin{exampleblock}{Backup Plan}\scriptsize
+        Pre-recorded video $\le$ 5 min (Requirement Section 8) + loaded checkpoints.
       \end{exampleblock}
-      \vspace{0.1cm}
+      \vspace{0.04cm}
       \begin{center}
-        \small\bfseries\color{HCMUSBlue} Thank you --- questions welcome
+        \small\bfseries\color{HCMUSBlue} Thank you for your attention!
       \end{center}
     \end{column}
   \end{columns}

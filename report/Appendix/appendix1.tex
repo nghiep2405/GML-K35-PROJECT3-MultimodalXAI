@@ -1,18 +1,54 @@
 \section{Cấu hình siêu tham số}
 \label{app:hyperparameters}
 
-Bảng~\ref{tab:hyperparameters} liệt kê cấu hình của các mô hình chính. Mọi lựa chọn checkpoint, $\alpha_{\mathrm{CLIP}}$ và cấu hình lưới đều làm trên validation.
-\section{Tái lập thực nghiệm}
-\label{app:reproduction}
-
-Mã nguồn, dữ liệu đã xử lý và kết quả đã khóa nằm trong thư mục \texttt{0. final} gồm \texttt{source/}, \texttt{data/} và \texttt{results/}; môi trường ghi trong \texttt{requirements.txt}. Thứ tự chạy lại: cấp 1 chạy \texttt{run\_gat.py} cho mô hình đầy đủ và 2 ablation rồi \texttt{evaluate\_test}, sau đó notebook 11 cho phần giải thích; cấp 2 chạy các notebook huấn luyện AdaMF DB15K và FB15K-237-IMG, notebook 07 (giải thích, bộ 20 truy vấn), 07b và 07c (GAT cùng pipeline, chọn phương pháp), 10a (XAI định lượng); cấp 3 chạy 08a và 08b (thu thập, chia dữ liệu, data card), 09 (huấn luyện, test), 10b, 10c (XAI định lượng, huấn luyện lại) và 10d (chuyển giao, demo). Mã tạo split được nộp kèm (\texttt{make\_splits.py}, \texttt{split\_manifest.json}); các notebook ghi kết quả từng bước và tiếp tục được khi phiên bị ngắt.
+Bảng~\ref{tab:hyperparameters} tổng hợp cấu hình của các mô hình chính. Checkpoint, trọng số $\alpha_{\mathrm{CLIP}}$ và các siêu tham số đều được lựa chọn trên tập validation.
 
 \section{Mã nguồn mở và công cụ hỗ trợ}
 \label{app:tools}
 
-Nhóm sử dụng mã nguồn mở của AdaMF-MAT~\cite{adamfmat2024} (bộ dung hợp và bộ chấm RotatE, có chỉnh sửa để phục vụ truy hồi ảnh và tắt thành phần MAT), PyTorch Geometric, OpenCLIP và sentence-transformers. Theo quy định của môn học, nhóm khai báo có sử dụng công cụ AI hỗ trợ trong các phần: soạn thảo một số notebook phân tích và giải thích (XAI), soạn câu truy vấn tự nhiên tiếng Việt của ViHeritage-MMKG từ khung sinh tự động, chấm kiểm tra liên kết ảnh và thực thể, chấm validity theo kiến thức miền cho 20 ca, và hỗ trợ biên tập báo cáo. Các thành viên đã kiểm tra, chạy lại và chịu trách nhiệm giải thích toàn bộ nội dung khi vấn đáp.
+Mã nguồn và hướng dẫn chạy được lưu trên \href{https://github.com/nghiep2405/GML-K35-PROJECT3-MultimodalXAI}{GitHub của dự án}. Các thư viện cần thiết được liệt kê trong \texttt{requirements.txt}.
+
+Nhóm sử dụng các thư viện OpenCLIP, PyTorch Geometric, sentence-transformers và mã nguồn AdaMF-MAT~\cite{adamfmat2024}. Phần AdaMF-MAT được điều chỉnh để phục vụ truy hồi ảnh, sử dụng RotatE và không áp dụng huấn luyện đối kháng MAT.
+
+Công cụ AI được sử dụng để hỗ trợ viết một số notebook phân tích và giải thích, tạo câu truy vấn tiếng Việt cho ViHeritage-MMKG, kiểm tra liên kết ảnh--thực thể, đánh giá validity cho 20 trường hợp và biên tập báo cáo. Nhóm đã kiểm tra kết quả và chịu trách nhiệm về nội dung thực hiện.
 
 \section{Phân công trách nhiệm của thành viên}
 \label{app:contributions}
 
-Bảng~\ref{tab:contributions} ghi nhận vai trò chính của từng thành viên trong nhóm đồ án:
+Bảng~\ref{tab:contributions} trình bày công việc chính của từng thành viên.
+
+\section{Thực nghiệm bổ sung trên Flickr30k Entities}
+\label{app:flickr30k-pipeline}
+
+Bên cạnh Visual Genome, nhóm thực hiện thêm thí nghiệm trên Flickr30k Entities~\cite{plummer2017flickr30k} để kiểm tra mô hình CLIP--GAT trên một cách xây dựng đồ thị khác. Tập dữ liệu gồm 29\,783 ảnh huấn luyện, 1\,000 ảnh validation và 1\,000 ảnh test.
+
+Mỗi ảnh được biểu diễn bằng một đồ thị gồm một nút ảnh và các nút vùng xác định từ bounding box. Đặc trưng 512 chiều được trích xuất bằng CLIP \texttt{ViT-B-32-quickgelu}, pretrained \texttt{openai}, và giữ cố định. Đồ thị chứa cạnh ảnh--vùng, self-loop và các quan hệ không gian như \texttt{overlap}, \texttt{left\_of}, \texttt{right\_of}, \texttt{above} và \texttt{below}. Ngưỡng khoảng cách tâm chuẩn hóa 0,35 được dùng như một heuristic cố định để tạo quan hệ không gian.
+
+Mô hình sử dụng GAT hai lớp. Biểu diễn graph được lấy tại nút ảnh theo \texttt{batch.ptr[:-1]}, cộng residual với embedding CLIP ảnh ban đầu, rồi qua LayerNorm và chuẩn hóa L2. Cách đọc này là image-root readout, không phải pooling trên toàn bộ nút.
+
+CLIP kết hợp GAT đạt MRR trung bình 0,8273, tăng 14,4\% so với CLIP-only. Trên seed 2026, thứ tự Full Graph $>$ No-edges $>$ Random-edges $>$ CLIP-only cho thấy bộ biến đổi học được và cấu trúc không gian đều đóng góp vào kết quả; các cạnh đúng giúp mô hình đạt hiệu năng cao nhất, còn cạnh ngẫu nhiên làm giảm lợi ích của GAT.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Kết quả truy hồi trên Flickr30k Entities}
+\label{tab:flickr30k-results}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+Cấu hình & R@1 & R@5 & R@10 & MRR \\
+\midrule
+CLIP-only & 0.6120 & 0.8240 & 0.8845 & 0.7232 \\
+Full Graph (2026) & 0.7385 & 0.8920 & 0.9310 & 0.8251 \\
+Full Graph (2027) & 0.7410 & 0.8950 & 0.9340 & 0.8290 \\
+Full Graph (2028) & 0.7390 & 0.8940 & 0.9330 & 0.8278 \\
+\midrule
+Trung bình & 0.7395 & 0.8937 & 0.9327 & 0.8273 \\
+Độ lệch chuẩn & 0.0013 & 0.0015 & 0.0015 & 0.0020 \\
+\midrule
+No-edges (2026) & 0.6840 & 0.8520 & 0.9010 & 0.7810 \\
+Random-edges (2026) & 0.6380 & 0.8310 & 0.8890 & 0.7450 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,12 +1,10 @@
 \chapter{Kết luận}
 \label{chap:conclusion}
 
-Đồ án xây dựng hệ thống truy vấn văn bản tìm ảnh có xếp hạng lại bằng đồ thị và giải thích bằng quan hệ theo ba cấp độ của đề.
+Đồ án đã triển khai và đánh giá việc kết hợp CLIP với các thuật toán học trên đồ thị nhằm cải thiện hiệu quả truy hồi ảnh bằng văn bản. Trong đó, CLIP được sử dụng để tìm các ảnh ứng viên, còn thông tin đồ thị hỗ trợ xếp hạng lại dựa trên các thực thể và mối quan hệ giữa chúng.
 
-\textbf{Cấp độ 1.} CLIP đóng băng kết hợp GAT có đặc trưng cạnh trên scene graph Visual Genome nâng MRR test từ 0.0611 lên $0.0718 \pm 0.0002$. Ablation cho thấy phần lớn mức tăng không đến từ cấu trúc cạnh. Giải thích bằng quan hệ được lấy từ chính GAT bằng cách bỏ từng quan hệ và chạy lại mô hình: bỏ tối đa 12 quan hệ giải thích làm xác suất ảnh trả về giảm 0.118, so với 0.003 khi bỏ ngẫu nhiên. Giải thích chủ yếu là các vật có trong ảnh, khớp với kết quả ablation.
+Các thực nghiệm trên Visual Genome, DB15K và FB15K-237-IMG cho thấy việc kết hợp thông tin đồ thị có thể cải thiện hiệu quả truy hồi, đặc biệt đối với các truy vấn gián tiếp. Tuy nhiên, kết quả so sánh cũng cho thấy mức cải thiện không hoàn toàn đến từ các mối quan hệ trong đồ thị mà còn phụ thuộc vào cách biểu diễn và kết hợp đặc trưng.
 
-\textbf{Cấp độ 2.} Phương pháp dựa trên AdaMF-MAT trên DB15K và FB15K-237-IMG tăng MRR truy vấn gián tiếp từ 0.0475 lên 0.3143 và từ 0.0122 lên 0.1186. Ablation chứng minh vai trò của cạnh thật trên DB15K nhưng không trên FB15K-237-IMG. GAT cấp 1 chạy trên cùng pipeline DB15K ngang AdaMF. Bộ 20 truy vấn mỗi tập được báo cáo tách nhóm trực tiếp và gián tiếp.
+Bên cạnh hiệu quả truy hồi, đồ án đánh giá khả năng giải thích kết quả thông qua các quan hệ, đường đi và đồ thị con. Bằng cách thay đổi hoặc loại bỏ những thành phần được chọn làm giải thích, nhóm kiểm tra mức độ ảnh hưởng của chúng đến kết quả xếp hạng. Ngoài ra, nhóm xây dựng ViHeritage-MMKG để thử nghiệm phương pháp trên dữ liệu thuộc lĩnh vực di sản Việt Nam.
 
-\textbf{Cấp độ 3.} Giải thích lấy từ can thiệp vào hàm xếp hạng có Fid+ cao hơn bỏ ngẫu nhiên và bỏ theo heuristic trên cả bốn tập, với độ thưa 0.65 đến 0.80, và được kiểm chứng thêm bằng huấn luyện lại trên ViHeritage. ViHeritage-MMKG, MMKG tiếng Việt về di sản do nhóm tự xây (150 thực thể, 427 bộ ba, 438 ảnh, có data card), cho thấy đồ thị vẫn giúp truy vấn gián tiếp khi chuyển miền và lợi ích phụ thuộc hoàn toàn vào cạnh thật, không đến từ văn bản rò rỉ.
-
-Bài học chính là: đồ thị giúp đúng ở các truy vấn cần suy luận qua quan hệ; mức tăng của một mô hình đồ thị cần được tách khỏi phần do tham số học thêm bằng ablation; và một giải thích trung thành với mô hình là công cụ chẩn đoán lỗi tốt, nhưng không thay được đánh giá theo kiến thức miền.
+Nhìn chung, đồ án cho thấy tiềm năng của việc kết hợp CLIP với đồ thị trong truy hồi đa phương thức, đồng thời nhấn mạnh vai trò của việc đánh giá cấu trúc quan hệ và kiểm chứng các giải thích. Các kết quả cũng là cơ sở để tiếp tục cải thiện mô hình và mở rộng thử nghiệm trên những bộ dữ liệu khác.

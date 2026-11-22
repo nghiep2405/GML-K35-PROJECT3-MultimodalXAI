@@ -4,7 +4,7 @@
 \section{Truy vấn thông tin đa phương thức}
 \label{sec:multimodal-retrieval}
 
-CLIP~\cite{radford2021clip} mã hóa câu truy vấn $q$ và ảnh $v_i$ vào cùng không gian vectơ. Với hai embedding đã chuẩn hóa L2 là $e_q$ và $e_{v_i}$, điểm truy hồi cơ sở là
+CLIP~\cite{radford2021clip} mã hóa câu truy vấn $q$ và ảnh $v_i$ vào cùng không gian vectơ. Với hai embedding đã chuẩn hóa L2 là $e_q$ và $e_{v_i}$, độ tương đồng giữa truy vấn và ảnh được tính như sau:
 \begin{equation}
   S_{\text{CLIP}}(q,v_i)=\cos(e_q,e_{v_i})=e_q^\top e_{v_i}.
   \label{eq:clip-similarity}
@@ -14,25 +14,25 @@ Các chỉ số MRR và Recall@$K$ được trình bày ở Mục~\ref{sec:metri
 \section{Học biểu diễn đồ thị}
 \label{sec:graph-representation-learning}
 
-Đồ thị cảnh của Visual Genome~\cite{krishna2017visualgenome} biểu diễn đối tượng bằng đỉnh và quan hệ giữa các đối tượng bằng cạnh. Các mô hình GCN, GraphSAGE và GAT đều tổng hợp thông tin từ láng giềng~\cite{kipf2017gcn,hamilton2017graphsage,velickovic2018gat}. Ở cấp độ 1, nhóm dùng GAT để học trọng số khi tổng hợp đặc trưng của các đỉnh trong ảnh.
+Đồ thị cảnh của Visual Genome~\cite{krishna2017visualgenome} biểu diễn đối tượng bằng đỉnh và quan hệ giữa các đối tượng bằng cạnh. Các mô hình GCN, GraphSAGE và GAT đều tổng hợp thông tin từ láng giềng~\cite{kipf2017gcn,hamilton2017graphsage,velickovic2018gat}. Ở cấp độ 1, nhóm dùng GAT để học trọng số khi tổng hợp đặc trưng của các đỉnh.
 
 \section{Cải thiện truy vấn bằng đồ thị}
 \label{sec:graph-enhanced-retrieval}
 
-CLIP lấy các ảnh ứng viên có điểm tương đồng cao. Mô hình đồ thị bổ sung điểm về mức phù hợp của ảnh với quan hệ trong truy vấn. Hai dãy điểm được chuẩn hóa z-score theo từng truy vấn trước khi kết hợp với trọng số $\alpha_{\mathrm{CLIP}}$ chọn trên tập validation. Chi tiết triển khai ở hai cấp độ được trình bày tại Mục~\ref{sec:level1-methodology} và Mục~\ref{sec:level2-methodology}.
+CLIP lấy các ảnh ứng viên có điểm tương đồng cao. Mô hình đồ thị bổ sung điểm về mức phù hợp của ảnh với quan hệ trong truy vấn. điểm tương đồng CLIP và điểm đồ thị được chuẩn hóa z-score theo từng truy vấn trước khi kết hợp với trọng số $\alpha_{\mathrm{CLIP}}$ chọn trên tập validation. Chi tiết triển khai ở hai cấp độ được trình bày tại Mục~\ref{sec:level1-methodology} và Mục~\ref{sec:level2-methodology}.
 
 \section{Đồ thị tri thức đa phương thức và công trình liên quan}
 \label{sec:advanced-mmkg-methods}
 
-Đồ thị tri thức đa phương thức gắn ảnh và văn bản với các thực thể trong bộ ba $(h,r,t)$~\cite{liu2019mmkg}. Với truy vấn gián tiếp, hệ thống biết quan hệ $r$ và một thực thể neo, rồi điền thực thể gắn với ảnh ứng viên vào vị trí còn thiếu trong $(h,r,?)$ hoặc $(?,r,t)$.
+Đồ thị tri thức đa phương thức gắn ảnh và văn bản với các thực thể trong bộ ba $(h,r,t)$~\cite{liu2019mmkg}. Với truy vấn gián tiếp, hệ thống sử dụng quan hệ $r$ và một thực thể đã biết, sau đó thay vị trí còn thiếu trong $(h,r,?)$ hoặc $(?,r,t)$ bằng thực thể tương ứng với từng ảnh ứng viên để đánh giá mức độ phù hợp.
 
-AdaMF học trọng số để dung hợp đặc trưng cấu trúc, ảnh và văn bản của mỗi thực thể~\cite{adamfmat2024}. RotatE~\cite{sun2019rotate} chấm bộ ba dựa trên khoảng cách giữa đầu sau phép quay theo quan hệ và đuôi. NativE khai thác trọng số theo quan hệ để xử lý sự không cân bằng giữa các phương thức~\cite{native2024sigir}.
+AdaMF học trọng số để kết hợp đặc trưng cấu trúc, ảnh và văn bản của mỗi thực thể~\cite{adamfmat2024}. RotatE~\cite{sun2019rotate} chấm bộ ba dựa trên khoảng cách giữa đầu sau phép quay theo quan hệ và đuôi. NativE khai thác trọng số theo quan hệ để xử lý sự không cân bằng giữa các phương thức~\cite{native2024sigir}.
 
-Ở cấp độ 2, nhóm dùng cơ chế dung hợp AdaMF và bộ chấm điểm RotatE, với hệ số huấn luyện đối kháng MAT bằng 0. DB15K dùng SigmoidLoss trên bộ ba dương và âm. FB15K-237-IMG dùng cross-entropy để xếp ảnh đúng lên trên các ảnh âm của cùng truy vấn.
+Ở cấp độ 2, nhóm sử dụng AdaMF để kết hợp đặc trưng từ nhiều nguồn và bộ chấm điểm RotatE để đánh giá mức độ phù hợp của các bộ ba trong đồ thị tri thức. Thành phần huấn luyện đối kháng MAT không được sử dụng trong cấu hình này (hệ số bằng 0). DB15K dùng SigmoidLoss trên bộ ba dương và âm. FB15K-237-IMG dùng cross-entropy để xếp ảnh đúng lên trên các ảnh âm của cùng truy vấn.
 
 \section{Truy vấn đồ thị có khả năng giải thích}
 \label{sec:explainable-retrieval}
 
 GNNExplainer và SubgraphX tìm đồ thị con để giải thích dự đoán của GNN~\cite{ying2019gnnexplainer,yuan2021subgraphx}. Với mô hình nhúng đồ thị tri thức, Kelpie đánh giá ảnh hưởng của bộ ba bằng cách học lại embedding sau can thiệp~\cite{rossi2022kelpie}.
 
-Nhóm đánh giá giải thích bằng cách bỏ, chỉ giữ hoặc làm nhiễu tập bằng chứng rồi chấm lại ảnh đứng đầu~\cite{amara2022graphframex}. $\mathrm{Fid}^{+}$ đo mức giảm tương đối của xác suất xếp hạng khi bỏ bằng chứng, còn $\mathrm{Fid}^{-}$ đo mức giảm khi chỉ giữ bằng chứng. Sparsity đo tỷ lệ phần tử ứng viên bị lược bỏ. PN và PS lần lượt đo tỷ lệ ảnh mất hạng nhất khi bỏ bằng chứng và giữ hạng nhất khi chỉ giữ bằng chứng.
+Nhóm đánh giá mức độ ảnh hưởng của các quan hệ được dùng để giải thích bằng cách lần lượt loại bỏ, chỉ giữ lại hoặc làm nhiễu chúng trong đồ thị, sau đó tính lại điểm của ảnh được xếp hạng cao nhất~\cite{amara2022graphframex}. $\mathrm{Fid}^{+}$ đo mức giảm tương đối của xác suất xếp hạng khi bỏ bằng chứng, còn $\mathrm{Fid}^{-}$ đo mức giảm khi chỉ giữ bằng chứng. Sparsity đo tỷ lệ phần tử ứng viên bị lược bỏ. PN và PS lần lượt đo tỷ lệ ảnh mất hạng nhất khi bỏ bằng chứng và giữ hạng nhất khi chỉ giữ bằng chứng.

@@ -23,6 +23,7 @@
 \usepackage{multirow}
 \usepackage[table]{xcolor}
 \usepackage{float}
+\usepackage{cuted}
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{tikz}
@@ -38,6 +39,9 @@
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \DeclareRobustCommand{\code}[1]{\texttt{\detokenize{#1}}}
+\makeatletter
+\newcommand{\nonfloattablecaption}[1]{\def\@captype{table}\caption{#1}}
+\makeatother
 % Tiêu đề cột nhiều dòng và độ lệch chuẩn cạnh giá trị trung bình.
 \newcommand{\twoline}[2]{\begin{tabular}[b]{@{}c@{}}#1\\#2\end{tabular}}
 \newcommand{\pmsd}[1]{\,\ensuremath{\pm #1}}
@@ -164,10 +168,18 @@
 \input{Chapter6/chapter6}
 \input{Chapter7/chapter7}
 
+% Định nghĩa các bảng phụ lục; bảng chỉ được dựng tại vị trí gọi trong appendix1.tex.
 \input{Appendix/appendix_tables}
 \renderbibliography
 
+\clearpage
 \appendices
+\raggedbottom
+\begin{strip}
+  \renderhyperparameterstable
+  \vspace{6pt}
+  \rendercontributionstable
+\end{strip}
 \input{Appendix/appendix1}
 
 \end{document}

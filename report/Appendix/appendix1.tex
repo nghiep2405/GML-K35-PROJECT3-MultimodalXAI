@@ -59,41 +59,20 @@ Random-edges (2026) & 0.6380 & 0.8310 & 0.8890 & 0.7450 \\
 }
 \end{table}
 
-\begin{table}[H]
-\centering
-\scriptsize
-\caption{Kết quả chi tiết Visual Genome}
-\label{tab:vg-detailed-audit}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lrrrrrr}
-\toprule
-Cấu hình & Epoch & $\alpha$ & R@1 & R@5 & R@10 & MRR\\
-\midrule
-CLIP-only & -- & 1,0 & 0,029457 & 0,079272 & 0,116531 & 0,061149\\
-Full Graph 2026 & 98 & 0,6 & 0,036129 & 0,095950 & 0,138033 & 0,071655\\
-Full Graph 2027 & 100 & 0,6 & 0,036479 & 0,096198 & 0,138132 & 0,071987\\
-Full Graph 2028 & 82 & 0,6 & 0,036184 & 0,096215 & 0,138189 & 0,071808\\
-Trung bình & -- & 0,6 & 0,036264 & 0,096121 & 0,138118 & 0,071817\\
-Độ lệch chuẩn & -- & -- & 0,000188 & 0,000149 & 0,000079 & 0,000166\\
-No-edge 2026 & 85 & 0,6 & 0,034555 & 0,092084 & 0,133258 & 0,069193\\
-Random-edges 2026 & 99 & 0,6 & 0,035604 & 0,094264 & 0,136498 & 0,070772\\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
 \section{Số liệu kiểm định và audit bổ sung}
 \label{app:supplementary-audit}
 
-Phụ lục này lưu các giá trị chính xác dùng để kiểm tra kết quả trong thân bài. Chúng được tách riêng để mạch trình bày chính tập trung vào kết luận thay vì liệt kê toàn bộ số liệu trung gian. Bảng~\ref{tab:vg-detailed-audit} ghi kết quả Visual Genome theo từng lần huấn luyện; Bảng~\ref{tab:supplementary-audit} tổng hợp các kiểm tra phụ trợ không đưa vào bảng kết quả chính.
+Phụ lục này tổng hợp các kiểm tra phụ trợ không đưa vào bảng kết quả chính, giúp phần thân bài tập trung vào kết luận thay vì liệt kê toàn bộ số liệu trung gian. Các giá trị được trình bày tại Bảng~\ref{tab:supplementary-audit}.
 
-\begin{table}[!t]
+\clearpage
+\begin{strip}
+\begin{minipage}{\textwidth}
 \centering
-\fontsize{7.5pt}{8.2pt}\selectfont
-\renewcommand{\arraystretch}{0.85}
-\caption{Số liệu audit không đưa vào bảng kết quả chính}
+\footnotesize
+\renewcommand{\arraystretch}{0.9}
+\nonfloattablecaption{Số liệu audit không đưa vào bảng kết quả chính}
 \label{tab:supplementary-audit}
-\begin{tabularx}{\columnwidth}{L{2.2cm}Y}
+\begin{tabularx}{\linewidth}{L{3cm}Y}
 \toprule
 Hạng mục & Giá trị và cách diễn giải\\
 \midrule
@@ -107,7 +86,8 @@ ViHeritage, chuyển miền & Mức tăng Indirect MRR tương ứng 1,95 lần 
 XAI, kiểm tra mimic & Pearson điểm mimic--checkpoint là 0,957 trên DB15K và 0,527 trên FB15K; Spearman tác động xấp xỉ--huấn luyện lại là 0,32 trên ViHeritage.\\
 \bottomrule
 \end{tabularx}
-\end{table}
+\end{minipage}
+\end{strip}
 
 \input{Appendix/appendix_vg_figures}
 \input{Appendix/appendix_bench20}

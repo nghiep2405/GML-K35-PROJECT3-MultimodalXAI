@@ -1,143 +1,192 @@
-\chapter{Phương pháp đề xuất và triển khai}
+\chapter{Cấp độ 1: CLIP kết hợp GAT trên Visual Genome}
+\label{chap:level1}
 \label{chap:methodology}
 
-\section{Sơ đồ nghiên cứu tổng quát}
-\label{sec:overall-framework}
-
-Cả ba cấp độ dùng chung một quy trình theo đề: truy vấn $\rightarrow$ mã hóa bằng CLIP $\rightarrow$ chọn tập ứng viên theo cosine $\rightarrow$ tính điểm đồ thị cho từng ứng viên $\rightarrow$ xếp hạng lại bằng $\alpha_{\mathrm{CLIP}} z(S_{\text{CLIP}}) + (1-\alpha_{\mathrm{CLIP}}) z(S_{\text{graph}})$ $\rightarrow$ giải thích bằng các quan hệ đã tạo ra điểm đồ thị $\rightarrow$ đo fidelity bằng can thiệp. Tập ứng viên là top-50 CLIP trên Visual Genome, top-1\,000 trên DB15K và FB15K-237-IMG, và toàn bộ ảnh của tập test (88 ảnh) trên ViHeritage. Trọng số $\alpha_{\mathrm{CLIP}}$, checkpoint và mọi siêu tham số được chọn trên validation; test chỉ chạy một lần với cấu hình đã khóa. Bảng~\ref{tab:level-overview} tóm tắt mỗi cấp độ.
-
-\begin{table}[H]
-\centering
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\caption{Dữ liệu, mô hình và bộ giải thích theo cấp độ}
-\label{tab:level-overview}
-\begin{tabularx}{\columnwidth}{lYYY}
-\toprule
-Cấp & Dữ liệu & Điểm đồ thị & Giải thích\\
-\midrule
-1 & Visual Genome & GAT có đặc trưng cạnh trên scene graph của ảnh & Bỏ từng quan hệ, chạy lại GAT\\
-2 & DB15K, FB15K-237-IMG & AdaMF (RotatE) trên MMKG; GAT cùng pipeline để đối chứng & Học lại nhúng của thực thể khi bỏ bộ ba\\
-3 & ViHeritage-MMKG & AdaMF và KG-GAT & Như cấp 2 (AdaMF); che cạnh (GAT)\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\section{Cấp độ 1: Mô hình cơ sở và truy hồi kết hợp đồ thị}
+\section{Yêu cầu và quy trình thực hiện}
 \label{sec:level1-methodology}
 
-\subsection{Mô hình cơ sở CLIP (Baseline)}
+Cấp độ 1 của đề bài yêu cầu xây dựng CLIP baseline đóng băng, dựng đồ thị từ ít nhất một tập công khai, dùng một thuật toán GNN để xếp hạng lại, rồi so sánh với các đối chứng bỏ hoặc xáo cạnh. Nhóm thực hiện trọn quy trình này trên Visual Genome: CLIP tìm ứng viên, GAT tạo điểm đồ thị, hai điểm được kết hợp để rerank và các quan hệ ảnh hưởng đến điểm được dùng làm giải thích. Flickr30k Entities là kiểm chứng bổ sung tại Phụ lục~\ref{app:flickr30k-pipeline}.
 
-Nhóm sử dụng CLIP \texttt{ViT-B-32} với trọng số pretrained \texttt{openai} và giữ cố định trong quá trình huấn luyện. Với truy vấn văn bản $q$ và ảnh $v_i$, CLIP tính độ tương đồng cosine theo phương trình~\eqref{eq:clip-similarity} để xếp hạng các ảnh. Kết quả này được dùng để so sánh với mô hình kết hợp đồ thị, đồng thời chọn các ảnh ứng viên để xếp hạng lại.
-
-\subsection{Xây dựng đồ thị tĩnh}
+\section{Dữ liệu và xây dựng scene graph}
+\label{sec:vg-experimental-design}
 \label{sec:static-graph}
 
-Mỗi ảnh Visual Genome được chuyển thành một đồ thị độc lập $G_i=(V_i,E_i)$. $V_i$ gồm một đỉnh ảnh và các đỉnh thực thể. Đỉnh ảnh dùng CLIP embedding 512 chiều của toàn ảnh; đỉnh thực thể dùng CLIP text embedding 512 chiều của tên đã chuẩn hóa.
+Visual Genome gồm 104\,426 ảnh, được chia thành 83\,540 ảnh train, 10\,443 ảnh validation và 10\,443 ảnh test. Ảnh có cùng SHA-256 hoặc khoảng cách pHash không quá 6 được gom nhóm trước khi chia để tránh ảnh trùng hoặc gần trùng xuất hiện ở nhiều tập.
 
-$E_i$ gồm cạnh \texttt{contains} từ đỉnh ảnh đến thực thể và các quan hệ có hướng lấy từ scene graph. Mỗi cạnh gốc được bổ sung một cạnh ngược để truyền thông tin theo hai chiều. Đặc trưng cạnh là CLIP text embedding 512 chiều của tên quan hệ ghép với cờ \texttt{edge\_is\_reverse}; quan hệ ngoài từ vựng train được ánh xạ về \texttt{UNK\_REL}. Mô hình không tự thêm self-loop, nhưng vẫn giữ các self-loop ngữ nghĩa có trong dữ liệu.
+Mỗi ảnh tạo thành một đồ thị $G_i=(V_i,E_i)$ độc lập. $V_i$ gồm một nút ảnh dùng CLIP image embedding 512 chiều và các nút thực thể dùng CLIP text embedding của tên đã chuẩn hóa. $E_i$ gồm cạnh \texttt{contains} từ ảnh tới thực thể và các quan hệ có hướng của scene graph. Mỗi cạnh gốc có thêm cạnh ngược; đặc trưng cạnh là embedding 512 chiều của tên quan hệ ghép với cờ \texttt{edge\_is\_reverse}. Quan hệ ngoài từ vựng train được ánh xạ về \texttt{UNK\_REL}. GAT không tự thêm self-loop, nhưng giữ các self-loop ngữ nghĩa có sẵn.
 
-\subsection{Biểu diễn đồ thị bằng GAT}
+\begin{table}[!t]
+\centering
+\normalsize
+\caption{Thống kê đồ thị Visual Genome \textit{split\_v2}}
+\label{tab:vg-graph-stats}
+\begin{reporttabular}{lrrrr}
+\toprule
+Tập & Đồ thị & \twoline{Đỉnh}{TB} & \twoline{Cạnh gốc}{TB} & \twoline{Cạnh hai}{chiều TB}\\
+\midrule
+Train & 83\,540 & 25.017 & 38.384 & 76.768\\
+Validation & 10\,443 & 24.910 & 38.177 & 76.355\\
+Test & 10\,443 & 24.832 & 38.040 & 76.081\\
+\bottomrule
+\end{reporttabular}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\normalsize
+\caption{Mười loại cạnh phổ biến nhất trên Visual Genome}
+\label{tab:vg-relations}
+\begin{reporttabular}{lrlr}
+\toprule
+Quan hệ & Số lần & Quan hệ & Số lần\\
+\midrule
+\texttt{contains} & 2\,504\,938 & \texttt{of} & 80\,613\\
+\texttt{on} & 391\,345 & \texttt{with} & 47\,951\\
+\texttt{has} & 180\,513 & \texttt{behind} & 28\,581\\
+\texttt{in} & 134\,479 & \texttt{holding} & 21\,565\\
+\texttt{wearing} & 80\,867 & \texttt{on top of} & 20\,652\\
+\bottomrule
+\end{reporttabular}
+\end{table}
+
+\section{Mô hình truy hồi CLIP--GAT}
+
+\subsection{CLIP baseline và GAT}
 \label{sec:gat}
 
-Mô hình dùng hai lớp GAT có xét đặc trưng cạnh. Đặc trưng đỉnh $512$ chiều và đặc trưng cạnh $513$ chiều được chiếu về $128$ chiều. Mỗi lớp có bốn attention head, mỗi head 32 chiều, cùng ELU, dropout 0.2, residual và LayerNorm.
+Baseline dùng CLIP \texttt{ViT-B-32}, pretrained \texttt{openai}, giữ cố định và xếp hạng bằng cosine theo Phương trình~\eqref{eq:clip-similarity}. GAT gồm hai lớp có xét đặc trưng cạnh; đặc trưng nút 512 chiều và cạnh 513 chiều được chiếu về 128 chiều. Mỗi lớp dùng bốn attention head $\times$ 32 chiều, ELU, dropout 0.2, residual và LayerNorm.
 
-Sau hai lớp, hệ thống chọn trực tiếp embedding của đỉnh ảnh thay vì pooling toàn bộ đỉnh, rồi chuẩn hóa L2:
-
+Sau hai lớp, graph embedding được lấy trực tiếp tại nút ảnh thay vì pooling toàn bộ nút:
 \begin{equation}
-h_{\mathrm{graph}}^{\mathrm{VG}}(v_i)
-= \operatorname{L2Norm}
-\left(H_i^{(2)}[r_i]\right).
+h_{\mathrm{graph}}(v_i)=\operatorname{L2Norm}\!\left(H_i^{(2)}[r_i]\right),
 \label{eq:vg-root-readout}
 \end{equation}
-
-Trong đó $r_i$ là vị trí đỉnh ảnh. Vectơ truy vấn CLIP được chiếu từ 512 xuống 128 chiều bằng lớp tuyến tính $\phi_T$ và chuẩn hóa thành $\tilde e_q$. Điểm đồ thị là cosine giữa truy vấn đã chiếu và embedding đỉnh ảnh:
-
+trong đó $r_i$ là vị trí nút ảnh. Vectơ truy vấn được chiếu xuống 128 chiều và chuẩn hóa thành $\tilde e_q$; điểm đồ thị là
 \begin{equation}
-S_{\mathrm{graph}}(q,v_i)
-= \tilde{e}_q^\top
-h_{\mathrm{graph}}^{\mathrm{VG}}(v_i).
+S_{\mathrm{graph}}(q,v_i)=\tilde e_q^{\top}h_{\mathrm{graph}}(v_i).
 \label{eq:gat-graph-score}
 \end{equation}
 
-\subsection{Kết hợp điểm CLIP và GAT}
+\subsection{Xếp hạng lại}
 
-Trên tập ứng viên CLIP, hai loại điểm được chuẩn hóa z-score riêng theo từng truy vấn, tạo $\widetilde S_{\mathrm{CLIP}}$ và $\widetilde S_{\mathrm{graph}}$. Điểm cuối cùng là:
-
+CLIP chấm toàn bộ 10\,443 ảnh test và chọn top-50. Hai dãy điểm trên tập ứng viên được chuẩn hóa z-score riêng theo truy vấn rồi kết hợp:
 \begin{equation}
-S_{\mathrm{final}}(q,v_i)
-=
-\alpha_{\mathrm{CLIP}}
-\widetilde{S}_{\mathrm{CLIP}}(q,v_i)
-+
-(1-\alpha_{\mathrm{CLIP}})
-\widetilde{S}_{\mathrm{graph}}(q,v_i).
+S_{\mathrm{final}}=\alpha_{\mathrm{CLIP}}\widetilde S_{\mathrm{CLIP}}
++(1-\alpha_{\mathrm{CLIP}})\widetilde S_{\mathrm{graph}}.
 \label{eq:fusion-formula-detail}
 \end{equation}
-Kích thước tập ứng viên, cách chọn $\alpha_{\mathrm{CLIP}}$ và checkpoint được trình bày ở Mục~\ref{sec:training-protocol}.
+$\alpha_{\mathrm{CLIP}}$ được chọn trên validation trong $\{0,0.1,\ldots,1\}$.
 
-\subsection{Giải thích cấp độ 1}
+\section{Huấn luyện, đối chứng và đánh giá}
+\label{sec:training-protocol}
+\label{sec:metrics}
+
+Mô hình đầy đủ được huấn luyện với ba seed 2026--2028. Mỗi batch gồm 8 truy vấn, một ảnh dương và 50 hard negative cho mỗi truy vấn; mỗi ảnh đóng góp tối đa 5 truy vấn trong một epoch. AdamW dùng learning rate và weight decay cùng bằng $10^{-4}$. Mỗi lượt chạy đủ 100 epoch và lưu checkpoint có validation MRR cao nhất. Ba checkpoint được chọn lần lượt ở epoch 98, 100 và 82; cả ba chọn $\alpha_{\mathrm{CLIP}}=0.6$. Test gồm 523\,347 truy vấn; checkpoint và $\alpha_{\mathrm{CLIP}}$ được khóa trước khi chạy test. Chỉ số báo cáo là Recall@$K$, $K\in\{1,5,10\}$, và MRR.
+
+Recall@$K$ là tỷ lệ truy vấn có ảnh đúng trong $K$ vị trí đầu; MRR là trung bình nghịch đảo hạng của ảnh đúng đầu tiên. Với ba lượt chạy, báo cáo dùng trung bình và độ lệch chuẩn mẫu với mẫu số $n-1$. CLIP luôn xếp hạng toàn bộ 10\,443 ảnh test trước khi GAT nhận top-50, nên GAT không thể cứu một ảnh đúng nằm ngoài tập ứng viên này.
+
+Bốn cấu hình gồm CLIP-only; Full Graph; No-edge, xóa toàn bộ cạnh nhưng giữ đặc trưng nút, lớp chiếu, residual path và kiến trúc; Random-edges, hoán vị đỉnh đích trong từng graph nhưng giữ số cạnh, đỉnh nguồn, multiset đỉnh đích, đặc trưng cạnh và phân bố bậc. Hai ablation dùng seed 2026 và tự chọn checkpoint cùng $\alpha$ trên validation. Việc chia ảnh trước huấn luyện, kiểm tra SHA-256/pHash và chỉ dùng validation để chọn mô hình bảo đảm test không tham gia tối ưu. Các lần chạy dùng cùng đồ thị đã xử lý và cache đặc trưng CLIP cố định; test chỉ được đọc sau khi checkpoint cùng hệ số dung hợp đã khóa.
+
+\section{Kết quả truy hồi và vai trò của cạnh}
+\label{sec:level1-results}
+
+\begin{table}[!t]
+\centering
+\normalsize
+\setlength{\tabcolsep}{4pt}
+\caption{Kết quả test trên Visual Genome}
+\label{tab:vg-full-graph-results}
+\begin{reporttabular}{lrrrr}
+\toprule
+Cấu hình & R@1 & R@5 & R@10 & MRR\\
+\midrule
+CLIP-only & 0.0295 & 0.0793 & 0.1165 & 0.0611\\
+Full Graph, trung bình & \textbf{0.0363} & \textbf{0.0961} & \textbf{0.1381} & \textbf{0.0718}\\
+Độ lệch chuẩn & 0.0002 & 0.0001 & 0.0001 & 0.0002\\
+\bottomrule
+\end{reporttabular}
+\end{table}
+
+Full Graph tăng MRR 17.4\% so với CLIP-only và ổn định qua ba seed. Hình~\ref{fig:vg-convergence} cho thấy training loss giảm đồng thời validation MRR tăng; điểm đánh dấu là checkpoint được chọn trước khi test.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figures/visual_genome_convergence.png}
+\caption{Training loss và validation MRR trên Visual Genome}
+\label{fig:vg-convergence}
+\end{figure}
+
+\begin{table*}[!t]
+\centering
+\normalsize
+\setlength{\tabcolsep}{3pt}
+\caption{Ablation Visual Genome, seed 2026}
+\label{tab:vg-ablation}
+\begin{reporttabular}{lrrrrrr}
+\toprule
+Cấu hình & Epoch & $\alpha_{\mathrm{CLIP}}$ & R@1 & R@5 & R@10 & MRR\\
+\midrule
+CLIP-only & -- & 1.0 & 0.0295 & 0.0793 & 0.1165 & 0.0611\\
+No-edge & 85 & 0.6 & 0.0346 & 0.0921 & 0.1333 & 0.0692\\
+Random-edges & 99 & 0.6 & 0.0356 & 0.0943 & 0.1365 & 0.0708\\
+Full Graph & 98 & 0.6 & \textbf{0.0361} & \textbf{0.0960} & \textbf{0.1380} & \textbf{0.0717}\\
+\bottomrule
+\end{reporttabular}
+\end{table*}
+
+Thứ tự Full Graph $>$ Random-edges $>$ No-edge $>$ CLIP-only giữ trên mọi chỉ số. No-edge giữ khoảng 77\% và Random-edges giữ khoảng 92\% mức tăng MRR của Full Graph. Vì vậy, bộ biến đổi học được tạo ra phần cải thiện lớn, còn quan hệ đúng bổ sung phần lợi ích cuối cùng và đưa mô hình tới kết quả cao nhất.
+
+\section{Giải thích cơ bản và phân tích ca}
 \label{sec:level1-xai-method}
+\label{sec:level1-xai-results}
 
-Để xác định những quan hệ ảnh hưởng đến kết quả truy hồi, nhóm lần lượt loại bỏ từng quan hệ trong đồ thị và tính lại điểm $S_{\mathrm{graph}}$ của ảnh. Mỗi quan hệ được xét cùng cạnh ngược tương ứng; cạnh \texttt{contains} cũng được đánh giá.
-
-Mức đóng góp của quan hệ $u$ được tính bằng:
+Mỗi đơn vị giải thích là một quan hệ cùng cạnh ngược tương ứng. Nhóm bỏ từng đơn vị, chạy lại đúng checkpoint và tính
 \begin{equation}
-    \Delta_u = S_{\mathrm{graph}} -
-    S_{\mathrm{graph}}^{\setminus u}.
+\Delta_u=S_{\mathrm{graph}}-S_{\mathrm{graph}}^{\setminus u}.
 \end{equation}
+Tối đa $K^\star=12$ quan hệ có $\Delta_u>0$ lớn nhất được giữ; $K^\star$ là giá trị nhỏ nhất đạt ít nhất 80\% mức giảm điểm trên validation.
 
-Trong đó, $S_{\mathrm{graph}}^{\setminus u}$ là điểm sau khi loại bỏ quan hệ $u$. Giá trị $\Delta_u$ càng lớn cho thấy quan hệ đó càng có ảnh hưởng tích cực đến điểm truy hồi. Nhóm chọn tối đa $K^\star$ quan hệ có $\Delta_u > 0$ lớn nhất để giải thích, với $K^\star$ được xác định trên tập validation.
+Giải thích được chạy trên cả ba checkpoint. Tính lại điểm từ đồ thị gốc cho toàn bộ 523\,347 truy vấn khớp kết quả checkpoint chính: MRR 0.0717, sai khác $3\times10^{-7}$. Trên 500 truy vấn test bốc ngẫu nhiên cố định, bỏ tập giải thích làm xác suất ảnh trả về giảm $\mathrm{Fid}^{+}=0.118\pm0.002$, so với 0.003 khi bỏ ngẫu nhiên; hiệu số 0.114 có CI 95\% $[0.110,0.118]$. PN là 0.357 so với 0.053. Attention baseline cho $-0.007$, thấp hơn giải thích can thiệp 0.125 với CI 95\% $[0.119,0.131]$, nên attention không phản ánh quan hệ quyết định điểm. Chỉ giữ tập giải thích vẫn duy trì hạng nhất (PS 1.000), với Fid$^-$ trung vị $-0.193$. Tập giải thích có trung bình 11.1 quan hệ, trong đó 75\% là cạnh \texttt{contains}; 24.2\% phần tử chạm vật có tên trùng từ trong truy vấn, so với 18.4\% khi chọn ngẫu nhiên ($p\approx10^{-25}$).
 
-Trọng số attention cũng được dùng để so sánh, nhưng không phải cách giải thích chính vì GAT tạo biểu diễn đồ thị mà không xét trực tiếp truy vấn.
+Trong 20\,000 truy vấn test bốc ngẫu nhiên, 5\,243 truy vấn có ảnh đúng trong top-50 CLIP. Full Graph đưa 247 truy vấn từ hạng lớn hơn 1 lên hạng 1; No-edge làm được với 153 truy vấn, và 54 truy vấn chỉ Full Graph đạt hạng 1. Ngược lại, 114 truy vấn đang ở hạng 1 của CLIP bị GAT đẩy xuống. Năm ca thành công được chọn bằng luật cố định: CLIP xếp ảnh đúng dưới hạng 1, Full Graph đưa lên hạng 1, còn cả No-edge và Random-edges đều không đạt hạng 1. Năm ca thất bại gồm ba ca đồ thị làm hại và hai ca không cứu được, cũng được chọn trước khi xem giải thích. Các con số này khớp với ablation: phép chiếu đặc trưng tạo ra phần lớn lợi ích, còn quan hệ thật quyết định một nhóm nhỏ nhưng rõ ràng.
 
-\section{Cấp độ 2: Truy hồi đa phương thức với đồ thị tri thức}
-\label{sec:level2-methodology}
+\begin{table*}[!t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Năm ca thành công và năm ca thất bại trên Visual Genome}
+\label{tab:vg-cases}
+\begin{tabularx}{\linewidth}{@{}lYrrrrrY@{}}
+\toprule
+Loại & Truy vấn & CLIP & \twoline{CLIP +}{GAT} & No-edge & Random & Bỏ $\mathcal S$ & Phần tử đóng góp lớn nhất\\
+\midrule
+Thành công & Guy holding up peace sign & 15 & 1 & 4 & 2 & 4 & ảnh chứa peace sign $\times5$ (5.5 mỗi cạnh)\\
+Thành công & Yellow flowers in a purple and yellow rain boot & 14 & 1 & 2 & 3 & 4 & ảnh chứa rain boots (2.6)\\
+Thành công & biohazard sign placed on bathroom medicine cabinet & 11 & 1 & 2 & 6 & 1 & ảnh chứa bathroom (2.6)\\
+Thành công & brown suitcase in airport & 11 & 1 & 5 & 4 & 2 & ảnh chứa green suitcase (2.0)\\
+Thành công & a man holding a umbrella & 10 & 1 & 3 & 2 & 4 & ảnh chứa rain (2.0), umbrella (1.4)\\
+\midrule
+Làm hại & large black train & 1 & 3 & 1 & 2 & 3 & ảnh chứa steam (0.9), people $\times5$\\
+Làm hại & A man on the road & 1 & 3 & 1 & 1 & 7 & ảnh chứa road (3.2), man (2.8)\\
+Làm hại & a slice of spinach and cheese pizza & 1 & 3 & 3 & 2 & 3 & ảnh chứa spinach $\times4$ (0.8 mỗi cạnh)\\
+Không cứu & pink beak on bird & 2 & 5 & 5 & 5 & 8 & ảnh chứa bird (1.2), beak (1.0)\\
+Không cứu & woman wearing green shorts & 10 & 3 & 1 & 1 & 4 & ảnh chứa shorts $\times2$ (3.9 mỗi cạnh)\\
+\bottomrule
+\end{tabularx}
+\end{table*}
 
-Khác với cấp độ 1 sử dụng đồ thị riêng cho từng ảnh, cấp độ 2 khai thác đồ thị tri thức đa phương thức (MMKG) để biểu diễn các thực thể và mối quan hệ giữa chúng. Quy trình truy hồi gồm các bước: liên kết ảnh với thực thể, kết hợp các đặc trưng đa phương thức, sau đó sử dụng điểm CLIP và RotatE để xếp hạng lại các ảnh ứng viên.
+Năm ca thành công đều có phần tử mạnh nhất là cạnh \texttt{contains} tới vật được nhắc trong truy vấn. Ở bốn ca, bỏ $\mathcal S$ làm ảnh đúng rơi xuống hạng 2--4; ca \textit{biohazard sign} là ngoại lệ khi thứ hạng chủ yếu đến từ biểu diễn của nút ảnh. Quan hệ giữa hai vật vẫn xuất hiện nhưng yếu hơn 7--26 lần: ở ca \textit{peace sign}, quan hệ \textit{man holding up peace sign} chỉ đóng góp $0.2\times10^{-3}$ so với $5.5\times10^{-3}$ của mỗi cạnh \texttt{contains} tới \textit{peace sign}.
 
-\subsection{Biểu diễn thực thể đa phương thức}
+Trong các ca thất bại, ảnh sai cũng chứa vật khớp từ khóa nhưng mô hình không phân biệt tốt thuộc tính như \textit{black}, \textit{slice} hoặc quan hệ \textit{on the road}. Ở ca pizza, cạnh \texttt{contains spinach} của ảnh sai có $\Delta=1.4\times10^{-3}$, cao hơn $0.8\times10^{-3}$ ở ảnh đúng. Ca \textit{green shorts} tương tự: ảnh sai có cạnh \texttt{contains shorts} với $\Delta=14.9\times10^{-3}$, trong khi quan hệ \textit{woman wearing shorts} ở ảnh đúng chỉ đạt $0.1\times10^{-3}$. Ba trên năm ca thất bại được No-edge xếp đúng hạng 1, cho thấy lỗi xuất hiện khi truyền tin qua cạnh scene graph; quan hệ nhiễu và tên vật trùng lặp còn làm tập giải thích dài hơn cần thiết.
 
-Mỗi ảnh $i$ được liên kết với một thực thể $e(i)$ trong MMKG. AdaMF kết hợp ba loại đặc trưng của thực thể: cấu trúc đồ thị, văn bản và hình ảnh. Các đặc trưng được đưa về cùng số chiều, sau đó mô hình học trọng số để xác định mức đóng góp của từng loại. Nếu một loại đặc trưng bị thiếu, trọng số tương ứng được đặt bằng 0.
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.78\textwidth]{figures/case_vg_success_peacesign.png}
+\caption{Ca thành công ``Guy holding up peace sign'': CLIP hạng 15, CLIP + GAT hạng 1, bỏ tập giải thích thì ảnh về hạng 4.}
+\label{fig:vg-case}
+\end{figure*}
 
-Trong cấu hình này, nhóm sử dụng cơ chế kết hợp đặc trưng của AdaMF và không sử dụng thành phần huấn luyện đối kháng MAT (hệ số bằng 0).
+\section{Kết luận cấp độ 1}
 
-\subsection{Chấm điểm truy vấn trực tiếp và gián tiếp}
+Cấp độ 1 đáp ứng đầy đủ baseline, GNN reranking, ba seed, ablation và phân tích năm ca thành công/thất bại. Kết quả xác lập hai nguồn đóng góp: lớp reranker học được cải thiện biểu diễn ảnh, còn scene graph đúng tạo thêm lợi ích có thể đo bằng cả ablation và can thiệp. Đây là cơ sở chuyển sang MMKG, nơi vai trò của quan hệ được kiểm tra trực tiếp trên truy vấn gián tiếp.
 
-Với truy vấn trực tiếp, CLIP được sử dụng để xếp hạng ảnh dựa trên mức độ tương đồng với mô tả văn bản. Trên DB15K, kết quả xếp hạng được giữ nguyên theo CLIP. Trong khi đó, trên FB15K-237-IMG, mô hình tính thêm độ tương đồng giữa truy vấn và biểu diễn thực thể từ AdaMF để hỗ trợ xếp hạng ảnh. Truy vấn gián tiếp có dạng $(h,r,?)$ hoặc $(?,r,t)$. Thực thể đã biết và quan hệ tạo thành phần neo; thực thể $e(i)$ của từng ảnh ứng viên được điền vào vị trí còn thiếu. Bộ chấm điểm RotatE đánh giá bộ ba hoàn chỉnh, tạo $S_{\mathrm{AdaMF}}(q,i)$. Nhờ vậy, ảnh có thể được xếp cao khi thực thể gắn với ảnh thỏa quan hệ của truy vấn, ngay cả khi mô tả văn bản không gọi trực tiếp tên thực thể đích.
-
-\subsection{Xếp hạng lại kết quả CLIP}
-CLIP chấm toàn bộ tập ảnh trước, sau đó nhánh đồ thị chỉ xếp hạng lại tập ứng viên đã chọn. Hai dãy điểm được chuẩn hóa z-score riêng theo truy vấn và kết hợp bằng
-\begin{equation}
-\begin{aligned}
-S(q,i)={}&\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))\\
-&+(1-\alpha_{\mathrm{CLIP}})z_q(S_{\mathrm{AdaMF}}(q,i)).
-\end{aligned}
-\label{eq:mmkg-rerank}
-\end{equation}
-Trong đó $z_q$ chuẩn hóa trên tập ứng viên của $q$, còn $\alpha_{\mathrm{CLIP}}$ điều khiển tỷ trọng của hai nhánh. DB15K chỉ áp dụng công thức cho truy vấn gián tiếp; FB15K-237-IMG áp dụng cho cả hai loại. Kích thước tập ứng viên và cách chọn $\alpha_{\mathrm{CLIP}}$ được quy định tại Mục~\ref{sec:training-protocol}. Cơ chế dung hợp và chấm bộ ba dựa trên AdaMF-MAT~\cite{adamfmat2024}.
-
-\subsection{Thuật toán cấp 1 trên cùng pipeline cấp 2}
-\label{sec:level2-gat}
-Để đối chiếu AdaMF với thuật toán cấp 1 trong cùng điều kiện, nhóm thay bộ dung hợp AdaMF bằng GAT hai tầng có đặc trưng cạnh, bốn head, residual và LayerNorm. Đỉnh là thực thể DB15K; mỗi bộ ba train tạo cạnh có hướng và cạnh ngược. GAT sinh embedding cấu trúc cho từng thực thể, sau đó vẫn dùng cùng bộ giải mã RotatE và quy trình reranking. Dữ liệu, cách chia, đặc trưng đầu vào, hàm mất mát, số lần huấn luyện, cách chọn checkpoint và $\alpha_{\mathrm{CLIP}}$ được giữ nguyên để phép so sánh chỉ thay bộ mã hóa thực thể.
-
-\section{Cấp độ 3: Giải thích định lượng và MMKG tự xây}
-\label{sec:level3-methodology}
-
-\subsection{Bộ giải thích cho mô hình MMKG}
-Với AdaMF, điểm của ảnh phụ thuộc đồ thị qua nhúng cấu trúc của thực thể $e^\star$ gắn với ảnh, và nhúng này được học từ các bộ ba train chứa $e^\star$. Theo ý tưởng của Kelpie~\cite{rossi2022kelpie}, nhóm học lại riêng nhúng cấu trúc của $e^\star$ (mọi tham số khác giữ nguyên) từ các bộ ba của nó, một lần với đủ bộ ba và các lần bỏ bớt, cùng khởi tạo, cùng mẫu âm và cùng số bước. Chênh lệch điểm giữa hai bản học lại là đóng góp của các bộ ba bị bỏ; chênh lệch này được trừ vào điểm gốc của checkpoint rồi xếp hạng lại bằng đúng hàm xếp hạng. Bộ ba giải thích được nối thành đường đi một hoặc hai bước từ thực thể neo của truy vấn khi có. Với KG-GAT, điểm còn phụ thuộc vào việc truyền tin trên đồ thị lúc suy luận, nên nhóm che trực tiếp từng cạnh trong vùng tiếp nhận hai bước của $e^\star$ và thực thể neo rồi tính lại nhúng bằng chính mô hình. $K^\star$ được chọn trên validation theo cùng quy tắc với cấp 1.
-
-Ngoài phép đo xấp xỉ trên, trên ViHeritage nhóm kiểm chứng fidelity bằng huấn luyện lại thật: bỏ $\mathcal{S}$ khỏi tập train, huấn luyện lại từ đầu với đúng cấu hình, khởi tạo và số epoch của checkpoint, rồi so với một lần huấn luyện lại không bỏ gì để loại nhiễu do chính việc huấn luyện lại.
-
-\subsection{Xây dựng ViHeritage-MMKG}
-\label{sec:viheritage-construction}
-Miền được chọn là di sản và danh thắng Việt Nam. Ứng viên thực thể là các mục trên Wikidata~\cite{vrandecic2014wikidata} ở Việt Nam có danh hiệu di sản (P1435) hoặc thuộc loại công trình, danh thắng phổ biến, đồng thời có nhãn tiếng Việt, bài Wikipedia tiếng Việt và ảnh; xếp theo số sitelink. Các thực thể không có ảnh (tỉnh, khái niệm, nhân vật lịch sử đã mất) được giữ khi là đầu kia của quan hệ và xuất hiện ít nhất hai lần.
-
-\textbf{Bộ ba.} Mười ba quan hệ lấy trực tiếp từ Wikidata, ví dụ \textit{là một} (P31), \textit{nằm ở tỉnh} (P131), \textit{danh hiệu di sản} (P1435), \textit{thuộc quần thể} (P361), \textit{tôn giáo} (P140). P131 được đi theo chuỗi tới cấp tỉnh và đổi sang 34 tỉnh, thành sau sắp xếp từ 1/7/2025. Hai quan hệ được suy ra từ thuộc tính nằm ngoài KG nên không làm lộ bộ ba test: \textit{ở gần} (mỗi thực thể có ảnh nối với hai thực thể có ảnh gần nhất trong 5 km theo tọa độ P625) và \textit{xây dựng vào thế kỷ} (từ năm khởi lập P571).
-
-\textbf{Văn bản và ảnh.} Văn bản của thực thể gồm nhãn, bí danh, mô tả Wikidata và hai đến ba câu mở đầu của bài Wikipedia tiếng Việt. Ảnh lấy từ Wikimedia Commons theo P18 và category P373, lọc theo kích thước, giấy phép tự do, từ khóa, phân loại zero-shot của CLIP (loại bản đồ, tài liệu, chân dung), khử trùng bằng SHA-256 và cosine CLIP $\geq 0.95$.
-
-\textbf{Chia dữ liệu và truy vấn.} Bộ ba được chia 70/15/15 theo từng quan hệ, cặp đối xứng chung một tập, thực thể của bộ ba validation/test phải có trong train. Ảnh được chia theo thực thể; đặc trưng thị giác của thực thể chỉ lấy trung bình từ ảnh train. Truy vấn trực tiếp là tên thực thể; truy vấn gián tiếp sinh từ mỗi bộ ba validation/test $(h,r,t)$, đáp án là ảnh của thực thể bị che. Mỗi truy vấn gián tiếp có hai cách nói tiếng Việt và một bản tiếng Anh. Truy vấn gián tiếp được chấm theo kiểu lọc: ảnh của các đáp án đúng khác cho cùng (quan hệ, thực thể neo) bị loại khỏi danh sách xếp hạng.
-
-\subsection{Chạy phương pháp tốt nhất trên ViHeritage}
-Cả AdaMF (phương pháp chính, chọn ở Mục~\ref{sec:level2-gat}) và KG-GAT được chạy trên ViHeritage với cùng khung: lưới 8 cấu hình, cấu hình thắng được huấn luyện ba lần, chọn epoch theo MRR truy vấn gián tiếp chỉ dùng điểm đồ thị trên validation, chọn $\alpha$ trên validation, test một lần. Văn bản thực thể và truy vấn tiếng Việt được mã hóa bằng CLIP đa ngôn ngữ (\texttt{clip-ViT-B-32-multilingual-v1}) cùng không gian với CLIP ảnh. Hai ablation (bỏ cạnh, xáo cạnh) được huấn luyện một lần. Để kiểm tra rò rỉ qua văn bản (tên thực thể neo có thể xuất hiện trong mô tả của đáp án), nhóm huấn luyện lại AdaMF với phương thức văn bản bị che hoàn toàn.

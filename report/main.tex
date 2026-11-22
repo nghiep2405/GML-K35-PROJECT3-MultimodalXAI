@@ -77,6 +77,11 @@
 }
 \lstset{style=codeblock}
 
+% Caption dùng ngoài môi trường float để khóa tiêu đề con với bảng phụ lục.
+\makeatletter
+\newcommand{\captionof}[1]{\def\@captype{#1}\caption}
+\makeatother
+
 % Links, cross-references and IEEE bibliography
 \usepackage[unicode,colorlinks=true,linkcolor=HCMUSBlue,citecolor=HCMUSBlue,urlcolor=HCMUSBlue]{hyperref}
 \usepackage[nameinlink,noabbrev]{cleveref}
@@ -172,14 +177,8 @@
 \input{Appendix/appendix_tables}
 \renderbibliography
 
-\clearpage
 \appendices
 \raggedbottom
-\begin{strip}
-  \renderhyperparameterstable
-  \vspace{6pt}
-  \rendercontributionstable
-\end{strip}
 \input{Appendix/appendix1}
 
 \end{document}

@@ -1,12 +1,7 @@
+
 \chapter{Kết luận}
 \label{chap:conclusion}
 
-Đồ án hoàn thành ba cấp độ nối tiếp của đề bài, từ truy hồi đa phương thức, cải thiện bằng đồ thị đến giải thích và áp dụng trên dữ liệu tự xây. Kết quả xác lập một phân vai rõ ràng: CLIP cung cấp không gian ngữ nghĩa mạnh để tìm ứng viên, còn graph reranker bổ sung thông tin thực thể và quan hệ mà cosine similarity không biểu diễn trực tiếp.
+Đồ án đã hoàn thành ba cấp độ, từ truy hồi đa phương thức bằng CLIP, cải thiện xếp hạng bằng mô hình đồ thị đến đánh giá khả năng giải thích và áp dụng trên dữ liệu tự xây dựng. Kết quả cho thấy CLIP kết hợp GAT cải thiện MRR 17.4\% trên Visual Genome, trong khi Indirect MRR trên DB15K tăng khoảng 6.6 lần. Tuy nhiên, các thí nghiệm ablation cho thấy đóng góp của thông tin quan hệ khác nhau giữa các bộ dữ liệu. Các thí nghiệm can thiệp cũng xác nhận những quan hệ được chọn làm giải thích có ảnh hưởng đến kết quả truy hồi, dù không phải mọi giải thích đều hợp lý về mặt kiến thức.
 
-Trên Visual Genome, CLIP--GAT tăng MRR 17.4\% và ổn định qua ba seed. Ablation cho thấy bộ biến đổi học được tạo ra phần cải thiện lớn, trong khi scene graph đúng tiếp tục nâng kết quả lên mức cao nhất. Trên DB15K, Indirect MRR tăng 6.6 lần và giảm mạnh khi quan hệ bị xáo, khẳng định giá trị của cạnh thật đối với truy vấn cần suy luận. FB15K-237-IMG bổ sung một insight khác: biểu diễn đa phương thức và mục tiêu truy hồi vẫn có thể duy trì hiệu năng cao ngay cả khi cấu trúc bị can thiệp.
-
-Giải thích bằng can thiệp kết nối trực tiếp hiệu năng với cơ chế hoạt động của mô hình. Ở mọi tập, bỏ đúng quan hệ giải thích làm điểm giảm mạnh hơn bỏ ngẫu nhiên; kiểm chứng bằng huấn luyện lại trên ViHeritage cho cùng hướng tác động. Nhờ đó, đường đi và đồ thị con không chỉ là minh họa sau dự đoán mà là bằng chứng có ảnh hưởng đo được tới xếp hạng.
-
-ViHeritage-MMKG chứng minh toàn bộ quy trình có thể triển khai trên miền di sản Việt Nam: xây dữ liệu, huấn luyện trên miền đích, truy hồi trực tiếp/gián tiếp, ablation và kiểm chứng XAI. Kết quả theo quan hệ đồng thời chỉ ra nơi graph tạo lợi ích và nơi dữ liệu hoặc cơ chế chấm điểm cần được điều chỉnh.
-
-Đóng góp cốt lõi của đồ án là một quy trình đánh giá khép kín: \textbf{baseline $\rightarrow$ graph reranking $\rightarrow$ ablation cấu trúc $\rightarrow$ giải thích bằng can thiệp}. Quy trình này trả lời đồng thời graph cải thiện bao nhiêu, phần nào đến từ quan hệ thật và bằng chứng nào khiến mô hình xếp hạng một ảnh; qua đó tạo nền tảng cho hệ truy hồi đa phương thức vừa hiệu quả, vừa có khả năng giải thích và kiểm chứng.
+Bên cạnh đó, nhóm đã xây dựng ViHeritage-MMKG và triển khai đầy đủ quy trình huấn luyện, truy hồi và giải thích trên dữ liệu di sản Việt Nam. Nhìn chung, đồ án cho thấy tiềm năng của việc kết hợp CLIP với mô hình đồ thị, đồng thời nhấn mạnh sự cần thiết của việc kiểm chứng cả hiệu quả truy hồi, đóng góp của thông tin quan hệ và độ tin cậy của giải thích.

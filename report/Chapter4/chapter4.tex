@@ -11,13 +11,13 @@ Cấp độ 2 yêu cầu thực nghiệm trên ít nhất hai tập công khai, 
 \label{sec:preprocessing}
 \label{sec:level2-data-contract}
 
-DB15K gồm 12\,842 thực thể, 279 quan hệ, 99\,028 bộ ba và 25\,925 ảnh. Validation chính thức chồng lấn đáng kể với train/test, nên nhóm tách lại train chuẩn theo tỷ lệ 90/10, gom cạnh đảo cùng quan hệ vào một nhóm. Dữ liệu sau xử lý gồm 71\,300 bộ ba train, 7\,922 validation và giữ nguyên 9\,902 test. Ảnh được chuẩn hóa RGB, kiểm tra trùng và gán cụm trùng vào cùng retrieval split.
+DB15K~\cite{liu2019mmkg} gồm 12\,842 thực thể, 279 quan hệ, 99\,028 bộ ba và 25\,925 ảnh. Validation chính thức chồng lấn đáng kể với train/test, nên nhóm tách lại train chuẩn theo tỷ lệ 90/10, gom cạnh đảo cùng quan hệ vào một nhóm. Dữ liệu sau xử lý gồm 71\,300 bộ ba train, 7\,922 validation và giữ nguyên 9\,902 test. Ảnh được chuẩn hóa RGB, kiểm tra trùng và gán cụm trùng vào cùng retrieval split.
 \label{sec:db15k-preprocessing}
 
-FB15K-237-IMG gồm 14\,541 thực thể, 237 quan hệ và 310\,116 bộ ba. KG, văn bản và ảnh được nối bằng khóa Freebase; ảnh lỗi hoặc nhỏ hơn $64\times64$ và cụm ảnh gắn nhiều thực thể bị loại. Sau lọc còn 139\,814 ảnh. Đặc trưng ảnh được chuẩn hóa L2 rồi lấy trung bình theo thực thể. Với 280 thực thể thiếu ảnh, nhánh thị giác nhận vector 0 kèm modality mask để trọng số phương thức bằng 0. Văn bản phủ đủ 14\,541 thực thể.
+FB15K-237-IMG~\cite{toutanova2015fb15k237,liu2019mmkg} gồm 14\,541 thực thể, 237 quan hệ và 310\,116 bộ ba. KG, văn bản và ảnh được nối bằng khóa Freebase; ảnh lỗi hoặc nhỏ hơn $64\times64$ và cụm ảnh gắn nhiều thực thể bị loại. Sau lọc còn 139\,814 ảnh. Đặc trưng ảnh được chuẩn hóa L2 rồi lấy trung bình theo thực thể. Với 280 thực thể thiếu ảnh, nhánh thị giác nhận vector 0 kèm modality mask để trọng số phương thức bằng 0. Văn bản phủ đủ 14\,541 thực thể.
 \label{sec:fb15k-preprocessing}
 
-Các bộ ba FB15K được chuyển sang thứ tự OpenKE $(h,t,r)$; sáu tệp adapter được xác minh giống từng byte với bản xem trước đã khóa. Tensor ảnh và văn bản cấp thực thể cùng có kích thước $14\,541\times512$; chỉ mục và checksum khóa thứ tự dòng. Một mini-batch có mask cho điểm số/gradient hữu hạn, tham số được cập nhật và trọng số ảnh của thực thể thiếu bằng 0. Ảnh được chia gần 80/10/10 theo cụm SHA-256, seed 2026; không có cụm trùng giữa các retrieval split. Đây là giao thức KG transductive kết hợp tách biệt ảnh, không phải tách biệt thực thể.
+Các bộ ba FB15K được chuyển sang thứ tự OpenKE $(h,t,r)$; sáu tệp adapter được xác minh giống từng byte với bản xem trước đã khóa. Tensor ảnh và văn bản cấp thực thể cùng có kích thước $14\,541\times512$; chỉ mục và checksum khóa thứ tự dòng. Một mini-batch có mask cho điểm số/gradient hữu hạn, tham số được cập nhật và trọng số ảnh của thực thể thiếu bằng 0. Ảnh được chia gần 80/10/10 theo cụm SHA-256, seed 2026; không có cụm trùng giữa các retrieval split. Đây là giao thức KG transductive kết hợp tách biệt ảnh, không phải tách biệt thực thể. Bảng~\ref{tab:level2-preprocessed-data} tổng hợp quy mô ảnh và truy vấn của hai bộ dữ liệu sau các bước tiền xử lý trên.
 
 \begin{table}[!t]
 \centering
@@ -97,7 +97,7 @@ hàm mất mát và quy trình xếp hạng lại đều được giữ nguyên.
 
 Mỗi mô hình đầy đủ được huấn luyện ba lần và chọn checkpoint theo validation MRR. DB15K dùng SigmoidLoss với 128 mẫu âm, tối đa 500 epoch; GAT dừng khi validation không cải thiện sau 40 lần đánh giá. FB15K-237-IMG dùng cross-entropy với một ảnh dương, 50 hard negative lấy từ top-200 CLIP và tối đa 50 epoch. Hai loss phản ánh hai pipeline khác nhau và chưa được đối chứng trên cùng một tập với các điều kiện còn lại được kiểm soát. $\alpha_{\mathrm{CLIP}}$ được quét từ 0 đến 1 với bước 0.1 trên validation.
 
-MRR dùng nghịch đảo hạng của ảnh liên quan tốt nhất; R@K kiểm tra có ít nhất một ảnh liên quan trong top-$K$. Khi nhiều ảnh đồng điểm, hạng optimistic chỉ đếm số ảnh có điểm lớn hơn điểm ảnh đúng tốt nhất. Kết quả đầy đủ báo cáo trung bình và độ lệch chuẩn mẫu của ba lần chạy; ngoài MRR gộp còn tách Direct MRR, Indirect MRR, head và tail để tránh chỉ số chung che mất phần đồ thị thực sự tham gia.
+MRR dùng nghịch đảo hạng của ảnh liên quan tốt nhất; R@K kiểm tra có ít nhất một ảnh liên quan trong top-$K$. Khi nhiều ảnh đồng điểm, hạng optimistic chỉ đếm số ảnh có điểm lớn hơn điểm ảnh đúng tốt nhất. Kết quả đầy đủ báo cáo trung bình và độ lệch chuẩn mẫu của ba lần chạy; ngoài MRR gộp còn tách Direct MRR, Indirect MRR, head và tail để tránh chỉ số chung che mất phần đồ thị thực sự tham gia. Phân bố các nhóm truy vấn test dùng cho những chỉ số này được trình bày tại Bảng~\ref{tab:level2-test-counts}.
 
 \begin{table}[!t]
 \centering
@@ -117,7 +117,7 @@ FB15K-237-IMG & 33\,156 & 8\,592 & 24\,564 & 12\,108 & 12\,456\\
 
 Mỗi tập có 20 truy vấn đánh giá: 10 trực tiếp, 5 head và 5 tail. Truy vấn được chọn cố định từ test trước khi xem kết quả: bỏ trường hợp thực thể đích không xuất hiện trong train, giới hạn mỗi thực thể đích một truy vấn rồi lấy mẫu bằng seed cố định. Bộ này chỉ dùng đánh giá và minh họa, không dùng chọn checkpoint hay $\alpha$.
 
-Đối chứng gồm CLIP-only, Full Graph, No Edges, Random Graph và Shuffled Edges. Trên DB15K, Random Graph giữ số cạnh theo quan hệ, lấy mẫu đều head/tail và loại self-loop, cạnh train gốc cùng bộ ba trùng; Shuffled Edges hoán đổi tail trong cùng quan hệ để giữ bậc theo quan hệ. Trên FB15K-237-IMG, Random Graph thay neo nhưng giữ quan hệ, đích và ảnh liên quan; Shuffled Edges hoán đổi neo trong cùng nhóm quan hệ và hướng truy vấn. Random Graph chỉ dùng train. Shuffled Edges loại phép hoán đổi trùng validation/test; điều kiện test-aware exclusion này được công bố như một giới hạn giao thức tại Mục~\ref{sec:reproducibility-leakage}.
+Đối chứng gồm CLIP-only, Full Graph, No Edges, Random Graph và Shuffled Edges. Trên DB15K, Random Graph giữ số cạnh theo quan hệ, lấy mẫu đều head/tail và loại self-loop, cạnh train gốc cùng bộ ba trùng; Shuffled Edges hoán đổi tail trong cùng quan hệ để giữ bậc theo quan hệ. Trên FB15K-237-IMG, Random Graph thay neo nhưng giữ quan hệ, đích và ảnh liên quan; Shuffled Edges hoán đổi neo trong cùng nhóm quan hệ và hướng truy vấn. Random Graph chỉ dùng train. Shuffled Edges loại phép hoán đổi trùng validation/test; đây là cơ chế test-aware exclusion, không phải blind generation hoàn toàn.
 
 \section{Kết quả trên DB15K và FB15K-237-IMG}
 \label{sec:level2-results}
@@ -146,7 +146,7 @@ CLIP + AdaMF & \textbf{0.2581} & \textbf{0.3214} & \textbf{0.3492} & \textbf{0.2
 \end{reporttabular}
 \end{table}
 
-Trên DB15K, mức tăng tập trung hoàn toàn ở truy vấn gián tiếp: MRR tăng từ 0.0475 lên 0.3143, gấp 6.6 lần; tail tăng từ 0.0699 lên 0.4714 và head từ 0.0303 lên 0.1933. GAT đạt 0.3110. Trên validation, hiệu số GAT trừ AdaMF là $-0.0037$, CI 95\% $[-0.0076,+0.0005]$; trên test là $-0.0033$, CI $[-0.0070,+0.0005]$, Wilcoxon $p=0.055$.
+Theo Bảng~\ref{tab:level2-main}, trên DB15K, mức tăng tập trung hoàn toàn ở truy vấn gián tiếp: MRR tăng từ 0.0475 lên 0.3143, gấp 6.6 lần; tail tăng từ 0.0699 lên 0.4714 và head từ 0.0303 lên 0.1933. GAT đạt 0.3110. Trên validation, hiệu số GAT trừ AdaMF là $-0.0037$, CI 95\% $[-0.0076,+0.0005]$; trên test là $-0.0033$, CI $[-0.0070,+0.0005]$, Wilcoxon $p=0.055$.
 Chênh lệch giữa AdaMF và GAT chưa đạt
 ý nghĩa thống kê ($p=0.055$), nên chưa
 đủ cơ sở kết luận phương pháp nào tốt hơn.
@@ -182,7 +182,7 @@ No Edges & 1.0 & 0.0991 & 0.0122 & 0\%\\
 \end{reporttabular}
 \end{table}
 
-Trên DB15K, khi loại bỏ hoặc thay ngẫu nhiên
+Kết quả ablation tại Bảng~\ref{tab:level2-ablation} cho thấy trên DB15K, khi loại bỏ hoặc thay ngẫu nhiên
 các cạnh, mô hình không còn cải thiện so với CLIP.
 Tập validation chọn $\alpha=1$, tức chỉ sử dụng
 điểm CLIP để xếp hạng. Khi xáo trộn các cạnh
@@ -224,7 +224,7 @@ Tất cả (20) & 0.211 & \textbf{0.451}\\
 \end{reporttabular}
 \end{table}
 
-Trong 10 truy vấn gián tiếp được đánh giá trên
+Theo Bảng~\ref{tab:level2-benchmark}, trong 10 truy vấn gián tiếp được đánh giá trên
 DB15K, có 4 truy vấn được cải thiện từ hạng
 hàng trăm lên top-5 trong cả ba lần chạy.
 Ví dụ, truy vấn về vợ/chồng của Angelina Jolie

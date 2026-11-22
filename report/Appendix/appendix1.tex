@@ -32,7 +32,7 @@ Mỗi ảnh được biểu diễn bằng một đồ thị gồm một nút ả
 
 Mô hình sử dụng GAT hai lớp. Biểu diễn graph được lấy tại nút ảnh theo \texttt{batch.ptr[:-1]}, cộng residual với embedding CLIP ảnh ban đầu, rồi qua LayerNorm và chuẩn hóa L2. Cách đọc này là image-root readout, không phải pooling trên toàn bộ nút.
 
-CLIP kết hợp GAT đạt MRR trung bình 0,8273, tăng 14,4\% so với CLIP-only. Trên seed 2026, thứ tự Full Graph $>$ No-edges $>$ Random-edges $>$ CLIP-only cho thấy bộ biến đổi học được và cấu trúc không gian đều đóng góp vào kết quả; các cạnh đúng giúp mô hình đạt hiệu năng cao nhất, còn cạnh ngẫu nhiên làm giảm lợi ích của GAT.
+CLIP kết hợp GAT đạt MRR trung bình 0,8273, tăng 14,4\% so với CLIP-only. Trên seed 2026, thứ tự Full Graph $>$ No-edges $>$ Random-edges $>$ CLIP-only cho thấy bộ biến đổi học được và cấu trúc không gian đều đóng góp vào kết quả; các cạnh đúng giúp mô hình đạt hiệu năng cao nhất, còn cạnh ngẫu nhiên làm giảm lợi ích của GAT. Kết quả đầy đủ theo từng seed và ablation được trình bày tại Bảng~\ref{tab:flickr30k-results}.
 
 \begin{table}[H]
 \centering
@@ -62,7 +62,7 @@ Random-edges (2026) & 0.6380 & 0.8310 & 0.8890 & 0.7450 \\
 \section{Số liệu kiểm định và audit bổ sung}
 \label{app:supplementary-audit}
 
-Phụ lục này lưu các giá trị chính xác dùng để kiểm tra kết quả trong thân bài. Chúng được tách riêng để mạch trình bày chính tập trung vào kết luận thay vì liệt kê toàn bộ số liệu trung gian.
+Phụ lục này lưu các giá trị chính xác dùng để kiểm tra kết quả trong thân bài. Chúng được tách riêng để mạch trình bày chính tập trung vào kết luận thay vì liệt kê toàn bộ số liệu trung gian. Bảng~\ref{tab:vg-detailed-audit} ghi kết quả Visual Genome theo từng lần huấn luyện; Bảng~\ref{tab:supplementary-audit} tổng hợp các kiểm tra phụ trợ không đưa vào bảng kết quả chính.
 
 \par\vspace{\baselineskip}
 \noindent\begin{minipage}{\columnwidth}

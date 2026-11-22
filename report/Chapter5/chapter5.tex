@@ -10,9 +10,9 @@ Nhóm thực hiện hai phần chính: đánh giá độ tin cậy của các gi
 
 \section{Giải thích dựa trên kết quả xếp hạng}
 
-Để kiểm tra mức độ ảnh hưởng của các quan hệ trong đồ thị, nhóm lần lượt loại bỏ chúng và tính lại điểm truy hồi. Với GAT, các cạnh liên quan được loại bỏ trước khi chạy lại mô hình bằng checkpoint đã huấn luyện. Với AdaMF, nhóm áp dụng phương pháp Kelpie~\cite{rossi2022kelpie} để học lại embedding cấu trúc của thực thể cần giải thích, có và không có các bộ ba được xét, trong khi giữ nguyên các tham số và thiết lập huấn luyện khác. Điểm sau khi thay đổi được tính bằng cùng cơ chế xếp hạng lại ban đầu.
+Với GAT, nhóm áp dụng lại phép bỏ cạnh ở Mục~\ref{sec:level1-xai-method}. Với AdaMF, phương pháp Kelpie~\cite{rossi2022kelpie} học lại embedding cấu trúc của thực thể cần giải thích khi có và không có các bộ ba được xét, trong khi giữ nguyên các tham số và thiết lập huấn luyện khác. Điểm sau can thiệp được đưa vào cùng cơ chế xếp hạng lại ban đầu.
 
-Nhóm chọn tối đa $K^\star$ quan hệ hoặc bộ ba có ảnh hưởng tích cực lớn nhất để giải thích. Chất lượng giải thích được đánh giá bằng Fid$^+$ (mức giảm xác suất khi loại bỏ các quan hệ được chọn), Fid$^-$ (mức thay đổi khi chỉ giữ các quan hệ này), PN/PS (ảnh hưởng đến kết quả hạng nhất) và sparsity (mức độ gọn của tập giải thích). Validity kiểm tra tính hợp lệ của các quan hệ được chọn. Kết quả được so sánh với các cách chọn ngẫu nhiên, làm nhiễu thực thể và lựa chọn dựa trên bậc hoặc attention.
+Nhóm chọn tối đa $K^\star$ quan hệ hoặc bộ ba có ảnh hưởng tích cực lớn nhất. Các chỉ số Fid$^+$, Fid$^-$, PN/PS, sparsity và validity dùng theo định nghĩa tại Mục~\ref{sec:explainable-retrieval}; đối chứng gồm chọn ngẫu nhiên, làm nhiễu thực thể và lựa chọn theo bậc hoặc attention.
 
 Mỗi truy vấn được giải thích dựa trên ảnh xếp hạng nhất. Thực nghiệm sử dụng 500 truy vấn test trên Visual Genome; 70 truy vấn gián tiếp trên mỗi bộ DB15K và FB15K-237-IMG (60 truy vấn lấy mẫu và 10 truy vấn từ bộ đánh giá riêng); cùng 54 truy vấn cho GAT và 50 truy vấn cho AdaMF trên ViHeritage-MMKG. Các truy vấn trực tiếp không được giải thích bằng bộ ba nếu điểm đồ thị không tham gia xếp hạng. Kết quả được đánh giá qua nhiều checkpoint, sử dụng kiểm định Wilcoxon và khoảng tin cậy bootstrap 95\%.
 
@@ -25,11 +25,11 @@ ViHeritage-MMKG là tập dữ liệu do nhóm xây dựng về di sản và dan
 
 Nhóm sử dụng 13 loại quan hệ có sẵn từ Wikidata, chẳng hạn \textit{là một} (P31), \textit{nằm ở tỉnh} (P131), \textit{danh hiệu di sản} (P1435), \textit{thuộc quần thể} (P361) và \textit{tôn giáo} (P140). Thông tin vị trí được xác định đến cấp tỉnh và cập nhật theo 34 đơn vị hành chính từ ngày 1/7/2025. Ngoài ra, nhóm bổ sung hai quan hệ được suy ra từ dữ liệu: \textit{ở gần}, kết nối mỗi thực thể có ảnh với hai thực thể có ảnh gần nhất trong bán kính 5 km dựa trên tọa độ P625; và \textit{xây dựng vào thế kỷ}, được xác định từ năm P571. Việc tạo các quan hệ này không sử dụng thống kê từ tập validation hoặc test.
 
-Dữ liệu văn bản gồm tên, tên gọi khác, mô tả Wikidata và hai đến ba câu đầu từ Wikipedia tiếng Việt. Hình ảnh được lấy từ Wikimedia Commons qua P18/P373, sau đó lọc theo kích thước, giấy phép, từ khóa và phân loại zero-shot. Ảnh trùng được loại bỏ bằng SHA-256 và độ tương đồng CLIP từ 0.95 trở lên. Nguồn và giấy phép được ghi trong data card, gồm Wikidata (CC0), Wikipedia (CC BY-SA 4.0) và giấy phép riêng của từng ảnh.
+Dữ liệu văn bản gồm tên, tên gọi khác, mô tả Wikidata và hai đến ba câu đầu từ Wikipedia tiếng Việt. Hình ảnh được lấy từ Wikimedia Commons qua P18/P373, sau đó lọc theo kích thước, giấy phép, từ khóa và phân loại zero-shot. Ảnh trùng được loại bỏ bằng SHA-256 và độ tương đồng CLIP từ 0.95 trở lên. Nguồn và giấy phép được ghi trong data card, gồm Wikidata (CC0), Wikipedia (CC BY-SA 4.0) và giấy phép riêng của từng ảnh~\cite{wikidataLicensing,wikipediaCopyrights,commonsLicensing}.
 
 Các bộ ba được chia thành train/validation/test theo tỷ lệ 70/15/15, có xét đến từng loại quan hệ. Các cặp quan hệ đối xứng được giữ trong cùng một tập, đồng thời bảo đảm thực thể xuất hiện trong validation hoặc test cũng có mặt trong train. Ảnh được chia theo thực thể; đặc trưng thị giác của thực thể chỉ được tổng hợp từ ảnh train.
 
-Truy vấn trực tiếp sử dụng tên thực thể, còn truy vấn gián tiếp được tạo từ các bộ ba $(h,r,t)$ với hai cách diễn đạt tiếng Việt và một bản tiếng Anh. Khi đánh giá truy vấn gián tiếp, các ảnh thuộc những đáp án đúng khác của cùng thực thể đã biết và quan hệ được loại khỏi danh sách ứng viên, nhằm tránh đánh giá sai những kết quả cũng hợp lệ. Nhóm kiểm tra chất lượng liên kết ảnh--thực thể trên 100 ảnh được chọn bằng phương pháp lấy mẫu phân tầng, đạt độ chính xác 0.935. Theo từng nguồn, độ chính xác lần lượt là 1.000 với P18, 0.929 với P373 và 0.833 với danh mục con. Do có độ chính xác thấp nhất, toàn bộ 12 ảnh từ danh mục con được loại bỏ. Sau khi lọc, một số liên kết chưa chính xác vẫn còn, chủ yếu là ảnh bản đồ, huy hiệu hoặc ảnh chỉ liên quan gián tiếp đến thực thể. Ngoài ra, khoảng 35\% số bộ ba trong đồ thị là các quan hệ được suy ra.
+Truy vấn trực tiếp sử dụng tên thực thể, còn truy vấn gián tiếp được tạo từ các bộ ba $(h,r,t)$ với hai cách diễn đạt tiếng Việt và một bản tiếng Anh. Khi đánh giá truy vấn gián tiếp, các ảnh thuộc những đáp án đúng khác của cùng thực thể đã biết và quan hệ được loại khỏi danh sách ứng viên, nhằm tránh đánh giá sai những kết quả cũng hợp lệ. Nhóm kiểm tra chất lượng liên kết ảnh--thực thể trên 100 ảnh được chọn bằng phương pháp lấy mẫu phân tầng, đạt độ chính xác 0.935. Theo từng nguồn, độ chính xác lần lượt là 1.000 với P18, 0.929 với P373 và 0.833 với danh mục con. Do có độ chính xác thấp nhất, toàn bộ 12 ảnh từ danh mục con được loại bỏ. Sau khi lọc, một số liên kết chưa chính xác vẫn còn, chủ yếu là ảnh bản đồ, huy hiệu hoặc ảnh chỉ liên quan gián tiếp đến thực thể. Ngoài ra, khoảng 35\% số bộ ba trong đồ thị là các quan hệ được suy ra. Quy mô cuối cùng của thực thể, bộ ba, ảnh và truy vấn được tổng hợp tại Bảng~\ref{tab:viheritage-stats}.
 
 \begin{table}[!t]
 \centering
@@ -54,7 +54,7 @@ Truy vấn val trực tiếp / gián tiếp & 86 / 50\\
 
 Nhóm huấn luyện lại AdaMF và KG-GAT từ đầu trên ViHeritage-MMKG, thay vì sử dụng trực tiếp checkpoint từ các bộ dữ liệu trước. Cả hai mô hình dùng batch size 64, 32 mẫu âm, tối đa 1\,500 epoch và đánh giá mỗi 25 epoch, với patience bằng 12. AdaMF sử dụng embedding 50 chiều, learning rate $5\times10^{-4}$; KG-GAT sử dụng embedding 100 chiều, learning rate $2\times10^{-3}$. Cả hai có margin bằng 6.
 
-Các siêu tham số được lựa chọn từ 8 tổ hợp trên tập validation, sau đó mô hình đầy đủ được huấn luyện với ba seed. Văn bản tiếng Việt được mã hóa bằng \texttt{clip-ViT-B-32-multilingual-v1}, tương thích với không gian đặc trưng ảnh CLIP.
+Các siêu tham số được lựa chọn từ 8 tổ hợp trên tập validation, sau đó mô hình đầy đủ được huấn luyện với ba seed. Văn bản tiếng Việt được mã hóa bằng \texttt{clip-ViT-B-32-multilingual-v1}, tương thích với không gian đặc trưng ảnh CLIP~\cite{multilingualClipModelCard}.
 
 Với truy vấn trực tiếp, kết quả xếp hạng của CLIP được giữ nguyên. Với truy vấn gián tiếp, mô hình sử dụng thêm điểm đồ thị để xếp hạng lại. Checkpoint được chọn dựa trên MRR của truy vấn gián tiếp trên validation; trọng số $\alpha$ cũng được xác định trên tập này trước khi đánh giá trên test. Hai cấu hình loại bỏ và xáo trộn cạnh được chạy với một seed. Ngoài ra, nhóm huấn luyện lại AdaMF khi loại bỏ toàn bộ đặc trưng văn bản để đánh giá mức độ phụ thuộc của mô hình vào nguồn thông tin này.
 
@@ -81,7 +81,7 @@ CLIP + GAT & \textbf{0.080} & \textbf{0.282} & \textbf{0.465} & \textbf{0.195}\p
 \end{reporttabular}
 \end{table}
 
-So với CLIP, Indirect MRR tăng 0.107 với AdaMF
+Theo Bảng~\ref{tab:viheritage-results}, so với CLIP, Indirect MRR tăng 0.107 với AdaMF
 ($p=0.006$) và 0.146 với KG-GAT ($p=0.0007$).
 Mặc dù KG-GAT cao hơn AdaMF 0.039, chênh lệch
 chưa có ý nghĩa thống kê ($p=0.29$).
@@ -130,13 +130,13 @@ ViHeritage, GAT & Che cạnh & 8 & 0.103\pmsd{0.080} & 0.002 & 0.024 & $-$0.112 
 \par\smallskip{\raggedright Validity cấu trúc đạt 100\%. Số truy vấn: Visual Genome 500; DB15K và FB15K-237-IMG 70; ViHeritage 50 với AdaMF và 54 với GAT. Ổn định là Jaccard giữa các tập giải thích của các checkpoint độc lập khi chúng trả về cùng ảnh.\par}
 \end{table*}
 
-Trên tất cả các bộ dữ liệu, việc loại bỏ các quan hệ được chọn làm giải thích khiến điểm truy hồi giảm mạnh hơn so với loại bỏ ngẫu nhiên. Trên ViHeritage-MMKG, chênh lệch Fid$^+$ đạt 0.39 với AdaMF (CI 95\%: $[0.35,0.44]$, $p<10^{-10}$) và 0.10 với GAT ($[0.06,0.14]$, $p<10^{-4}$). Làm nhiễu các thực thể liên quan cũng làm giảm điểm, trong khi các cách chọn theo bậc hoặc attention cho kết quả thấp hơn. Điều này cho thấy các quan hệ được chọn có ảnh hưởng thực sự đến kết quả xếp hạng.
+Bảng~\ref{tab:xai-all} tổng hợp các chỉ số giải thích trên toàn bộ bộ dữ liệu và mô hình. Trên tất cả các bộ dữ liệu, việc loại bỏ các quan hệ được chọn làm giải thích khiến điểm truy hồi giảm mạnh hơn so với loại bỏ ngẫu nhiên. Trên ViHeritage-MMKG, chênh lệch Fid$^+$ đạt 0.39 với AdaMF (CI 95\%: $[0.35,0.44]$, $p<10^{-10}$) và 0.10 với GAT ($[0.06,0.14]$, $p<10^{-4}$). Làm nhiễu các thực thể liên quan cũng làm giảm điểm, trong khi các cách chọn theo bậc hoặc attention cho kết quả thấp hơn. So sánh trực quan giữa tập giải thích và đối chứng ngẫu nhiên được thể hiện tại Hình~\ref{fig:xai-fidelity}. Điều này cho thấy các quan hệ được chọn có ảnh hưởng thực sự đến kết quả xếp hạng.
 
 Khi huấn luyện lại toàn bộ AdaMF trên ViHeritage-MMKG, Fid$^+$ đạt 0.327 khi bỏ các bộ ba giải thích, cao hơn so với bỏ ngẫu nhiên (0.180, $p=0.0002$) hoặc bỏ bộ ba có bậc cao (0.197, $p=0.0008$). Tuy nhiên, tương quan Spearman giữa cách đánh giá xấp xỉ và huấn luyện lại chỉ đạt 0.32, cho thấy mức độ ảnh hưởng của từng truy vấn chưa được phản ánh hoàn toàn chính xác.
 
 Validity cấu trúc đạt 100\%: các quan hệ giải thích đều thuộc đồ thị hợp lệ và không sử dụng bộ ba validation/test. Trên ViHeritage-MMKG, khoảng 35--42\% bộ ba giải thích nằm trên đường đi giữa thực thể đã biết và thực thể của ảnh; 88--96\% ảnh trả về có cùng loại thực thể với đáp án. Sparsity đạt 0.65--0.80, cho thấy giải thích chỉ sử dụng một phần các quan hệ ứng viên.
 
-Với AdaMF trên ViHeritage-MMKG, khi chỉ giữ một bộ ba ($K^\star=1$), PS đạt 0.144. Tăng lên hai bộ ba giúp PS đạt khoảng 0.68 và Fid$^-$ gần 0, nhưng sparsity giảm từ 0.76 xuống 0.60. Với GAT, ảnh hưởng phân tán trên nhiều cạnh nên PS cao hơn nhưng Fid$^+$ thấp hơn. Kết quả cho thấy việc chọn các quan hệ có ảnh hưởng lớn nhất chưa đồng thời bảo đảm giải thích vừa đầy đủ vừa ngắn gọn.
+Với AdaMF trên ViHeritage-MMKG, khi chỉ giữ một bộ ba ($K^\star=1$), PS đạt 0.144. Tăng lên hai bộ ba giúp PS đạt khoảng 0.68 và Fid$^-$ gần 0, nhưng sparsity giảm từ 0.76 xuống 0.60. Với GAT, ảnh hưởng phân tán trên nhiều cạnh nên PS cao hơn nhưng Fid$^+$ thấp hơn. Hình~\ref{fig:xai-kcurve} trình bày trực tiếp sự đánh đổi giữa Fid$^+$ và sparsity khi thay đổi $K$. Kết quả cho thấy việc chọn các quan hệ có ảnh hưởng lớn nhất chưa đồng thời bảo đảm giải thích vừa đầy đủ vừa ngắn gọn.
 
 \begin{figure}[!t]
 \centering
@@ -155,7 +155,7 @@ Với AdaMF trên ViHeritage-MMKG, khi chỉ giữ một bộ ba ($K^\star=1$), 
 \section{Phân tích ca thành công và thất bại}
 \label{sec:level3-cases}
 
-Trong trường hợp Huế--Chùa Thiên Mụ, cả AdaMF và GAT đều xác định quan hệ Chùa Thiên Mụ \textit{thuộc quần thể} Quần thể di tích Cố đô Huế là quan trọng nhất, với đường đi tiếp đến Huế qua quan hệ \textit{nằm ở tỉnh}. Khi loại bỏ các quan hệ giải thích, Fid$^+$ đạt 0.27 với AdaMF và 0.49 với GAT, cao hơn mức ngẫu nhiên tương ứng là 0.06 và 0.01. Kết quả cho thấy những quan hệ này có ảnh hưởng rõ rệt đến điểm truy hồi.
+Trong trường hợp Huế--Chùa Thiên Mụ ở Hình~\ref{fig:case-viheritage}, cả AdaMF và GAT đều xác định quan hệ Chùa Thiên Mụ \textit{thuộc quần thể} Quần thể di tích Cố đô Huế là quan trọng nhất, với đường đi tiếp đến Huế qua quan hệ \textit{nằm ở tỉnh}. Khi loại bỏ các quan hệ giải thích, Fid$^+$ đạt 0.27 với AdaMF và 0.49 với GAT, cao hơn mức ngẫu nhiên tương ứng là 0.06 và 0.01. Kết quả cho thấy những quan hệ này có ảnh hưởng rõ rệt đến điểm truy hồi.
 
 Trong năm trường hợp thành công của mỗi mô hình, các quan hệ thường gặp là \textit{thuộc quần thể}, \textit{nằm ở tỉnh} và \textit{danh hiệu di sản}. Chẳng hạn, truy vấn ``Đồng Nai có những địa danh nào đáng đến?'' sử dụng đường đi Cát Tiên \textit{nằm ở tỉnh} Lâm Đồng, sau đó Lâm Đồng \textit{giáp ranh} Đồng Nai.
 
@@ -176,4 +176,4 @@ Trong 20 trường hợp được đánh giá, mỗi mô hình có 4/10 giải t
 
 \section{Kết luận cấp độ 3}
 
-Ở cấp độ 3, nhóm đánh giá định lượng chất lượng giải thích trên nhiều truy vấn, so sánh với các phương pháp đối chứng và kiểm chứng bằng huấn luyện lại. Kết quả cho thấy các quan hệ được chọn làm giải thích có ảnh hưởng rõ rệt đến điểm truy hồi. Bên cạnh đó, nhóm xây dựng ViHeritage-MMKG và huấn luyện các mô hình trên dữ liệu di sản Việt Nam, cho thấy khả năng áp dụng quy trình truy hồi và giải thích trên một miền dữ liệu mới.
+Ở cấp độ 3, nhóm đánh giá định lượng chất lượng giải thích trên nhiều truy vấn, so sánh với các phương pháp đối chứng và kiểm chứng bằng huấn luyện lại. Kết quả xác nhận các quan hệ được chọn có ảnh hưởng rõ rệt đến điểm truy hồi, dù không phải mọi giải thích đều hợp lý về mặt kiến thức. Bên cạnh đó, nhóm xây dựng ViHeritage-MMKG từ dữ liệu di sản Việt Nam và triển khai đầy đủ quy trình huấn luyện, truy hồi, ablation và giải thích. Kết quả cho thấy khả năng áp dụng quy trình trên một miền dữ liệu mới sau khi xây dựng dữ liệu và huấn luyện phù hợp.

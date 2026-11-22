@@ -1,22 +1,42 @@
-\chapter{Tổng hợp, giới hạn và hướng phát triển}
+\chapter{Thảo luận, giới hạn và hướng phát triển}
 \label{chap:discussion}
 
-\section{Insight xuyên suốt ba cấp độ}
+\section{Nhận xét chung qua ba cấp độ}
 \label{sec:cross-level-findings}
 
-Ba cấp độ tạo thành một chuỗi bằng chứng thống nhất. Cấp độ 1 xác nhận CLIP--GAT cải thiện truy hồi trên scene graph, đồng thời ablation tách lợi ích của bộ reranker khỏi lợi ích riêng của cạnh đúng. Cấp độ 2 chuyển sang MMKG và cho thấy ưu thế rõ nhất ở truy vấn gián tiếp: quan hệ giúp nối thực thể neo với ảnh đáp án mà cosine CLIP không biểu diễn trực tiếp. Cấp độ 3 khép kín chuỗi đánh giá bằng can thiệp: quan hệ được gọi là giải thích phải làm thay đổi chính điểm hoặc thứ hạng khi bị loại bỏ.
+Qua ba cấp độ, đồ án lần lượt đánh giá hiệu quả truy hồi, vai trò của các quan hệ trong đồ thị và khả năng giải thích kết quả. Trên Visual Genome, CLIP kết hợp GAT cải thiện hiệu năng, nhưng phần lớn mức cải thiện vẫn được duy trì khi loại bỏ hoặc hoán vị các cạnh. Trong khi đó, DB15K và ViHeritage-MMKG cho thấy hiệu năng giảm mạnh khi các quan hệ bị thay đổi. Ngược lại, FB15K-237-IMG vẫn giữ phần lớn mức cải thiện, cho thấy hiệu quả của mô hình còn phụ thuộc vào các thành phần khác ngoài cấu trúc quan hệ. Ở cấp độ 3, các thí nghiệm can thiệp xác nhận rằng những quan hệ được chọn làm giải thích có ảnh hưởng đến điểm truy hồi, dù không phải mọi giải thích đều hợp lý về mặt kiến thức. Nhìn chung, việc kết hợp CLIP với đồ thị có thể cải thiện hiệu quả truy hồi, đặc biệt với các truy vấn gián tiếp. Tuy nhiên, đóng góp của thông tin quan hệ khác nhau giữa các bộ dữ liệu, do đó cần được đánh giá thông qua các thí nghiệm so sánh và kiểm chứng giải thích.
 
-Kết quả tổng quát không phải ``thêm graph luôn tốt hơn'', mà là \textbf{đưa đúng quan hệ vào đúng giai đoạn xếp hạng}. CLIP vẫn là bộ tìm ứng viên; graph là bộ reranker có ý thức quan hệ. Trên Visual Genome, phần lớn mức tăng đến từ phép biến đổi học được và cạnh đúng tạo thêm phần lợi ích cuối. Trên DB15K, xáo hoặc bỏ cạnh làm giảm mạnh kết quả, chứng minh vai trò của cấu trúc thật. Trên FB15K-237-IMG, phần lớn hiệu năng còn giữ sau can thiệp, cho thấy biểu diễn đa phương thức và mục tiêu huấn luyện cũng là nguồn tín hiệu mạnh. ViHeritage một lần nữa phụ thuộc rõ vào cạnh thật.
+\subsection{Giới hạn của bước chọn ảnh ứng viên bằng CLIP}
 
-\subsection{Giới hạn và vai trò của tầng ứng viên CLIP}
+Trong cả hai cấp độ, CLIP được sử dụng để chọn ảnh ứng viên trước khi mô hình đồ thị xếp hạng lại. GAT chỉ xử lý 50 ảnh đầu trên Visual Genome, còn AdaMF/GAT xử lý 1\,000 ảnh đầu trên DB15K và FB15K-237-IMG. Vì vậy, nếu ảnh đúng nằm ngoài tập ứng viên, mô hình đồ thị không thể cải thiện thứ hạng của ảnh đó. Ngay cả khi $\alpha_{\mathrm{CLIP}}=0$, CLIP vẫn quyết định những ảnh được đưa vào bước xếp hạng lại. Do đó, hiệu quả của phương pháp kết hợp vẫn phụ thuộc vào khả năng chọn ảnh ứng viên của CLIP.
 
-Graph reranker không thay thế CLIP. Trên Visual Genome, GAT chỉ nhìn top-50; trên DB15K và FB15K-237-IMG, AdaMF/GAT chỉ nhìn top-1\,000. Khi ảnh đúng nằm ngoài tập này, nhánh graph không thể đưa ảnh trở lại. Ngay cả khi $\alpha_{\mathrm{CLIP}}=0$, CLIP vẫn quyết định tập ứng viên và thứ tự ngoài top-$K$. Vì vậy, mức tăng phản ánh khả năng sắp xếp lại một candidate pool có recall đủ tốt, không phải truy hồi độc lập hoàn toàn bằng graph.
+Bên cạnh đó, DB15K chỉ xếp hạng lại truy vấn gián tiếp, trong khi FB15K-237-IMG áp dụng cho cả truy vấn trực tiếp và gián tiếp. Vì vậy, cần đánh giá riêng từng nhóm truy vấn để xác định rõ mức cải thiện và vai trò của thông tin đồ thị.
 
-Hai pipeline MMKG cũng dùng điểm graph khác nhau theo loại truy vấn. DB15K giữ nguyên truy vấn trực tiếp và chỉ rerank nhóm gián tiếp, trong khi FB15K-237-IMG rerank cả hai. Do đó mức tăng Direct MRR trên FB15K không thể dùng để suy ra cùng cơ chế với DB15K. Phân tích theo nhóm truy vấn là cần thiết để tránh chỉ số gộp che mất phần mà quan hệ thực sự tham gia.
+\subsection{Đóng góp của thông tin quan hệ và các thành phần khác}
 
-\subsection{Cạnh thật so với thành phần học được}
+Trên Visual Genome, No-edge và Random-edges vẫn
+vượt CLIP-only, với MRR lần lượt là 0.069193
+và 0.070772, so với 0.061149. Full Graph đạt
+0.071655, chỉ cao hơn Random-edges 0.000883.
+Điều này cho thấy phần lớn mức cải thiện không
+phụ thuộc vào việc giữ đúng các mối quan hệ
+giữa thực thể. Ngược lại, trên DB15K, Random Graph không mang
+lại cải thiện nên validation chọn $\alpha=1$,
+tức chỉ sử dụng điểm CLIP. Full Graph cao hơn
+Shuffled 0.169569 Indirect MRR, trong khi Shuffled
+chỉ duy trì 37\% mức cải thiện. Trên FB15K-237-IMG,
+các cấu hình thay đổi cạnh vẫn giữ khoảng 93\%
+mức cải thiện, do liên kết thực thể--ảnh và
+cơ chế huấn luyện vẫn được duy trì. Với ViHeritage,
+hiệu năng giảm về gần hoặc dưới mức CLIP khi
+loại bỏ hoặc xáo trộn cạnh.
 
-Visual Genome cho thấy No-edge và Random-edges vẫn vượt CLIP, nên kiến trúc học thêm có giá trị ngay cả khi message passing không dùng đúng quan hệ. Với seed 2026, MRR lần lượt là 0.061149 (CLIP), 0.069193 (No-edge), 0.070772 (Random) và 0.071655 (Full); Full chỉ hơn Random 0.000883. DB15K cho kết quả đối lập: Random Graph bị validation loại bỏ hoàn toàn bằng $\alpha=1$, còn Full hơn Shuffled 0.169569 Indirect MRR và Shuffled chỉ giữ 37\% mức tăng. FB15K giữ 93\% vì ablation vẫn bảo toàn ảnh đích và mục tiêu huấn luyện tiếp tục học liên kết thực thể--ảnh. ViHeritage giảm xuống gần hoặc dưới CLIP khi bỏ/xáo cạnh. Sự khác biệt này không thể quy cho một yếu tố duy nhất vì các tập còn khác loss, mật độ graph, kích thước embedding và cách tạo đối chứng.
+Nhìn chung, vai trò của các mối quan hệ trong
+đồ thị khác nhau giữa các bộ dữ liệu. Tuy nhiên,
+chưa thể xác định nguyên nhân cụ thể của sự khác
+biệt này do các thực nghiệm khác nhau về
+cách huấn luyện, mật độ đồ thị, kích thước
+embedding và cách xây dựng các cấu hình so sánh.
 
 \begin{figure}[!t]
 \centering
@@ -28,38 +48,40 @@ Visual Genome cho thấy No-edge và Random-edges vẫn vượt CLIP, nên kiế
 \section{Độ tin cậy của giải thích}
 \label{sec:xai-reliability}
 
-Fid+ cao hơn đối chứng ngẫu nhiên ở mọi tập cho thấy các bằng chứng được chọn có ảnh hưởng thực đến mô hình. Tuy nhiên, fidelity và validity trả lời hai câu hỏi khác nhau. Fidelity đo mô hình có dùng bằng chứng hay không; validity ngữ nghĩa đánh giá bằng chứng có hợp lý theo tri thức miền hay không. Ca thành công Huế--Chùa Thiên Mụ thỏa cả hai, trong khi các ca trả về thực thể neo hoặc dùng bộ ba nhiễu vẫn có thể trung thành với mô hình nhưng không hợp lý với người dùng.
+Trên tất cả các bộ dữ liệu, việc loại bỏ các quan hệ được chọn làm giải thích khiến điểm truy hồi giảm mạnh hơn so với loại bỏ ngẫu nhiên. Điều này cho thấy những quan hệ này thực sự ảnh hưởng đến mô hình. Tuy nhiên, ảnh hưởng đến kết quả không đồng nghĩa với tính hợp lý về mặt kiến thức. Chẳng hạn, trường hợp Huế--Chùa Thiên Mụ có giải thích phù hợp với cả hai tiêu chí, trong khi một số trường hợp thất bại vẫn dựa vào những quan hệ có ảnh hưởng đến điểm số nhưng không phù hợp với câu hỏi.
 
-Phép học lại embedding của AdaMF là xấp xỉ cục bộ. Kiểm chứng huấn luyện lại toàn bộ trên ViHeritage xác nhận đúng hướng tác động, nhưng tương quan theo từng truy vấn chỉ ở mức vừa. Vì vậy, giải thích được sử dụng như công cụ chẩn đoán có kiểm chứng, kết hợp với đánh giá ngữ nghĩa thay vì chỉ dựa trên attention hoặc một đường đi hợp lý hậu nghiệm.
+Với AdaMF, việc học lại embedding chỉ là cách ước lượng ảnh hưởng của các bộ ba. Trên DB15K và FB15K-237-IMG, hệ số Pearson giữa điểm tính lại và điểm ban đầu lần lượt đạt 0.957 và 0.527. Khi kiểm chứng bằng huấn luyện lại toàn bộ mô hình trên ViHeritage, tương quan Spearman chỉ đạt 0.32. Vì vậy, phương pháp có thể phản ánh xu hướng tác động nhưng chưa xác định chính xác mức ảnh hưởng của từng quan hệ.
 
-Các artifact kiểm tra mimic ghi nhận Pearson giữa điểm học lại đủ bộ ba và điểm checkpoint khoảng 0.957 trên DB15K nhưng chỉ 0.527 trên FB15K. Đây là kiểm tra đồng biến điểm, không bảo đảm giữ nguyên thứ hạng. Trên ViHeritage, Spearman giữa tác động xấp xỉ và tác động khi huấn luyện lại là 0.32. Hai thống kê đo hai khía cạnh khác nhau: mức tái tạo điểm và mức tái tạo phản ứng can thiệp.
+Bên cạnh Fid$^+$, các chỉ số Fid$^-$ và PS đánh giá liệu chỉ giữ những quan hệ được chọn có đủ duy trì kết quả hay không. Trên ViHeritage, một bộ ba có thể ảnh hưởng lớn đến điểm số nhưng chưa đủ giữ nguyên dự đoán. Sparsity lần lượt đạt 0.799 trên DB15K, 0.795 trên FB15K-237-IMG và 0.647 trên Visual Genome, với cách xác định tập quan hệ ứng viên khác nhau. Validity cấu trúc đạt 100\%, nhưng chỉ xác nhận các quan hệ thuộc đồ thị hợp lệ, không bảo đảm chúng đúng về ngữ nghĩa. Do đó, cần kết hợp đánh giá bằng can thiệp với kiểm tra kiến thức miền để xác định chất lượng giải thích.
 
-Fid$^-$ và PS bổ sung cho Fid+. Một bằng chứng có thể rất cần thiết khi bị bỏ nhưng chưa đủ giữ dự đoán khi đứng một mình, như AdaMF ViHeritage tại $K^\star=1$. Ngược lại, giải thích GAT có PS cao nhưng tác động phân tán qua nhiều cạnh. Sparsity khoảng 0.799 trên DB15K, 0.795 trên FB15K và 0.647 trên Visual Genome phải được đọc theo tập phần tử nền riêng của từng mô hình. Vì vậy $K^\star$ cần cân bằng tính cần thiết, tính đủ và độ gọn thay vì tối ưu một chỉ số duy nhất.
 
-Validity cấu trúc đạt 100\% chỉ xác nhận bằng chứng thuộc graph hợp lệ và không chồng lấn held-out. Nó không xác nhận ngữ nghĩa. Trong 20 ca ViHeritage, giải thích của các ca đúng thường hợp lý, còn ca sai vẫn trung thành với mô hình nhưng bộc lộ lỗi dữ liệu hoặc shortcut. Đây chính là giá trị chẩn đoán của XAI dựa trên can thiệp.
-
-\section{Phòng chống rò rỉ và giới hạn}
+\section{Kiểm soát rò rỉ dữ liệu}
 \label{sec:reproducibility-leakage}
+
+Các thực nghiệm đều chia dữ liệu trước khi huấn luyện, cố định đặc trưng và checkpoint, lựa chọn siêu tham số trên validation và chỉ đánh giá test sau khi hoàn tất cấu hình.
+
+Trên Visual Genome, ảnh trùng được kiểm tra bằng SHA-256 và pHash trước khi chia tập. Với DB15K, do tập validation gốc có chồng lấn với train/test, nhóm tạo tập validation mới từ dữ liệu train và giữ nguyên test chính thức. Trên FB15K-237-IMG, các ảnh trùng được giữ trong cùng một tập, đồng thời loại bỏ những cụm ảnh liên kết với nhiều thực thể.
+
+Đối với ViHeritage-MMKG, các bộ ba validation/test và cạnh ngược của quan hệ đối xứng không được đưa vào train. Đặc trưng thị giác của thực thể cũng chỉ được tổng hợp từ ảnh train nhằm tránh sử dụng thông tin từ các tập đánh giá.
+
+\section{Giới hạn của đồ án}
 \label{sec:limitations}
 
-Các pipeline đều chia dữ liệu trước khi huấn luyện, khóa cache/checkpoint, chọn siêu tham số trên validation và chỉ đánh giá test sau khi cấu hình hoàn tất. Visual Genome gom ảnh trùng bằng SHA-256/pHash; DB15K dùng validation sạch tách từ train; FB15K giữ cụm ảnh trùng trong cùng split; ViHeritage không đưa bộ ba validation/test hoặc chiều đảo của quan hệ đối xứng vào train.
+Mặc dù các thực nghiệm cho thấy hiệu quả của việc kết hợp CLIP với đồ thị, đồ án vẫn có một số hạn chế:
 
-\subsection{Chất lượng dữ liệu và khả năng áp dụng}
-
-DB15K official validation có chồng lấn train/test nên được thay bằng bản sạch tách từ official train, trong khi official test được giữ nguyên. Trên FB15K, loại cụm ảnh gắn nhiều thực thể và dùng modality mask cho 280 thực thể thiếu ảnh giảm nhập nhằng đầu vào, nhưng chưa xác nhận mọi ánh xạ ảnh--thực thể đúng ngữ nghĩa. Tách biệt ảnh cũng không đồng nghĩa tách biệt thực thể trong giao thức KG transductive.
-
-ViHeritage đã hoàn tất dữ liệu, truy hồi, ablation và XAI; đây là áp dụng quy trình sang miền di sản tiếng Việt sau khi cấu hình và huấn luyện trên dữ liệu đích, không phải zero-shot transfer nguyên checkpoint. Đối chứng che văn bản không làm giảm Indirect MRR, hỗ trợ nhận định lợi ích không chỉ phụ thuộc chồng lấn tên thực thể. Tuy vậy, graph nhỏ, thiên về địa danh nổi tiếng và có khoảng 35\% bộ ba suy ra, nên phạm vi khái quát vẫn cần được mở rộng.
-
-Các giới hạn chính gồm:
 \begin{itemize}
-  \item Ablation Visual Genome và các biến thể KG mới chạy một seed; độ lệch chuẩn của mô hình đầy đủ không thay thế độ bất định của chênh lệch ablation.
-  \item Shuffled Edges DB15K/FB15K dùng danh sách validation/test để loại cạnh trùng. Cách làm ngăn chèn held-out edge nhưng không phải blind generation hoàn toàn.
-  \item Mỗi pipeline có loss, kích thước embedding và không gian ứng viên khác nhau; MRR giữa các tập không được dùng để xếp hạng mô hình tổng quát.
-  \item CLIP giới hạn recall của tập ứng viên: GAT không thể cứu ảnh đúng nằm ngoài top-50 Visual Genome hoặc top-1\,000 MMKG.
-  \item Trên Visual Genome, truy vấn mô tả vùng nhưng ứng viên và nhãn đúng được xác định ở cấp toàn ảnh; độ đầy đủ của nhãn và các vật thể trùng tên có thể ảnh hưởng cả truy hồi lẫn giải thích.
-  \item ViHeritage có 318 bộ ba train, 54 truy vấn gián tiếp test và một lượt chấm ngữ nghĩa có hỗ trợ AI; phạm vi tổng quát hóa còn giới hạn ở miền di sản.
-  \item Baseline FB15K giữa các lượt mô hình đầy đủ và ablation còn sai khác nhỏ; cần đối chiếu hạng từng truy vấn, cấu hình và checksum trước khi quy toàn bộ sai khác cho cấu trúc graph.
+    \item \textbf{Độ ổn định:} Một số thí nghiệm thay đổi cấu trúc đồ thị chỉ được chạy với một seed, nên chưa đánh giá đầy đủ tính ổn định của chênh lệch hiệu năng.
+
+    \item \textbf{Giới hạn truy hồi:} Mô hình đồ thị chỉ xếp hạng lại top-50 ảnh trên Visual Genome hoặc top-1\,000 ảnh trên các tập MMKG. Vì vậy, những ảnh đúng nằm ngoài tập ứng viên không thể được đưa lên thứ hạng cao bằng bước xếp hạng lại.
+
+    \item \textbf{Chất lượng dữ liệu:} Visual Genome còn hạn chế về độ đầy đủ của nhãn và cách đánh giá ảnh ở cấp toàn ảnh. Trên FB15K-237-IMG, dù đã xử lý các cụm ảnh trùng và dùng modality mask cho 280 thực thể thiếu ảnh, nhóm chưa xác minh toàn bộ liên kết ảnh--thực thể. Việc chia ảnh riêng biệt cũng không đồng nghĩa với chia tách thực thể trong đồ thị tri thức.
+
+    \item \textbf{Khả năng so sánh:} Các mô hình sử dụng cấu hình huấn luyện, kích thước embedding và tập ứng viên khác nhau, nên không thể so sánh trực tiếp MRR giữa các bộ dữ liệu. Ngoài ra, đối chứng Shuffled Edges trên DB15K/FB15K-237-IMG có sử dụng danh sách validation/test để loại các cạnh trùng, nên chưa hoàn toàn độc lập với thông tin chia tập. Baseline FB15K cũng còn sai khác nhỏ giữa các lượt thực nghiệm, cần được kiểm tra thêm.
+
+    \item \textbf{Dữ liệu tự xây dựng:} ViHeritage-MMKG có quy mô nhỏ, gồm 318 bộ ba train và 54 truy vấn gián tiếp test, chủ yếu tập trung vào các địa danh nổi tiếng và có khoảng 35\% bộ ba được suy ra. Việc đánh giá ngữ nghĩa mới thực hiện một lượt với hỗ trợ AI, nên chưa đủ cơ sở khái quát cho các miền dữ liệu khác.
 \end{itemize}
+
+ViHeritage-MMKG cũng được huấn luyện lại trên dữ liệu đích, thay vì sử dụng trực tiếp mô hình từ các tập công khai. Kết quả loại bỏ đặc trưng văn bản cho thấy mức cải thiện không chỉ phụ thuộc vào thông tin văn bản, nhưng khả năng áp dụng trên các miền dữ liệu mới vẫn cần được đánh giá thêm.
 
 \section{Hướng phát triển}
 \label{sec:future-directions-discussion}

@@ -11,7 +11,7 @@ Cấp độ 2 yêu cầu thực nghiệm trên ít nhất hai tập công khai, 
 \label{sec:preprocessing}
 \label{sec:level2-data-contract}
 
-DB15K gồm 12\,842 thực thể, 279 quan hệ, 99\,028 bộ ba và 25\,925 ảnh. Validation chính thức chồng lấn đáng kể với train/test, nên nhóm tách lại train chuẩn theo tỷ lệ 90/10, gom cạnh đảo cùng quan hệ vào một nhóm. Bản sạch gồm 71\,300 bộ ba train, 7\,922 validation và giữ nguyên 9\,902 test. Ảnh được chuẩn hóa RGB, kiểm tra trùng và gán cụm trùng vào cùng retrieval split.
+DB15K gồm 12\,842 thực thể, 279 quan hệ, 99\,028 bộ ba và 25\,925 ảnh. Validation chính thức chồng lấn đáng kể với train/test, nên nhóm tách lại train chuẩn theo tỷ lệ 90/10, gom cạnh đảo cùng quan hệ vào một nhóm. Dữ liệu sau xử lý gồm 71\,300 bộ ba train, 7\,922 validation và giữ nguyên 9\,902 test. Ảnh được chuẩn hóa RGB, kiểm tra trùng và gán cụm trùng vào cùng retrieval split.
 \label{sec:db15k-preprocessing}
 
 FB15K-237-IMG gồm 14\,541 thực thể, 237 quan hệ và 310\,116 bộ ba. KG, văn bản và ảnh được nối bằng khóa Freebase; ảnh lỗi hoặc nhỏ hơn $64\times64$ và cụm ảnh gắn nhiều thực thể bị loại. Sau lọc còn 139\,814 ảnh. Đặc trưng ảnh được chuẩn hóa L2 rồi lấy trung bình theo thực thể. Với 280 thực thể thiếu ảnh, nhánh thị giác nhận vector 0 kèm modality mask để trọng số phương thức bằng 0. Văn bản phủ đủ 14\,541 thực thể.
@@ -27,21 +27,34 @@ Các bộ ba FB15K được chuyển sang thứ tự OpenKE $(h,t,r)$; sáu tệ
 \label{tab:level2-preprocessed-data}
 \begin{reporttabular}{lrr}
 \toprule
-Thành phần & DB15K clean & FB15K-237-IMG\\
+Thành phần & DB15K processed & FB15K-237-IMG\\
 \midrule
 Ảnh sau lọc & 25\,925 & 139\,814\\
 Truy vấn train & 130\,988 & 541\,840\\
 Truy vấn validation & 5\,023 & 29\,088\\
 Truy vấn test & 5\,477 & 33\,156\\
 Tổng truy vấn & 141\,488 & 604\,084\\
-Dòng truy vấn--ảnh & 290\,087 & 4\,392\,803\\
+Số dòng truy vấn--ảnh & 290\,087 & 4\,392\,803\\
 \bottomrule
 \end{reporttabular}
 \end{table}
 
-Mọi ảnh hợp lệ của thực thể đích trong đúng split là đáp án dương. FB15K-237-IMG có 111\,906/13\,971/13\,937 ảnh train/validation/test. Đặc trưng ảnh và văn bản được trích bằng OpenAI CLIP ViT-B/32 đóng băng; đặc trưng thị giác cấp thực thể chỉ tổng hợp từ ảnh train. Cache đặc trưng và thứ tự chỉ mục được khóa bằng checksum; metadata phiên bản của một số cache ảnh cũ chưa đầy đủ, đây là giới hạn tái lập còn lại.
+Tất cả ảnh hợp lệ của thực thể cần tìm
+trong cùng tập dữ liệu đều được xem là
+kết quả đúng. FB15K-237-IMG có
+111\,906/13\,971/13\,937 ảnh tương ứng với
+các tập train/validation/test. Đặc trưng
+ảnh và văn bản được trích xuất bằng
+OpenAI CLIP ViT-B/32 với trọng số cố định;
+đặc trưng thị giác của thực thể chỉ được
+tổng hợp từ ảnh train. Các đặc trưng đã
+lưu và thứ tự chỉ mục được kiểm tra bằng
+checksum. Tuy nhiên, một số cache ảnh cũ
+chưa ghi đầy đủ thông tin phiên bản,
+gây khó khăn cho việc tái lập chính xác
+quá trình trích xuất đặc trưng.
 
-\section{AdaMF, RotatE và xếp hạng lại}
+\section{AdaMF, RotatE và reranking}
 
 \subsection{Biểu diễn thực thể và truy vấn}
 
@@ -59,12 +72,24 @@ S(q,i)={}&\alpha_{\mathrm{CLIP}}z_q(S_{\mathrm{CLIP}}(q,i))\\
 \end{aligned}
 \label{eq:mmkg-rerank}
 \end{equation}
-DB15K chỉ rerank truy vấn gián tiếp; FB15K-237-IMG rerank cả hai nhóm. Ảnh ngoài top-1\,000 giữ thứ tự CLIP. Nếu top-1\,000 thiếu ảnh đúng, hệ thống giữ hạng tốt nhất của CLIP.
 
-\subsection{Đối chứng GAT trên cùng pipeline}
+Trên DB15K, mô hình chỉ xếp hạng lại các truy vấn
+gián tiếp, trong khi FB15K-237-IMG áp dụng cho
+cả truy vấn trực tiếp và gián tiếp. Với mỗi truy
+vấn, CLIP chọn 1\,000 ảnh có điểm cao nhất để
+xếp hạng lại bằng thông tin đồ thị. Các ảnh
+ngoài tập này giữ nguyên thứ tự theo CLIP.
+
+\subsection{So sánh AdaMF với GAT}
 \label{sec:level2-gat}
 
-Để tách lợi ích của AdaMF khỏi lợi ích của việc học trên KG, nhóm thay AdaMF bằng GAT hai tầng có đặc trưng cạnh, bốn head, residual và LayerNorm. Mỗi bộ ba train tạo cạnh thuận và nghịch; GAT sinh embedding thực thể nhưng giữ nguyên RotatE, dữ liệu, loss, cách chọn checkpoint và reranking.
+Để đánh giá hiệu quả của AdaMF, nhóm triển khai
+thêm mô hình GAT hai lớp trên cùng đồ thị tri thức.
+Mỗi quan hệ được biểu diễn bằng hai cạnh ngược chiều.
+GAT sử dụng đặc trưng cạnh, bốn attention head,
+kết nối residual và LayerNorm để học biểu diễn thực thể.
+Các thành phần còn lại như RotatE, dữ liệu huấn luyện,
+hàm mất mát và quy trình xếp hạng lại đều được giữ nguyên.
 
 \section{Huấn luyện, bộ 20 truy vấn và ablation}
 \label{sec:level2-protocol}
@@ -121,7 +146,13 @@ CLIP + AdaMF & \textbf{0.2581} & \textbf{0.3214} & \textbf{0.3492} & \textbf{0.2
 \end{reporttabular}
 \end{table}
 
-Trên DB15K, mức tăng tập trung hoàn toàn ở truy vấn gián tiếp: MRR tăng từ 0.0475 lên 0.3143, gấp 6.6 lần; tail tăng từ 0.0699 lên 0.4714 và head từ 0.0303 lên 0.1933. GAT đạt 0.3110. Trên validation, hiệu số GAT trừ AdaMF là $-0.0037$, CI 95\% $[-0.0076,+0.0005]$; trên test là $-0.0033$, CI $[-0.0070,+0.0005]$, Wilcoxon $p=0.055$. Hai phương pháp không phân biệt được, nên AdaMF được giữ làm phương pháp chính cho cấp độ 3 theo quy tắc chọn trước. Trên FB15K-237-IMG, MRR trực tiếp tăng từ 0.3475 lên 0.7770 và gián tiếp từ 0.0122 lên 0.1186. Độ lệch chuẩn giữa ba lượt huấn luyện nhỏ hơn 0.004 ở mọi ô.
+Trên DB15K, mức tăng tập trung hoàn toàn ở truy vấn gián tiếp: MRR tăng từ 0.0475 lên 0.3143, gấp 6.6 lần; tail tăng từ 0.0699 lên 0.4714 và head từ 0.0303 lên 0.1933. GAT đạt 0.3110. Trên validation, hiệu số GAT trừ AdaMF là $-0.0037$, CI 95\% $[-0.0076,+0.0005]$; trên test là $-0.0033$, CI $[-0.0070,+0.0005]$, Wilcoxon $p=0.055$.
+Chênh lệch giữa AdaMF và GAT chưa đạt
+ý nghĩa thống kê ($p=0.055$), nên chưa
+đủ cơ sở kết luận phương pháp nào tốt hơn.
+Do đó, nhóm tiếp tục sử dụng AdaMF ở
+cấp độ 3 theo tiêu chí lựa chọn đã xác định trước.
+Trên FB15K-237-IMG, MRR trực tiếp tăng từ 0.3475 lên 0.7770 và gián tiếp từ 0.0122 lên 0.1186. Độ lệch chuẩn của các chỉ số đánh giá qua ba lần huấn luyện đều nhỏ hơn 0.004.
 
 \subsection{Vai trò của cấu trúc quan hệ}
 \label{sec:level2-graph-ablation}
@@ -151,7 +182,22 @@ No Edges & 1.0 & 0.0991 & 0.0122 & 0\%\\
 \end{reporttabular}
 \end{table}
 
-DB15K mất toàn bộ lợi ích khi bỏ hoặc thay ngẫu nhiên cạnh; validation chọn $\alpha=1$, tức từ chối điểm đồ thị của hai biến thể. Xáo cạnh giữ bậc theo quan hệ chỉ giữ 37\%, nên cạnh thật là nguồn cải thiện chính. Trên FB15K-237-IMG, Random và Shuffled vẫn giữ 93\% vì mục tiêu truy hồi còn học liên kết thực thể--ảnh dù neo đã đổi. Do đó DB15K là bằng chứng mạnh hơn cho suy luận quan hệ ở cấp độ này. Các ablation mới chạy một lần và mỗi biến thể tự chọn checkpoint/$\alpha$ trên validation.
+Trên DB15K, khi loại bỏ hoặc thay ngẫu nhiên
+các cạnh, mô hình không còn cải thiện so với CLIP.
+Tập validation chọn $\alpha=1$, tức chỉ sử dụng
+điểm CLIP để xếp hạng. Khi xáo trộn các cạnh
+nhưng giữ phân bố bậc theo từng quan hệ, mô hình
+chỉ duy trì khoảng 37\% mức cải thiện ban đầu.
+Điều này cho thấy các mối quan hệ trong đồ thị
+đóng vai trò quan trọng đối với DB15K.
+Ngược lại, trên FB15K-237-IMG, Random và Shuffled
+vẫn giữ khoảng 93\% mức cải thiện, cho thấy
+hiệu quả truy hồi ít phụ thuộc hơn vào các
+liên kết ban đầu. Tuy nhiên, mỗi cấu hình
+so sánh mới được chạy một lần, nên cần thêm các
+lần chạy độc lập để kiểm chứng tính ổn định
+của kết quả. Checkpoint và $\alpha$ được
+lựa chọn riêng trên tập validation.
 
 \subsection{Bộ 20 truy vấn}
 \label{sec:level2-benchmark}
@@ -178,14 +224,28 @@ Tất cả (20) & 0.211 & \textbf{0.451}\\
 \end{reporttabular}
 \end{table}
 
-Trên DB15K, bốn trong mười truy vấn gián tiếp được đưa từ hạng vài trăm lên top-5 ở mọi lần chạy, gồm truy vấn về vợ/chồng của Angelina Jolie (hạng 363 lên 2) và người kế nhiệm Robert Byrd (242 lên 1). Trên FB15K-237-IMG, lợi ích của bộ nhỏ tập trung vào truy vấn trực tiếp, phù hợp với ablation. Mười truy vấn mỗi nhóm quá ít để kiểm định; kết quả trên toàn bộ test vẫn là bằng chứng chính.
+Trong 10 truy vấn gián tiếp được đánh giá trên
+DB15K, có 4 truy vấn được cải thiện từ hạng
+hàng trăm lên top-5 trong cả ba lần chạy.
+Ví dụ, truy vấn về vợ/chồng của Angelina Jolie
+tăng từ hạng 363 lên 2, còn truy vấn về người
+kế nhiệm Robert Byrd tăng từ hạng 242 lên 1.
+Trên FB15K-237-IMG, các truy vấn trực tiếp
+trong bộ đánh giá nhỏ có mức cải thiện nổi bật hơn.
+Tuy nhiên, do số lượng truy vấn ở bộ 20 này còn hạn chế,
+kết quả trên toàn bộ tập test vẫn là cơ sở chính
+để đánh giá hiệu quả mô hình.
 
 \section{Giải thích và phân tích ca}
 \label{sec:level2-cases}
 
-Giải thích gồm thực thể quyết định, đóng góp của từng phương thức và $K^\star$ bộ ba train có ảnh hưởng lớn nhất ($K^\star=2$ trên DB15K, 8 trên FB15K-237-IMG). Năm ca thành công DB15K đưa ảnh đúng từ hạng 55--624 lên hạng 1; ba ca có đường đi một bước từ thực thể neo. Ví dụ, Christopher Hitchens \textit{influenced} Richard Dawkins có $\Delta=0.198$; che cấu trúc làm điểm giảm 74.8, trong khi che ảnh và văn bản lần lượt làm thay đổi $-0.15$ và 0.20. Một ca khác dùng bộ ba Timbaland \textit{associated musical artist} Missy Elliott với $\Delta=0.335$. Bỏ hai bộ ba giải thích làm điểm giảm 0.32--2.0, so với $-0.05$--0.56 khi bỏ hai bộ ba ngẫu nhiên.
+Giải thích kết quả gồm thực thể được chọn, mức đóng góp của từng loại đặc trưng và các bộ ba có ảnh hưởng lớn nhất trong tập train. Số bộ ba được chọn là $K^\star=2$ trên DB15K và $K^\star=8$ trên FB15K-237-IMG.
 
-Năm ca thất bại DB15K chỉ ra ba nguyên nhân: quan hệ gần nghĩa nối nhiều ứng viên, như Rock Hudson \textit{known for} cả \textit{Pillow Talk} lẫn \textit{Dynasty}; bộ ba nhiễu như Maurice Sendak \textit{type} Island; và lỗi trả về chính thực thể neo, chẳng hạn Arthur C. Clarke cho truy vấn ``chịu ảnh hưởng bởi Arthur C. Clarke''. Trên FB15K-237-IMG, bằng chứng thường xoay quanh thực thể trung tâm có hàng nghìn cạnh như United States of America hoặc New York City; mỗi cạnh chỉ đóng góp khoảng $10^{-4}$ và văn bản đôi khi quan trọng ngang cấu trúc. Mẫu này khớp với kết quả ablation 93\% và cho thấy truy hồi đúng không đồng nghĩa mọi cạnh giải thích tạo thành một chuỗi suy luận trực tiếp.
+Trên DB15K, năm trường hợp thành công đều đưa ảnh đúng từ hạng 55--624 lên hạng nhất, trong đó ba trường hợp sử dụng quan hệ trực tiếp với thực thể đã biết. Chẳng hạn như ở Hình~\ref{fig:case-db15k}, quan hệ Christopher Hitchens \textit{influenced} Richard Dawkins có mức đóng góp $\Delta=0.198$. Khi loại bỏ đặc trưng cấu trúc, điểm giảm 74.8, trong khi loại bỏ đặc trưng ảnh và văn bản làm điểm thay đổi lần lượt $-0.15$ và $0.20$. Một ví dụ khác là quan hệ Timbaland \textit{associated musical artist} Missy Elliott ($\Delta=0.335$). Khi loại bỏ hai bộ ba được chọn làm giải thích, điểm giảm từ 0.32 đến 2.0, lớn hơn so với việc loại bỏ ngẫu nhiên hai bộ ba (mức thay đổi từ $-0.05$ đến 0.56).
+
+Năm trường hợp thất bại trên DB15K cho thấy ba vấn đề chính: (1) Quan hệ có thể dẫn đến nhiều đáp án, như Rock Hudson \textit{known for} cả \textit{Pillow Talk} và \textit{Dynasty}; (2) Dữ liệu chứa bộ ba không phù hợp, như Maurice Sendak \textit{type} Island; (3) Mô hình trả về chính thực thể đã biết, chẳng hạn Arthur C. Clarke trong truy vấn ``chịu ảnh hưởng bởi Arthur C. Clarke''.
+
+Trên FB15K-237-IMG, các quan hệ được chọn làm giải thích thường liên quan đến những thực thể có hàng nghìn cạnh, như United States of America hoặc New York City. Mỗi cạnh chỉ đóng góp khoảng $10^{-4}$, trong khi đặc trưng văn bản đôi khi có ảnh hưởng tương đương đặc trưng cấu trúc. Điều này phù hợp với kết quả so sánh khi mô hình vẫn duy trì khoảng 93\% mức cải thiện dù các cạnh bị thay đổi, cho thấy kết quả truy hồi không nhất thiết phụ thuộc vào một nhóm quan hệ cụ thể.
 
 \begin{figure*}[!t]
 \centering
@@ -196,5 +256,15 @@ Năm ca thất bại DB15K chỉ ra ba nguyên nhân: quan hệ gần nghĩa n�
 
 \section{Kết luận cấp độ 2}
 
-Cấp độ 2 hoàn thành yêu cầu hai tập công khai, phương pháp mới, bộ 20 truy vấn và phân tích trực tiếp/gián tiếp. Kết quả nổi bật là đồ thị tạo lợi ích lớn nhất khi truy vấn cần đi qua quan hệ. DB15K chứng minh rõ vai trò của cạnh thật; FB15K-237-IMG đồng thời cho thấy mức tăng của mô hình graph có thể đến từ biểu diễn đa phương thức và mục tiêu huấn luyện, nên ablation là điều kiện bắt buộc khi diễn giải kết quả.
+Nhìn chung, cấp độ 2 cho thấy việc kết hợp
+đồ thị tri thức giúp cải thiện hiệu quả truy hồi,
+đặc biệt với các truy vấn gián tiếp. Trên DB15K,
+kết quả so sánh cho thấy các mối quan hệ giữa
+thực thể đóng vai trò quan trọng trong mức cải thiện.
+Trong khi đó, trên FB15K-237-IMG, phần lớn mức
+cải thiện vẫn được duy trì khi các cạnh bị thay đổi,
+cho thấy hiệu quả còn đến từ các thành phần khác
+của mô hình. Sự khác biệt này nhấn mạnh
+cần đánh giá riêng đóng góp của thông tin quan hệ
+trên từng bộ dữ liệu.
 

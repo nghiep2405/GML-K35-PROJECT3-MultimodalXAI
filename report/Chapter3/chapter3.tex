@@ -5,7 +5,7 @@
 \section{Yêu cầu và quy trình thực hiện}
 \label{sec:level1-methodology}
 
-Cấp độ 1 của đề bài yêu cầu xây dựng CLIP baseline đóng băng, dựng đồ thị từ ít nhất một tập công khai, dùng một thuật toán GNN để xếp hạng lại, rồi so sánh với các đối chứng bỏ hoặc xáo cạnh. Nhóm thực hiện trọn quy trình này trên Visual Genome: CLIP tìm ứng viên, GAT tạo điểm đồ thị, hai điểm được kết hợp để rerank và các quan hệ ảnh hưởng đến điểm được dùng làm giải thích. Flickr30k Entities là kiểm chứng bổ sung tại Phụ lục~\ref{app:flickr30k-pipeline}.
+Cấp độ 1 của đề bài yêu cầu xây dựng CLIP baseline đóng băng, dựng đồ thị từ ít nhất một tập công khai, dùng một thuật toán GNN để xếp hạng lại, rồi so sánh với các đối chứng bỏ hoặc xáo cạnh. Nhóm thực hiện trọn quy trình này trên Visual Genome: CLIP tìm ứng viên, GAT tạo điểm đồ thị, hai điểm được kết hợp để rerank và các quan hệ ảnh hưởng đến điểm được dùng làm giải thích. Nhóm thực hiện thêm kiểm chứng bổ sung trên Flickr30k Entities, trình bày tại Phụ lục~\ref{app:flickr30k-pipeline}.
 
 \section{Dữ liệu và xây dựng scene graph}
 \label{sec:vg-experimental-design}
@@ -13,23 +13,10 @@ Cấp độ 1 của đề bài yêu cầu xây dựng CLIP baseline đóng băng
 
 Visual Genome gồm 104\,426 ảnh, được chia thành 83\,540 ảnh train, 10\,443 ảnh validation và 10\,443 ảnh test. Ảnh có cùng SHA-256 hoặc khoảng cách pHash không quá 6 được gom nhóm trước khi chia để tránh ảnh trùng hoặc gần trùng xuất hiện ở nhiều tập.
 
-Mỗi ảnh tạo thành một đồ thị $G_i=(V_i,E_i)$ độc lập. $V_i$ gồm một nút ảnh dùng CLIP image embedding 512 chiều và các nút thực thể dùng CLIP text embedding của tên đã chuẩn hóa. $E_i$ gồm cạnh \texttt{contains} từ ảnh tới thực thể và các quan hệ có hướng của scene graph. Mỗi cạnh gốc có thêm cạnh ngược; đặc trưng cạnh là embedding 512 chiều của tên quan hệ ghép với cờ \texttt{edge\_is\_reverse}. Quan hệ ngoài từ vựng train được ánh xạ về \texttt{UNK\_REL}. GAT không tự thêm self-loop, nhưng giữ các self-loop ngữ nghĩa có sẵn.
-
-\begin{table}[!t]
-\centering
-\normalsize
-\caption{Thống kê đồ thị Visual Genome \textit{split\_v2}}
-\label{tab:vg-graph-stats}
-\begin{reporttabular}{lrrrr}
-\toprule
-Tập & Đồ thị & \twoline{Đỉnh}{TB} & \twoline{Cạnh gốc}{TB} & \twoline{Cạnh hai}{chiều TB}\\
-\midrule
-Train & 83\,540 & 25.017 & 38.384 & 76.768\\
-Validation & 10\,443 & 24.910 & 38.177 & 76.355\\
-Test & 10\,443 & 24.832 & 38.040 & 76.081\\
-\bottomrule
-\end{reporttabular}
-\end{table}
+Mỗi ảnh tạo thành một đồ thị $G_i=(V_i,E_i)$ độc lập. $V_i$ gồm một nút ảnh và các nút thực thể.
+Embedding CLIP của chúng được trích xuất
+tương ứng từ nội dung ảnh và tên từng thực thể,
+đều có kích thước 512 chiều. $E_i$ gồm cạnh \texttt{contains} từ ảnh tới thực thể và các quan hệ có hướng của scene graph, được minh hoạ trong Bảng~\ref{tab:vg-relations}. Với mỗi cạnh trong đồ thị, nhóm bổ sung một cạnh theo chiều ngược lại. Đặc trưng của mỗi cạnh gồm biểu diễn CLIP 512 chiều của tên quan hệ và một cờ \texttt{edge\_is\_reverse} để phân biệt cạnh gốc với cạnh được thêm vào. Quan hệ ngoài từ vựng train được ánh xạ về \texttt{UNK\_REL}. GAT không tự thêm self-loop, nhưng giữ các self-loop ngữ nghĩa có sẵn. Thống kê số cạnh và đỉnh xem thêm ở Bảng~\ref{tab:vg-graph-stats}.
 
 \begin{table}[!t]
 \centering
@@ -38,7 +25,7 @@ Test & 10\,443 & 24.832 & 38.040 & 76.081\\
 \label{tab:vg-relations}
 \begin{reporttabular}{lrlr}
 \toprule
-Quan hệ & Số lần & Quan hệ & Số lần\\
+Loại quan hệ & Số lượng & Loại quan hệ & Số lượng\\
 \midrule
 \texttt{contains} & 2\,504\,938 & \texttt{of} & 80\,613\\
 \texttt{on} & 391\,345 & \texttt{with} & 47\,951\\
@@ -49,14 +36,28 @@ Quan hệ & Số lần & Quan hệ & Số lần\\
 \end{reporttabular}
 \end{table}
 
+\begin{table}[!t]
+\centering
+\normalsize
+\caption{Thống kê đỉnh-cạnh đồ thị Visual Genome}
+\label{tab:vg-graph-stats}
+\begin{reporttabular}{lrrr}
+\toprule
+Tập & Số đồ thị & \twoline{Số đỉnh}{TB} & \twoline{Số cạnh}{TB}\\
+\midrule
+Train & 83\,540 & 25.017 & 76.768\\
+Validation & 10\,443 & 24.910 & 76.355\\
+Test & 10\,443 & 24.832 & 76.081\\
+\bottomrule
+\end{reporttabular}
+\end{table}
+
 \section{Mô hình truy hồi CLIP--GAT}
 
 \subsection{CLIP baseline và GAT}
 \label{sec:gat}
 
-Baseline dùng CLIP \texttt{ViT-B-32}, pretrained \texttt{openai}, giữ cố định và xếp hạng bằng cosine theo Phương trình~\eqref{eq:clip-similarity}. GAT gồm hai lớp có xét đặc trưng cạnh; đặc trưng nút 512 chiều và cạnh 513 chiều được chiếu về 128 chiều. Mỗi lớp dùng bốn attention head $\times$ 32 chiều, ELU, dropout 0.2, residual và LayerNorm.
-
-Sau hai lớp, graph embedding được lấy trực tiếp tại nút ảnh thay vì pooling toàn bộ nút:
+Baseline dùng CLIP \texttt{ViT-B-32}, pretrained \texttt{openai}, cố định tham số và xếp hạng bằng cosine theo phương trình~\eqref{eq:clip-similarity}. GAT gồm hai lớp có xét đặc trưng cạnh; đặc trưng nút 512 chiều và cạnh 513 chiều được chiếu về 128 chiều. Mỗi lớp dùng bốn attention head $\times$ 32 chiều, ELU, dropout 0.2, residual và LayerNorm. Sau hai lớp, graph embedding được lấy trực tiếp tại nút ảnh thay vì pooling toàn bộ nút:
 \begin{equation}
 h_{\mathrm{graph}}(v_i)=\operatorname{L2Norm}\!\left(H_i^{(2)}[r_i]\right),
 \label{eq:vg-root-readout}
@@ -81,11 +82,11 @@ $\alpha_{\mathrm{CLIP}}$ được chọn trên validation trong $\{0,0.1,\ldots,
 \label{sec:training-protocol}
 \label{sec:metrics}
 
-Mô hình đầy đủ được huấn luyện với ba seed 2026--2028. Mỗi batch gồm 8 truy vấn, một ảnh dương và 50 hard negative cho mỗi truy vấn; mỗi ảnh đóng góp tối đa 5 truy vấn trong một epoch. AdamW dùng learning rate và weight decay cùng bằng $10^{-4}$. Mỗi lượt chạy đủ 100 epoch và lưu checkpoint có validation MRR cao nhất. Ba checkpoint được chọn lần lượt ở epoch 98, 100 và 82; cả ba chọn $\alpha_{\mathrm{CLIP}}=0.6$. Test gồm 523\,347 truy vấn; checkpoint và $\alpha_{\mathrm{CLIP}}$ được khóa trước khi chạy test. Chỉ số báo cáo là Recall@$K$, $K\in\{1,5,10\}$, và MRR.
+Mô hình đầy đủ được huấn luyện với ba seed 2026, 2027 và 2028. Mỗi batch gồm 8 truy vấn, một ảnh dương và 50 ảnh âm khó (hard negative) cho mỗi truy vấn; mỗi ảnh đóng góp tối đa 5 truy vấn trong một epoch. AdamW dùng learning rate và weight decay cùng bằng $10^{-4}$. Mỗi lượt chạy đủ 100 epoch và lưu checkpoint có validation MRR cao nhất. Ba checkpoint được chọn lần lượt ở epoch 98, 100 và 82; cả ba chọn $\alpha_{\mathrm{CLIP}}=0.6$. Test gồm 523\,347 truy vấn; checkpoint và $\alpha_{\mathrm{CLIP}}$ được khóa trước khi chạy test. Chỉ số báo cáo là Recall@$K$, $K\in\{1,5,10\}$, và MRR.
 
-Recall@$K$ là tỷ lệ truy vấn có ảnh đúng trong $K$ vị trí đầu; MRR là trung bình nghịch đảo hạng của ảnh đúng đầu tiên. Với ba lượt chạy, báo cáo dùng trung bình và độ lệch chuẩn mẫu với mẫu số $n-1$. CLIP luôn xếp hạng toàn bộ 10\,443 ảnh test trước khi GAT nhận top-50, nên GAT không thể cứu một ảnh đúng nằm ngoài tập ứng viên này.
+Recall@$K$ là tỷ lệ truy vấn có ảnh đúng trong $K$ vị trí đầu; MRR là trung bình nghịch đảo hạng của ảnh đúng đầu tiên. Với ba lượt chạy, báo cáo dùng trung bình và độ lệch chuẩn mẫu với mẫu số $n-1$. CLIP xếp hạng toàn bộ 10\,443 ảnh test trước khi chọn 50 ảnh có điểm cao nhất để GAT xếp hạng lại. Do đó, GAT không thể cải thiện thứ hạng của những ảnh đúng nằm ngoài tập 50 ứng viên này.
 
-Bốn cấu hình gồm CLIP-only; Full Graph; No-edge, xóa toàn bộ cạnh nhưng giữ đặc trưng nút, lớp chiếu, residual path và kiến trúc; Random-edges, hoán vị đỉnh đích trong từng graph nhưng giữ số cạnh, đỉnh nguồn, multiset đỉnh đích, đặc trưng cạnh và phân bố bậc. Hai ablation dùng seed 2026 và tự chọn checkpoint cùng $\alpha$ trên validation. Việc chia ảnh trước huấn luyện, kiểm tra SHA-256/pHash và chỉ dùng validation để chọn mô hình bảo đảm test không tham gia tối ưu. Các lần chạy dùng cùng đồ thị đã xử lý và cache đặc trưng CLIP cố định; test chỉ được đọc sau khi checkpoint cùng hệ số dung hợp đã khóa.
+Bốn cấu hình được sử dụng để so sánh gồm: (1) CLIP-only: chỉ sử dụng CLIP để xếp hạng ảnh; (2) Full Graph: sử dụng đầy đủ các nút và cạnh trong đồ thị; (3) No-edge: loại bỏ toàn bộ cạnh nhưng giữ nguyên đặc trưng nút, các lớp biến đổi và kiến trúc mô hình; (4) Random-edges: hoán vị đỉnh đích của các cạnh trong từng đồ thị, đồng thời giữ nguyên số cạnh, đỉnh nguồn, tập đỉnh đích, đặc trưng cạnh và phân bố bậc. Hai cấu hình No-edge và Random-edges được đánh giá với seed 2026. Checkpoint và trọng số $\alpha$ được lựa chọn riêng trên tập validation. Dữ liệu được chia trước khi huấn luyện và kiểm tra trùng lặp bằng SHA-256/pHash nhằm hạn chế rò rỉ dữ liệu. Tập test chỉ được sử dụng để đánh giá cuối cùng, không tham gia huấn luyện hoặc lựa chọn mô hình.
 
 \section{Kết quả truy hồi và vai trò của cạnh}
 \label{sec:level1-results}
@@ -101,13 +102,14 @@ Bốn cấu hình gồm CLIP-only; Full Graph; No-edge, xóa toàn bộ cạnh n
 Cấu hình & R@1 & R@5 & R@10 & MRR\\
 \midrule
 CLIP-only & 0.0295 & 0.0793 & 0.1165 & 0.0611\\
-Full Graph, trung bình & \textbf{0.0363} & \textbf{0.0961} & \textbf{0.1381} & \textbf{0.0718}\\
-Độ lệch chuẩn & 0.0002 & 0.0001 & 0.0001 & 0.0002\\
+Full Graph ($\bar{x}$) & \textbf{0.0363} & \textbf{0.0961} & \textbf{0.1381} & \textbf{0.0718}\\
+Độ lệch chuẩn ($s$) & 0.0002 & 0.0001 & 0.0001 & 0.0002\\
 \bottomrule
 \end{reporttabular}
 \end{table}
 
-Full Graph tăng MRR 17.4\% so với CLIP-only và ổn định qua ba seed. Hình~\ref{fig:vg-convergence} cho thấy training loss giảm đồng thời validation MRR tăng; điểm đánh dấu là checkpoint được chọn trước khi test.
+Kết quả test ở Bảng~\ref{tab:vg-full-graph-results} cho thấy Full Graph tăng MRR 17.4\% so với CLIP-only và ổn định qua ba seed. 
+Hình~\ref{fig:vg-convergence} cho thấy training loss giảm dần, trong khi validation MRR tăng; điểm đánh dấu là checkpoint được chọn. 
 
 \begin{figure}[!t]
 \centering
@@ -120,35 +122,39 @@ Full Graph tăng MRR 17.4\% so với CLIP-only và ổn định qua ba seed. Hì
 \centering
 \normalsize
 \setlength{\tabcolsep}{3pt}
-\caption{Ablation Visual Genome, seed 2026}
+\caption{Ablation trên Visual Genome, seed 2026}
 \label{tab:vg-ablation}
-\begin{reporttabular}{lrrrrrr}
+\begin{reporttabular}{lrrrrr}
 \toprule
-Cấu hình & Epoch & $\alpha_{\mathrm{CLIP}}$ & R@1 & R@5 & R@10 & MRR\\
+Cấu hình & $\alpha_{\mathrm{CLIP}}$ & R@1 & R@5 & R@10 & MRR\\
 \midrule
-CLIP-only & -- & 1.0 & 0.0295 & 0.0793 & 0.1165 & 0.0611\\
-No-edge & 85 & 0.6 & 0.0346 & 0.0921 & 0.1333 & 0.0692\\
-Random-edges & 99 & 0.6 & 0.0356 & 0.0943 & 0.1365 & 0.0708\\
-Full Graph & 98 & 0.6 & \textbf{0.0361} & \textbf{0.0960} & \textbf{0.1380} & \textbf{0.0717}\\
+CLIP-only & 1.0 & 0.0295 & 0.0793 & 0.1165 & 0.0611\\
+No-edge & 0.6 & 0.0346 & 0.0921 & 0.1333 & 0.0692\\
+Random-edges & 0.6 & 0.0356 & 0.0943 & 0.1365 & 0.0708\\
+Full Graph & 0.6 & \textbf{0.0361} & \textbf{0.0960} & \textbf{0.1380} & \textbf{0.0717}\\
 \bottomrule
 \end{reporttabular}
 \end{table*}
 
-Thứ tự Full Graph $>$ Random-edges $>$ No-edge $>$ CLIP-only giữ trên mọi chỉ số. No-edge giữ khoảng 77\% và Random-edges giữ khoảng 92\% mức tăng MRR của Full Graph. Vì vậy, bộ biến đổi học được tạo ra phần cải thiện lớn, còn quan hệ đúng bổ sung phần lợi ích cuối cùng và đưa mô hình tới kết quả cao nhất.
+Kết quả ablation ở Bảng~\ref{tab:vg-ablation} cho thấy Full Graph đạt kết quả cao nhất trên tất cả các chỉ số, tiếp theo là Random-edges, No-edge và CLIP-only. So với CLIP-only, No-edge và Random-edges vẫn duy trì
+lần lượt khoảng 77\% và 92\% mức cải thiện MRR
+của Full Graph. Kết quả này cho thấy các thành phần khác
+của mô hình cũng đóng góp đáng kể vào mức cải thiện MRR. 
+Việc sử dụng các mối quan hệ giữa thực thể chỉ mang lại mức cải thiện bổ sung tương đối nhỏ.
 
 \section{Giải thích cơ bản và phân tích ca}
 \label{sec:level1-xai-method}
 \label{sec:level1-xai-results}
 
-Mỗi đơn vị giải thích là một quan hệ cùng cạnh ngược tương ứng. Nhóm bỏ từng đơn vị, chạy lại đúng checkpoint và tính
+Để xác định các quan hệ ảnh hưởng đến kết quả truy hồi, nhóm lần lượt loại bỏ từng quan hệ cùng cạnh ngược, sau đó tính lại điểm bằng checkpoint đã huấn luyện:
 \begin{equation}
-\Delta_u=S_{\mathrm{graph}}-S_{\mathrm{graph}}^{\setminus u}.
+\Delta_u = S_{\mathrm{graph}} - S_{\mathrm{graph}}^{\setminus u}.
 \end{equation}
-Tối đa $K^\star=12$ quan hệ có $\Delta_u>0$ lớn nhất được giữ; $K^\star$ là giá trị nhỏ nhất đạt ít nhất 80\% mức giảm điểm trên validation.
+Nhóm chọn tối đa $K^\star=12$ quan hệ có $\Delta_u>0$ lớn nhất. Giá trị này được xác định trên validation, đáp ứng ít nhất 80\% mức giảm điểm. Phương pháp được đánh giá trên ba checkpoint. Việc tính lại điểm cho 523\,347 truy vấn gần như khớp hoàn toàn với kết quả ban đầu (MRR 0.0717, sai khác $3\times10^{-7}$). 
 
-Giải thích được chạy trên cả ba checkpoint. Tính lại điểm từ đồ thị gốc cho toàn bộ 523\,347 truy vấn khớp kết quả checkpoint chính: MRR 0.0717, sai khác $3\times10^{-7}$. Trên 500 truy vấn test bốc ngẫu nhiên cố định, bỏ tập giải thích làm xác suất ảnh trả về giảm $\mathrm{Fid}^{+}=0.118\pm0.002$, so với 0.003 khi bỏ ngẫu nhiên; hiệu số 0.114 có CI 95\% $[0.110,0.118]$. PN là 0.357 so với 0.053. Attention baseline cho $-0.007$, thấp hơn giải thích can thiệp 0.125 với CI 95\% $[0.119,0.131]$, nên attention không phản ánh quan hệ quyết định điểm. Chỉ giữ tập giải thích vẫn duy trì hạng nhất (PS 1.000), với Fid$^-$ trung vị $-0.193$. Tập giải thích có trung bình 11.1 quan hệ, trong đó 75\% là cạnh \texttt{contains}; 24.2\% phần tử chạm vật có tên trùng từ trong truy vấn, so với 18.4\% khi chọn ngẫu nhiên ($p\approx10^{-25}$).
+Trên 500 truy vấn test được chọn ngẫu nhiên, loại bỏ các quan hệ giải thích làm giảm xác suất của ảnh đứng đầu với Fid$^+=0.118\pm0.002$, cao hơn mức 0.003 khi loại bỏ ngẫu nhiên (chênh lệch 0.114, CI 95\%: $[0.110,0.118]$). PN đạt 0.357 so với 0.053. Phương pháp dựa trên attention chỉ đạt Fid$^+=-0.007$, thấp hơn 0.125 (CI 95\%: $[0.119,0.131]$). Khi chỉ giữ các quan hệ giải thích, ảnh vẫn đứng đầu (PS = 1.000; Fid$^-$ trung vị $-0.193$). Mỗi giải thích có trung bình 11.1 quan hệ, gồm 75\% cạnh \texttt{contains}. Tỷ lệ liên quan đến đối tượng được nhắc trong truy vấn đạt 24.2\%, so với 18.4\% khi chọn ngẫu nhiên ($p\approx10^{-25}$).
 
-Trong 20\,000 truy vấn test bốc ngẫu nhiên, 5\,243 truy vấn có ảnh đúng trong top-50 CLIP. Full Graph đưa 247 truy vấn từ hạng lớn hơn 1 lên hạng 1; No-edge làm được với 153 truy vấn, và 54 truy vấn chỉ Full Graph đạt hạng 1. Ngược lại, 114 truy vấn đang ở hạng 1 của CLIP bị GAT đẩy xuống. Năm ca thành công được chọn bằng luật cố định: CLIP xếp ảnh đúng dưới hạng 1, Full Graph đưa lên hạng 1, còn cả No-edge và Random-edges đều không đạt hạng 1. Năm ca thất bại gồm ba ca đồ thị làm hại và hai ca không cứu được, cũng được chọn trước khi xem giải thích. Các con số này khớp với ablation: phép chiếu đặc trưng tạo ra phần lớn lợi ích, còn quan hệ thật quyết định một nhóm nhỏ nhưng rõ ràng.
+Trong 20\,000 truy vấn test được chọn ngẫu nhiên, có 5\,243 truy vấn chứa ảnh đúng trong top-50 CLIP. Full Graph đưa ảnh đúng lên hạng nhất ở 247 trường hợp, so với 153 trường hợp của No-edge; trong đó 54 trường hợp chỉ Full Graph đạt được. Ngược lại, GAT làm giảm thứ hạng của 114 trường hợp CLIP đã xếp đúng ở vị trí đầu. Nhóm chọn theo tiêu chí cố định 5 trường hợp thành công, trong đó No-edge và Random-edges không đưa được ảnh đúng lên hạng nhất, cùng 5 trường hợp thất bại gồm 3 trường hợp giảm thứ hạng và 2 trường hợp không cải thiện được. Kết quả cho thấy các quan hệ được chọn làm giải thích thực sự ảnh hưởng đến điểm truy hồi, đồng thời làm rõ những trường hợp thông tin đồ thị giúp cải thiện hoặc làm giảm thứ hạng. Ta xem xét các ca thành công và thất bại ở Bảng~\ref{tab:vg-cases}.
 
 \begin{table*}[!t]
 \centering
@@ -175,7 +181,7 @@ Không cứu & woman wearing green shorts & 10 & 3 & 1 & 1 & 4 & ảnh chứa sh
 \end{tabularx}
 \end{table*}
 
-Năm ca thành công đều có phần tử mạnh nhất là cạnh \texttt{contains} tới vật được nhắc trong truy vấn. Ở bốn ca, bỏ $\mathcal S$ làm ảnh đúng rơi xuống hạng 2--4; ca \textit{biohazard sign} là ngoại lệ khi thứ hạng chủ yếu đến từ biểu diễn của nút ảnh. Quan hệ giữa hai vật vẫn xuất hiện nhưng yếu hơn 7--26 lần: ở ca \textit{peace sign}, quan hệ \textit{man holding up peace sign} chỉ đóng góp $0.2\times10^{-3}$ so với $5.5\times10^{-3}$ của mỗi cạnh \texttt{contains} tới \textit{peace sign}.
+Năm ca thành công đều có phần tử mạnh nhất là cạnh \texttt{contains} tới vật được nhắc trong truy vấn. Ở bốn ca, bỏ $\mathcal S$ làm ảnh đúng rơi xuống hạng 2--4; ca \textit{biohazard sign} là ngoại lệ khi thứ hạng chủ yếu đến từ biểu diễn của nút ảnh. Quan hệ giữa hai vật vẫn xuất hiện nhưng yếu hơn 7--26 lần: ở ca \textit{peace sign} (Hình~\ref{fig:vg-case}), quan hệ \textit{man holding up peace sign} chỉ đóng góp $0.2\times10^{-3}$ so với $5.5\times10^{-3}$ của mỗi cạnh \texttt{contains} tới \textit{peace sign}.
 
 Trong các ca thất bại, ảnh sai cũng chứa vật khớp từ khóa nhưng mô hình không phân biệt tốt thuộc tính như \textit{black}, \textit{slice} hoặc quan hệ \textit{on the road}. Ở ca pizza, cạnh \texttt{contains spinach} của ảnh sai có $\Delta=1.4\times10^{-3}$, cao hơn $0.8\times10^{-3}$ ở ảnh đúng. Ca \textit{green shorts} tương tự: ảnh sai có cạnh \texttt{contains shorts} với $\Delta=14.9\times10^{-3}$, trong khi quan hệ \textit{woman wearing shorts} ở ảnh đúng chỉ đạt $0.1\times10^{-3}$. Ba trên năm ca thất bại được No-edge xếp đúng hạng 1, cho thấy lỗi xuất hiện khi truyền tin qua cạnh scene graph; quan hệ nhiễu và tên vật trùng lặp còn làm tập giải thích dài hơn cần thiết.
 
@@ -188,5 +194,4 @@ Trong các ca thất bại, ảnh sai cũng chứa vật khớp từ khóa nhưn
 
 \section{Kết luận cấp độ 1}
 
-Cấp độ 1 đáp ứng đầy đủ baseline, GNN reranking, ba seed, ablation và phân tích năm ca thành công/thất bại. Kết quả xác lập hai nguồn đóng góp: lớp reranker học được cải thiện biểu diễn ảnh, còn scene graph đúng tạo thêm lợi ích có thể đo bằng cả ablation và can thiệp. Đây là cơ sở chuyển sang MMKG, nơi vai trò của quan hệ được kiểm tra trực tiếp trên truy vấn gián tiếp.
-
+Nhìn chung, việc kết hợp CLIP với GAT giúp cải thiện hiệu quả truy hồi trên Visual Genome. Tuy nhiên, các thí nghiệm so sánh cho thấy phần lớn mức cải thiện vẫn được duy trì khi loại bỏ hoặc hoán vị các cạnh, trong khi việc sử dụng đúng các quan hệ giữa thực thể chỉ mang lại lợi ích bổ sung tương đối nhỏ. Phân tích các trường hợp cụ thể và đánh giá giải thích cũng cho thấy thông tin đồ thị có thể ảnh hưởng đến kết quả xếp hạng. Những kết quả này là cơ sở để tiếp tục đánh giá vai trò của quan hệ trên đồ thị tri thức đa phương thức ở cấp độ 2.

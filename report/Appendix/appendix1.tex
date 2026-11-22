@@ -64,15 +64,13 @@ Random-edges (2026) & 0.6380 & 0.8310 & 0.8890 & 0.7450 \\
 
 Phụ lục này tổng hợp các kiểm tra phụ trợ không đưa vào bảng kết quả chính, giúp phần thân bài tập trung vào kết luận thay vì liệt kê toàn bộ số liệu trung gian. Các giá trị được trình bày tại Bảng~\ref{tab:supplementary-audit}.
 
-\clearpage
-\begin{strip}
-\begin{minipage}{\textwidth}
+\begin{table*}[!t]
 \centering
 \footnotesize
 \renewcommand{\arraystretch}{0.9}
-\nonfloattablecaption{Số liệu audit không đưa vào bảng kết quả chính}
+\caption{Số liệu audit không đưa vào bảng kết quả chính}
 \label{tab:supplementary-audit}
-\begin{tabularx}{\linewidth}{L{3cm}Y}
+\begin{tabularx}{\textwidth}{L{3cm}Y}
 \toprule
 Hạng mục & Giá trị và cách diễn giải\\
 \midrule
@@ -86,8 +84,7 @@ ViHeritage, chuyển miền & Mức tăng Indirect MRR tương ứng 1,95 lần 
 XAI, kiểm tra mimic & Pearson điểm mimic--checkpoint là 0,957 trên DB15K và 0,527 trên FB15K; Spearman tác động xấp xỉ--huấn luyện lại là 0,32 trên ViHeritage.\\
 \bottomrule
 \end{tabularx}
-\end{minipage}
-\end{strip}
+\end{table*}
 
 \input{Appendix/appendix_vg_figures}
 \input{Appendix/appendix_bench20}

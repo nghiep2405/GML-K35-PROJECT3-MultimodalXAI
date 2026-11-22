@@ -1,0 +1,8 @@
+% Danh sách bộ 20 truy vấn đánh giá của Cấp độ 2 (đề, mục 5 và mục 8), tách nhóm trực tiếp và gián tiếp.
+
+\section{Bộ 20 truy vấn đánh giá của Cấp độ 2}
+\label{app:bench20}
+
+\input{Appendix/appendix_bench20_tables}
+
+Bảng~\ref{tab:app-bench20-db15k} và Bảng~\ref{tab:app-bench20-fb15k} liệt kê đủ 20 truy vấn của mỗi tập, gồm 10 truy vấn trực tiếp và 10 truy vấn gián tiếp (5 head, 5 tail), chọn cố định từ test trước khi xem kết quả theo cách ở Mục~\ref{sec:level2-protocol}. Truy vấn trực tiếp hỏi ảnh của một thực thể theo tên; truy vấn gián tiếp nêu thực thể neo và quan hệ nhưng không nêu tên đáp án, nên phải khai thác quan hệ trong đồ thị. Một truy vấn được tính là thành công khi ảnh đúng nằm trong top 10 ở cả ba lần huấn luyện, khớp với chỉ số R@10; cột So với CLIP so hạng của ảnh đúng sau khi thêm AdaMF với hạng khi chỉ dùng CLIP.

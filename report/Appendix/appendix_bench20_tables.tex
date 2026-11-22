@@ -1,0 +1,76 @@
+% Sinh bằng report/figures/scripts/make_bench20_tables.py từ C3_benchmark_queries.csv.
+\begin{table*}[!t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Bộ 20 truy vấn đánh giá trên DB15K: hạng của ảnh đúng và kết quả từng truy vấn}
+\label{tab:app-bench20-db15k}
+\begin{tabularx}{\linewidth}{@{}rYlrrll@{}}
+\toprule
+\# & Truy vấn & Chiều & CLIP & CLIP + AdaMF & So với CLIP & Kết quả\\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Truy vấn trực tiếp}}\\
+1 & An image of Transformers (film). &  & 2 & 2 & như nhau & Thành công\\
+2 & An image of Ian Holm. &  & 45 & 45 & như nhau & Thất bại\\
+3 & An image of Hilo, Hawaii. &  & 1 & 1 & như nhau & Thành công\\
+4 & An image of Kilmarnock. &  & 20 & 20 & như nhau & Thất bại\\
+5 & An image of Cole Porter. &  & 925 & 925 & như nhau & Thất bại\\
+6 & An image of Bob Clampett. &  & 1 & 1 & như nhau & Thành công\\
+7 & An image of All That Jazz (film). &  & 230 & 230 & như nhau & Thất bại\\
+8 & An image of Pain. &  & 8 & 8 & như nhau & Thành công\\
+9 & An image of Fayetteville, North Carolina. &  & 42 & 42 & như nhau & Thất bại\\
+10 & An image of Art Deco. &  & 3 & 3 & như nhau & Thành công\\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Truy vấn gián tiếp}}\\
+1 & Find an image of the entity whose birth place relation points to Wigan. & head & 1157 & 1157 & như nhau$^{*}$ & Thất bại\\
+2 & Find an image of the entity whose type relation points to Island. & head & 956 & 554/597/531 & tốt hơn & Thất bại\\
+3 & Find an image of the entity whose associated band relation points to David Bowie. & head & 469 & 5/4/4 & tốt hơn & Thành công\\
+4 & Find an image of the entity whose record label relation points to Sanctuary Records Group. & head & 443 & 5/5/6 & tốt hơn & Thành công\\
+5 & Find an image of the entity whose starring relation points to Nicole Kidman. & head & 725 & 33/35/41 & tốt hơn & Thất bại\\
+6 & Find an image of the entity that is related to Cinderella (1950 film) by producer. & tail & 97 & 1 & tốt hơn & Thành công\\
+7 & Find an image of the entity that is related to The Other Boleyn Girl (2008 film) by record label. & tail & 1988 & 1988 & như nhau$^{*}$ & Thất bại\\
+8 & Find an image of the entity that is related to Pride \& Prejudice (2005 film) by starring. & tail & 249 & 70/428/80 & lẫn lộn & Thất bại\\
+9 & Find an image of the entity that is related to Angelina Jolie by spouse. & tail & 363 & 2 & tốt hơn & Thành công\\
+10 & Find an image of the entity that is related to Robert Byrd by successor. & tail & 242 & 1 & tốt hơn & Thành công\\
+\bottomrule
+\end{tabularx}
+\par\smallskip{\noindent\raggedright\footnotesize Cột CLIP + AdaMF ghi một số khi ba lần huấn luyện cho cùng hạng, ba số khi khác nhau. Thành công: ảnh đúng nằm trong top 10 ở cả ba lần huấn luyện. Lẫn lộn: tốt hơn CLIP ở một số lần, kém hơn ở lần khác. $^{*}$ Ảnh đúng nằm ngoài top 1\,000 của CLIP nên không được xếp hạng lại.\par}
+\end{table*}
+
+\begin{table*}[!t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Bộ 20 truy vấn đánh giá trên FB15K-237-IMG: hạng của ảnh đúng và kết quả từng truy vấn}
+\label{tab:app-bench20-fb15k}
+\begin{tabularx}{\linewidth}{@{}rYlrrll@{}}
+\toprule
+\# & Truy vấn & Chiều & CLIP & CLIP + AdaMF & So với CLIP & Kết quả\\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Truy vấn trực tiếp}}\\
+1 & An image of Jerome Flynn. &  & 1 & 1 & như nhau & Thành công\\
+2 & An image of Jeff Beck. &  & 39 & 1 & tốt hơn & Thành công\\
+3 & An image of Mad About You. &  & 9743 & 9743 & như nhau$^{*}$ & Thất bại\\
+4 & An image of Shiraz. &  & 123 & 3/1/1 & tốt hơn & Thành công\\
+5 & An image of Guangdong Province. &  & 22 & 1 & tốt hơn & Thành công\\
+6 & An image of Jackass: The Movie. &  & 1 & 1 & như nhau & Thành công\\
+7 & An image of North Brabant. &  & 41 & 1 & tốt hơn & Thành công\\
+8 & An image of Yunnan. &  & 2 & 1 & tốt hơn & Thành công\\
+9 & An image of Mississippi Burning. &  & 1 & 1 & như nhau & Thành công\\
+10 & An image of Worthing. &  & 2 & 1 & tốt hơn & Thành công\\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Truy vấn gián tiếp}}\\
+1 & Find an image of the entity whose languages spoken relation points to Indonesian Language. & head & 24 & 11/18/7 & tốt hơn & Thất bại\\
+2 & Find an image of the entity whose sport relation points to Football. & head & 14 & 313/316/315 & kém hơn & Thất bại\\
+3 & Find an image of the entity whose award relation points to Grammy Award for Best Contemporary Jazz Album. & head & 1257 & 1257 & như nhau$^{*}$ & Thất bại\\
+4 & Find an image of the entity whose place of birth relation points to Chicago. & head & 2771 & 2771 & như nhau$^{*}$ & Thất bại\\
+5 & Find an image of the entity whose award relation points to Academy Award for Best Sound Mixing. & head & 761 & 9/8/6 & tốt hơn & Thành công\\
+6 & Find an image of the entity that is related to Dance-pop by artists. & tail & 5233 & 5233 & như nhau$^{*}$ & Thất bại\\
+7 & Find an image of the entity that is related to BAFTA Award for Best Actor in a Leading Role by nominated for. & tail & 1863 & 1863 & như nhau$^{*}$ & Thất bại\\
+8 & Find an image of the entity that is related to Academy Award for Best Film Editing by nominated for. & tail & 3670 & 3670 & như nhau$^{*}$ & Thất bại\\
+9 & Find an image of the entity that is related to Rock and roll by artists. & tail & 944 & 99/175/101 & tốt hơn & Thất bại\\
+10 & Find an image of the entity that is related to The Da Vinci Code by production companies. & tail & 2155 & 2155 & như nhau$^{*}$ & Thất bại\\
+\bottomrule
+\end{tabularx}
+\par\smallskip{\noindent\raggedright\footnotesize Cột CLIP + AdaMF ghi một số khi ba lần huấn luyện cho cùng hạng, ba số khi khác nhau. Thành công: ảnh đúng nằm trong top 10 ở cả ba lần huấn luyện. Lẫn lộn: tốt hơn CLIP ở một số lần, kém hơn ở lần khác. $^{*}$ Ảnh đúng nằm ngoài top 1\,000 của CLIP nên không được xếp hạng lại.\par}
+\end{table*}

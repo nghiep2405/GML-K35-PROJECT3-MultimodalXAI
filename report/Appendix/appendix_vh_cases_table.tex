@@ -1,0 +1,42 @@
+% Sinh bằng report/figures/scripts/make_vh_cases_table.py từ D4_cases.md.
+\begin{table*}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.2pt}
+\caption{Bằng chứng giải thích theo từng truy vấn trên ViHeritage-MMKG: mười truy vấn của mỗi mô hình}
+\label{tab:app-vh-cases}
+\begin{tabularx}{\linewidth}{@{}rL{3.6cm}L{2.2cm}L{2.0cm}Yrrrrrr@{}}
+\toprule
+\# & Câu truy vấn & Đáp án (hạng) & Ảnh hạng 1 & Bộ ba giải thích mạnh nhất ($\delta$) & $|\mathcal S|$ & \twoline{Đường}{đi} & Fid+ & Fid$-$ & \twoline{PN/}{PS} & \twoline{Spar-}{sity}\\
+\midrule
+\multicolumn{11}{@{}l}{\textit{CLIP + AdaMF, thành công}}\\
+1 & Thành phố Huế có những di tích nào? & Chùa Thiên Mụ (1) & Chùa Thiên Mụ & Chùa Thiên Mụ \textit{thuộc quần thể} Quần thể di tích Cố đô Huế (0.227) & 1 & 1/1 & 0.268 (0.062) & 0.983 & 0/0 & 0.86\\
+2 & Gần Tháp Bà Ponagar ở Nha Trang có công trình nào khác? & Nhà thờ Núi (1) & Nhà thờ Núi & Nhà thờ Núi \textit{ở gần} Chùa Long Sơn (0.388) & 1 & 1/1 & 0.379 (0.037) & 0.405 & 0/1 & 0.83\\
+3 & Hoàng thành Huế là một phần của quần thể di sản nào? & Quần thể di tích Cố đô Huế (1) & Quần thể di tích Cố đô Huế & Lăng Minh Mạng \textit{thuộc quần thể} Quần thể di tích Cố đô Huế (0.301) & 1 & 1/1 & 0.308 (0.028) & 0.205 & 1/1 & 0.86\\
+4 & Cho mình xem các địa danh ở Hà Nội & Tháp Rùa (1) & Tháp Rùa & Tháp Rùa \textit{ở gần} Hoàn Kiếm hồ (0.136) & 1 & 1/1 & 0.198 ($-$0.159) & 0.990 & 0/0 & 0.89\\
+5$^{\dagger}$ & Công trình nào là một phần của khu Di sản thế giới UNESCO? & Lăng Minh Mạng (1) & Lăng Minh Mạng & Lăng Minh Mạng \textit{nằm ở tỉnh} Huế (0.731) & 1 & 0/1 & 0.641 (0.052) & 0.860 & 1/0 & 0.86\\
+\midrule
+\multicolumn{11}{@{}l}{\textit{CLIP + AdaMF, thất bại}}\\
+1 & ảnh một ngôi chùa Phật giáo & Chùa Xá Lợi (17) & Lăng Minh Mạng & Lăng Minh Mạng \textit{nằm ở tỉnh} Huế (1.029) & 1 & 0/1 & 0.842 ($-$0.286) & 0.939 & 1/0 & 0.86\\
+2 & Quanh Lăng Bác ở quảng trường Ba Đình có những công trình nào? & Phủ Chủ tịch (8) & Lăng Chủ tịch Hồ Chí Minh & Lăng Chủ tịch Hồ Chí Minh \textit{là một} lăng (0.759) & 1 & 1/1 & 0.598 (0.363) & 0.921 & 1/0 & 0.67\\
+3 & Quanh chùa Giác Lâm ở Tân Bình có nơi nào đáng xem? & Chùa Xá Lợi (21) & Chùa Giác Lâm & Chùa Giác Lâm \textit{ở gần} Chùa Bà Thiên Hậu (0.573) & 1 & 1/1 & 0.440 (0.092) & $-$0.006 & 0/1 & 0.75\\
+4 & Quanh Lăng Bác ở quảng trường Ba Đình có những công trình nào? & Chùa Một Cột (6) & Lăng Chủ tịch Hồ Chí Minh & Lăng Chủ tịch Hồ Chí Minh \textit{xây dựng vào} thế kỷ 20 (0.905) & 1 & 1/1 & 0.667 (0.359) & 0.801 & 1/0 & 0.67\\
+5 & Những nhà thờ nào trực thuộc Tổng giáo phận Hà Nội? & Vương cung thánh đường Sở Kiện (6) & Bảo tàng Lịch sử Việt Nam & Bảo tàng Lịch sử Việt Nam \textit{kiến trúc sư} Ernest Hébrard (0.734) & 1 & 0/1 & 0.569 (0.165) & 0.739 & 1/0 & 0.80\\
+\midrule
+\multicolumn{11}{@{}l}{\textit{CLIP + GAT, thành công}}\\
+1 & Những nhà thờ nào trực thuộc Tổng giáo phận Hà Nội? & Vương cung thánh đường Sở Kiện (1) & Vương cung thánh đường Sở Kiện & Vương cung thánh đường Sở Kiện \textit{là một} nhà thờ Kitô giáo (0.084) & 8 & 0/8 & 0.069 (0.025) & $-$0.094 & 0/1 & 0.73\\
+2 & Thành phố Huế có những di tích nào? & Chùa Thiên Mụ (1) & Chùa Thiên Mụ & Chùa Thiên Mụ \textit{thuộc quần thể} Quần thể di tích Cố đô Huế (0.082) & 8 & 5/8 & 0.487 (0.008) & $-$0.311 & 0/1 & 0.83\\
+3 & Quần thể di tích Cố đô Huế gồm những công trình nào? & Lăng Tự Đức (1) & Lăng Tự Đức & Chùa Thiên Mụ \textit{thuộc quần thể} Quần thể di tích Cố đô Huế (0.134) & 8 & 4/8 & 0.194 (0.008) & $-$0.051 & 1/0 & 0.83\\
+4 & Công trình nào ở Việt Nam mang phong cách Tân Gothic? & Nhà thờ Núi (1) & Nhà thờ Núi & Nhà thờ Mằng Lăng \textit{phong cách kiến trúc} kiến trúc Tân Gothic (0.050) & 8 & 0/8 & 0.085 (0.007) & $-$0.042 & 0/1 & 0.83\\
+5 & Đồng Nai có những địa danh nào đáng đến? & Vườn quốc gia Cát Tiên (1) & Vườn quốc gia Cát Tiên & Vườn quốc gia Cát Tiên \textit{nằm ở tỉnh} Lâm Đồng (0.278) & 5 & 3/5 & 0.498 (0.096) & $-$0.152 & 1/1 & 0.50\\
+\midrule
+\multicolumn{11}{@{}l}{\textit{CLIP + GAT, thất bại}}\\
+1 & ảnh một ngôi chùa Phật giáo & Chùa Xá Lợi (29) & Đền Quán Thánh & Đền Quán Thánh \textit{nằm ở tỉnh} Hà Nội (0.069) & 8 & 1/8 & 0.141 ($-$0.014) & $-$0.250 & 0/1 & 0.87\\
+2 & Quanh Lăng Bác ở quảng trường Ba Đình có những công trình nào? & Phủ Chủ tịch (25) & Lăng Chủ tịch Hồ Chí Minh & Lăng Chủ tịch Hồ Chí Minh \textit{nằm ở tỉnh} Hà Nội (0.065) & 8 & 1/8 & $-$0.008 (0.001) & $-$0.129 & 0/1 & 0.76\\
+3 & Quanh chùa Giác Lâm ở Tân Bình có nơi nào đáng xem? & Chùa Xá Lợi (4) & Chùa Giác Lâm & Chùa Giác Lâm \textit{ở gần} Chùa Bà Thiên Hậu (0.024) & 8 & 2/8 & $-$0.007 ($-$0.003) & $-$0.018 & 0/1 & 0.60\\
+4 & Quanh Lăng Bác ở quảng trường Ba Đình có những công trình nào? & Chùa Một Cột (8) & Lăng Chủ tịch Hồ Chí Minh & Lăng Chủ tịch Hồ Chí Minh \textit{nằm ở tỉnh} Hà Nội (0.065) & 8 & 1/8 & $-$0.007 ($-$0.000) & $-$0.131 & 0/1 & 0.76\\
+5 & Những nơi nào của Việt Nam đang nằm trong danh sách dự kiến đề cử Di sản thế giới? & Óc Eo (15) & Vịnh Hạ Long & Vịnh Hạ Long \textit{danh hiệu di sản} di sản thế giới (1.651) & 5 & 0/5 & 0.648 (0.343) & $-$0.173 & 1/1 & 0.62\\
+\bottomrule
+\end{tabularx}
+\par\smallskip{\noindent\raggedright\scriptsize Đáp án (hạng): hạng của ảnh đúng tốt nhất. $K^\star=1$ với AdaMF và $8$ với GAT. Đường đi: số bộ ba của $\mathcal S$ nằm trên đường đi từ thực thể neo tới thực thể của ảnh. Số trong ngoặc ở cột Fid+ là mức của bỏ cùng số bộ ba ngẫu nhiên. Mọi bộ ba giải thích là bộ ba train, nên validity cấu trúc đạt 100\%. $^{\dagger}$ Truy vấn lấy từ lần huấn luyện thứ hai; các truy vấn còn lại từ checkpoint chính.\par}
+\end{table*}

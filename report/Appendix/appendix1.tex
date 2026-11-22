@@ -17,11 +17,11 @@ Công cụ AI được sử dụng để hỗ trợ viết một số notebook p
 
 Bảng~\ref{tab:contributions} trình bày công việc chính của từng thành viên.
 
-\begin{strip}
+\begin{table*}[!t]
   \renderhyperparameterstable
   \vspace{6pt}
   \rendercontributionstable
-\end{strip}
+\end{table*}
 
 \section{Thực nghiệm bổ sung trên Flickr30k Entities}
 \label{app:flickr30k-pipeline}
@@ -59,18 +59,10 @@ Random-edges (2026) & 0.6380 & 0.8310 & 0.8890 & 0.7450 \\
 }
 \end{table}
 
-\section{Số liệu kiểm định và audit bổ sung}
-\label{app:supplementary-audit}
-
-Phụ lục này lưu các giá trị chính xác dùng để kiểm tra kết quả trong thân bài. Chúng được tách riêng để mạch trình bày chính tập trung vào kết luận thay vì liệt kê toàn bộ số liệu trung gian. Bảng~\ref{tab:vg-detailed-audit} ghi kết quả Visual Genome theo từng lần huấn luyện; Bảng~\ref{tab:supplementary-audit} tổng hợp các kiểm tra phụ trợ không đưa vào bảng kết quả chính.
-
-\par\vspace{\baselineskip}
-\noindent\begin{minipage}{\columnwidth}
-\subsection{Visual Genome theo từng lần huấn luyện}
-\mbox{}\par
+\begin{table}[H]
 \centering
 \scriptsize
-\captionof{table}{Kết quả chi tiết Visual Genome}
+\caption{Kết quả chi tiết Visual Genome}
 \label{tab:vg-detailed-audit}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lrrrrrr}
@@ -88,17 +80,20 @@ Random-edges 2026 & 99 & 0,6 & 0,035604 & 0,094264 & 0,136498 & 0,070772\\
 \bottomrule
 \end{tabular}%
 }
-\end{minipage}
+\end{table}
 
-\par\vspace{\baselineskip}
-\noindent\begin{minipage}{\columnwidth}
-\subsection{Các kiểm tra phụ trợ}
-\mbox{}\par
+\section{Số liệu kiểm định và audit bổ sung}
+\label{app:supplementary-audit}
+
+Phụ lục này lưu các giá trị chính xác dùng để kiểm tra kết quả trong thân bài. Chúng được tách riêng để mạch trình bày chính tập trung vào kết luận thay vì liệt kê toàn bộ số liệu trung gian. Bảng~\ref{tab:vg-detailed-audit} ghi kết quả Visual Genome theo từng lần huấn luyện; Bảng~\ref{tab:supplementary-audit} tổng hợp các kiểm tra phụ trợ không đưa vào bảng kết quả chính.
+
+\begin{table}[!t]
 \centering
-\footnotesize
-\captionof{table}{Số liệu audit không đưa vào bảng kết quả chính}
+\fontsize{7.5pt}{8.2pt}\selectfont
+\renewcommand{\arraystretch}{0.85}
+\caption{Số liệu audit không đưa vào bảng kết quả chính}
 \label{tab:supplementary-audit}
-\begin{tabularx}{\columnwidth}{L{2.5cm}Y}
+\begin{tabularx}{\columnwidth}{L{2.2cm}Y}
 \toprule
 Hạng mục & Giá trị và cách diễn giải\\
 \midrule
@@ -112,4 +107,4 @@ ViHeritage, chuyển miền & Mức tăng Indirect MRR tương ứng 1,95 lần 
 XAI, kiểm tra mimic & Pearson điểm mimic--checkpoint là 0,957 trên DB15K và 0,527 trên FB15K; Spearman tác động xấp xỉ--huấn luyện lại là 0,32 trên ViHeritage.\\
 \bottomrule
 \end{tabularx}
-\end{minipage}
+\end{table}

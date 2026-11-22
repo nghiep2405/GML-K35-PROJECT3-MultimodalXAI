@@ -321,10 +321,10 @@
         n/.style={draw=LineGray,fill=SoftBg,rounded corners=3pt,align=center,font=\footnotesize,inner sep=6pt,minimum width=2.65cm,minimum height=0.9cm},
         ar/.style={-{Latex[length=2mm]},Slate,thick}]
         \node[n,fill=HCMUSBlue,text=white] (img) at (0,0) {Nút ảnh\\CLIP ảnh: 512 chiều};
-        \node[n] (obj) at (4.1,0) {Nút vật thể\\CLIP mã hóa tên vật thể\\512 chiều};
-        \node[n,minimum width=3.9cm] (gat) at (2.05,-1.55) {GAT 2 lớp, có đặc trưng cạnh\\4 đầu chú ý $\times$ 32 chiều};
-        \node[n,fill=L1Blue,text=white,minimum width=3.9cm] (out) at (2.05,-2.95) {Biểu diễn nút ảnh sau GAT\\$h_{\rm graph}$: 128 chiều};
-        \draw[ar] (img) -- node[above,font=\scriptsize]{\texttt{contains}} (obj);
+        \node[n] (obj) at (5.2,0) {Nút vật thể\\CLIP mã hóa tên vật thể\\512 chiều};
+        \node[n,minimum width=4.4cm] (gat) at (2.6,-1.55) {GAT 2 lớp, có đặc trưng cạnh\\4 đầu chú ý $\times$ 32 chiều};
+        \node[n,fill=L1Blue,text=white,minimum width=4.4cm] (out) at (2.6,-2.95) {Biểu diễn nút ảnh sau GAT\\$h_{\rm graph}$: 128 chiều};
+        \draw[ar] (img) -- node[above=2pt,font=\scriptsize\bfseries,text=DarkNavy]{\texttt{contains}} (obj);
         \draw[ar] (img.south) -- (gat.north west);
         \draw[ar] (obj.south) -- (gat.north east);
         \draw[ar] (gat) -- (out);
@@ -502,12 +502,12 @@
 
 \begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} Ablation trên cấp độ 2}
   \begin{columns}[c]
-    \begin{column}{0.54\textwidth}
+    \begin{column}{0.55\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{assets/charts/gain_kept.png}\\[0.05cm]
-      {\scriptsize\color{Slate} Phần lợi ích MRR gián tiếp vượt CLIP còn giữ lại.}
+      \includegraphics[width=\linewidth]{assets/charts/l2_ablation.png}\\[0.05cm]
+      {\scriptsize\color{Slate} Tỷ lệ \% mức tăng MRR gián tiếp vượt CLIP được giữ lại.}
     \end{column}
-    \begin{column}{0.44\textwidth}
+    \begin{column}{0.43\textwidth}
       \begin{alertblock}{Diễn giải từ đối chứng}\footnotesize
         \textbf{DB15K}: Xáo cạnh chỉ giữ khoảng 37\% lợi ích, hỗ trợ đóng góp của quan hệ đúng.\\[0.04cm]
         \textbf{FB15K}: Phần lớn lợi ích còn tồn tại sau can thiệp; chưa cô lập được đóng góp riêng của quan hệ.

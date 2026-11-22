@@ -233,6 +233,37 @@ def chart_viheritage():
     save(fig, "viheritage")
 
 
+def chart_l2_ablation():
+    fig, ax = plt.subplots(figsize=(6.6, 3.1))
+    configs = ["No-edge\n(Bỏ cạnh)", "Shuffle-edges\n(Xáo cạnh)", "Random-edges\n(Ngẫu nhiên)", "Full Graph\n(Đầy đủ)"]
+    db15k_gain = [0.0, 36.9, 0.0, 100.0]
+    fb15k_gain = [0.0, 93.1, 92.9, 100.0]
+
+    x = np.arange(len(configs))
+    w = 0.34
+
+    b1 = ax.bar(x - w / 2, db15k_gain, w, label="DB15K", color=BLUE, edgecolor="white")
+    b2 = ax.bar(x + w / 2, fb15k_gain, w, label="FB15K-237-IMG", color=ORANGE, edgecolor="white")
+
+    for bars in (b1, b2):
+        for r in bars:
+            h = r.get_height()
+            ax.text(r.get_x() + r.get_width() / 2, h + 2.0, f"{h:.0f}%",
+                    ha="center", va="bottom", fontsize=8, fontweight="bold", color=INK)
+
+    ax.axhline(100, color=INK2, linestyle="--", linewidth=0.8, alpha=0.7)
+    ax.axhline(0, color=INK2, linewidth=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(configs)
+    ax.set_ylabel("% Mức tăng MRR gián tiếp giữ lại")
+    ax.set_ylim(-8, 120)
+    ax.legend(loc="upper left", frameon=False)
+    ax.grid(axis="x", visible=False)
+
+    fig.tight_layout()
+    save(fig, "l2_ablation")
+
+
 if __name__ == "__main__":
     chart_l1_retrieval()
     chart_l1_ablation()
@@ -240,4 +271,5 @@ if __name__ == "__main__":
     chart_gain_kept()
     chart_xai_fidelity()
     chart_viheritage()
+    chart_l2_ablation()
     print("Charts written to", OUT)

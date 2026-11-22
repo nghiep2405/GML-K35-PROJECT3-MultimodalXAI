@@ -74,7 +74,6 @@
 \setbeamertemplate{footline}{%
   \leavevmode\hbox{%
     \begin{beamercolorbox}[wd=\paperwidth,ht=2.8ex,dp=1.2ex,left]{normal text}%
-      \hspace*{0.4cm}{\scriptsize\color{Slate}Truy hồi đa phương thức có giải thích bằng đồ thị\quad|\quad Nhóm 02\quad|\quad Học máy với dữ liệu đồ thị}%
       \hfill{\scriptsize\ifbackupslides B\arabic{backupslide}/8\else\insertframenumber/\inserttotalframenumber\fi}\hspace*{0.4cm}%
     \end{beamercolorbox}%
   }\vskip3pt%
@@ -143,10 +142,8 @@
     GVHD: TS. Lê Ngọc Thành \quad$\cdot$\quad ThS. Huỳnh Lâm Hải Đăng \quad$\cdot$\quad Tháng 11/2026
   \end{center}
 \end{frame}
-% ===========================================================================
-% 02 --- Research problem
-% ===========================================================================
-\begin{frame}{CLIP Có Thể Gặp Khó với Truy vấn Quan hệ}
+
+\begin{frame}{Hạn chế của CLIP với truy vấn quan hệ}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
       \begin{block}{Hai giới hạn cần khảo sát}\footnotesize
@@ -156,44 +153,42 @@
       \vspace{0.08cm}
       \begin{alertblock}{Câu hỏi nghiên cứu}\footnotesize
         Cấu trúc đồ thị có thể cải thiện xếp hạng --- đặc biệt cho các
-        truy vấn \textbf{gián tiếp} --- và quan hệ có thể \textbf{định lượng làm bằng chứng giải thích}?
+        truy vấn \textbf{gián tiếp} --- và mức đóng góp của các quan hệ có thể \textbf{được đo lường để giải thích kết quả}?
       \end{alertblock}
     \end{column}
     \begin{column}{0.48\textwidth}
       \centering
       \resizebox{\linewidth}{!}{%
       \begin{tikzpicture}[
-        img/.style={draw=LineGray, rounded corners=2pt, minimum width=2.1cm, minimum height=1.5cm,
+        img/.style={draw=LineGray, rounded corners=2pt, minimum width=2.1cm, minimum height=1.5cm, text width=2.4cm,
                     fill=SoftBg, align=center, font=\scriptsize},
-        lbl/.style={font=\scriptsize\itshape, text=Slate, align=center},
+        lbl/.style={font=\scriptsize\itshape, text=Slate, align=center,text width=2.7cm},
         q/.style={draw=HCMUSBlue, fill=HCMUSBlue, text=white, rounded corners=3pt,
                   align=center, font=\small\bfseries, inner sep=5pt}
       ]
         \node[q] (q) {``a child playing\\football''};
-        \node[img, below left=0.55cm and 0.15cm of q] (a) {Ảnh A\\[1pt]
+        \node[img, below left=0.55cm and 0.15cm of q] (a) {Ảnh $I$\\CLIP\\[1pt]
           \textcolor{Slate}{vật thể: child, ball}\\[-1pt]\textcolor{WarnRed}{quan hệ: ?}};
-        \node[img, below right=0.55cm and 0.15cm of q] (b) {Ảnh B\\[1pt]
+        \node[img, below right=0.55cm and 0.15cm of q] (b) {Ảnh $I$\\CLIP + đồ thị\\[1pt]
           \textcolor{Slate}{vật thể: child, ball}\\[-1pt]\textcolor{L3Aqua}{quan hệ: plays}};
         \draw[-{Latex[length=2mm]}, HCMUSBlue, thick] (q) -- (a);
         \draw[-{Latex[length=2mm]}, HCMUSBlue, thick] (q) -- (b);
         \node[lbl, below=0.12cm of a] {tương đồng vector:\\khó phân biệt};
         \node[lbl, below=0.12cm of b] {đường đi \texttt{child--plays--football}\\
           liên kết truy vấn đến đúng ảnh};
-        \node[font=\scriptsize\itshape, text=Slate, anchor=north west] at (-2.6,-4.35)
-          {Ví dụ minh họa (không phải kết quả thực nghiệm)};
+        \node[font=\scriptsize\itshape, text=Slate, text width=5.8cm,align=center,anchor=north] at (0,-4.50)
+          {Cùng một ảnh, so sánh khi có và chưa có đồ thị};
       \end{tikzpicture}}
     \end{column}
   \end{columns}
 \end{frame}
-% ===========================================================================
-% 03 --- Objectives / three levels
-% ===========================================================================
-\begin{frame}{Ba Cấp độ: Mở rộng Từ Cục bộ sang Toàn cục và Giải thích}
+
+\begin{frame}{Ba cấp độ của đồ án}
   \begin{center}
   \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
     box/.style={draw, rounded corners=4pt, inner sep=8pt, align=center, minimum width=4.6cm,
-                minimum height=2.5cm, font=\small},
+                minimum height=2.5cm, text width=4.2cm, font=\small},
     arrow/.style={-{Latex[length=3mm]}, line width=1.2pt, Slate}
   ]
     \node[box, fill=SoftBg, draw=L1Blue] (l1) {
@@ -209,70 +204,54 @@
       \scriptsize\textbf{Vai trò}: Bổ sung thông tin quan hệ
     };
     \node[box, fill=SoftBg, draw=L3Aqua, right=0.9cm of l2] (l3) {
-      \textcolor{L3Aqua}{\textbf{Cấp độ 3 --- Bóc tách \& Giải thích}}\\[0.20cm]
-      \footnotesize Can thiệp: fidelity, validity, sparsity\\
-      + ViHeritage-MMKG (tự xây dựng)\\[0.12cm]
+      \textcolor{L3Aqua}{\textbf{Cấp độ 3 --- Giải thích và chuyển giao}}\\[0.20cm]
+      \footnotesize Đánh giá fidelity, validity, sparsity\\
+      Thử nghiệm ViHeritage-MMKG tự xây\\[0.12cm]
       \scriptsize\textbf{Vai trò}: Đo ảnh hưởng lên điểm xếp hạng
     };
     \draw[arrow] (l1) -- (l2);
     \draw[arrow] (l2) -- (l3);
   \end{tikzpicture}}
   \end{center}
-  \vspace{0.18cm}
-  \begin{columns}[t]
-    \begin{column}{0.32\textwidth}\centering\footnotesize
-      \textbf{Giao thức chung}\\truy vấn $\rightarrow$ CLIP đóng băng $\rightarrow$ top-$k$ ứng viên\\
-      $\rightarrow$ điểm đồ thị $\rightarrow$ kết hợp $\rightarrow$ rerank
-    \end{column}
-    \begin{column}{0.32\textwidth}\centering\footnotesize
-      \textbf{Ánh xạ đề bài}\\Nhiệm vụ 1--2 (Cấp độ 1--2),\\Nhiệm vụ 3 + dữ liệu tự dựng (Cấp độ 3)
-    \end{column}
-    \begin{column}{0.32\textwidth}\centering\footnotesize
-      \textbf{Nhánh nghiên cứu}\\Văn bản sang ảnh (Nhánh A)\\trên 3 tập chuẩn + 1 tập tự xây dựng
-    \end{column}
-  \end{columns}
+
 \end{frame}
-% ===========================================================================
-% 04 --- Overall framework
-% ===========================================================================
-\begin{frame}{Một Quy trình Chung, Ba Thiết lập Đồ thị}
+
+\begin{frame}{Quy trình tổng quan}
   \begin{center}
   \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
     pstep/.style={draw=LineGray, fill=SoftBg, rounded corners=3pt, align=center,
-                 minimum height=1.35cm, minimum width=2.35cm, font=\scriptsize\bfseries,
+                 minimum height=1.2cm, minimum width=2.0cm, text width=1.9cm, font=\footnotesize\bfseries,
                  inner sep=4pt},
     lab/.style={font=\scriptsize\itshape, text=Slate, align=center},
     arrow/.style={-{Latex[length=2.5mm]}, HCMUSBlue, line width=1pt}
   ]
     \node[pstep] (s1) {Truy vấn văn bản $q$};
-    \node[pstep, right=0.42cm of s1] (s2) {Bộ mã hóa CLIP\\đóng băng};
-    \node[pstep, right=0.42cm of s2] (s3) {Ứng viên top-$k$\\(cosine)};
-    \node[pstep, right=0.42cm of s3] (s4) {Điểm đồ thị\\GAT / AdaMF};
-    \node[pstep, right=0.42cm of s4] (s5) {Kết hợp \& rerank\\$\alpha z(S_{\rm CLIP})+(1{-}\alpha)z(S_{\rm graph})$};
-    \node[pstep, right=0.42cm of s5] (s6) {Kết quả +\\bằng chứng đồ thị};
+    \node[pstep, right=0.26cm of s1] (s2) {Bộ mã hóa CLIP\\đóng băng};
+    \node[pstep, right=0.26cm of s2] (s3) {Ứng viên top-$k$\\(cosine)};
+    \node[pstep, right=0.26cm of s3] (s4) {Điểm đồ thị\\GAT / AdaMF};
+    \node[pstep, right=0.26cm of s4] (s5) {Kết hợp điểm\\và xếp hạng lại};
+    \node[pstep, right=0.26cm of s5] (s6) {Kết quả\\xếp hạng ảnh};
     \draw[arrow] (s1) -- (s2); \draw[arrow] (s2) -- (s3);
     \draw[arrow] (s3) -- (s4); \draw[arrow] (s4) -- (s5);
     \draw[arrow] (s5) -- (s6);
-    \node[lab, below=0.18cm of s3] {$k{=}50$ (VG)\\$k{=}1000$ (KG)\\toàn bộ test (ViHeritage)};
-    \node[lab, below=0.18cm of s6] {can thiệp\\$\rightarrow$ fidelity};
   \end{tikzpicture}}
   \end{center}
   \vspace{0.12cm}
   \begin{columns}[t]
     \begin{column}{0.32\textwidth}
       \begin{block}{\textcolor{white}{Cấp độ 1}}\scriptsize
-        \textbf{Scene graph} từng ảnh; GAT có đặc trưng cạnh; $\alpha{=}0.6$ (chọn trên validation).
+        \textbf{Visual Genome}: GAT trên đồ thị của từng ảnh; xếp hạng lại top-50 ảnh CLIP; $\alpha=0.6$.
       \end{block}
     \end{column}
     \begin{column}{0.32\textwidth}
       \begin{block}{\textcolor{white}{Cấp độ 2}}\scriptsize
-        Bộ ba \textbf{MMKG}; kết hợp AdaMF + tính điểm RotatE; $\alpha$ theo từng tập (validation).
+        \textbf{DB15K / FB15K-237-IMG}: AdaMF dung hợp đặc trưng, RotatE chấm bộ ba; top-1.000 ảnh CLIP.
       \end{block}
     \end{column}
     \begin{column}{0.32\textwidth}
       \begin{block}{\textcolor{white}{Cấp độ 3}}\scriptsize
-        Giải thích \textbf{từ hàm xếp hạng}; đo lường bằng can thiệp trên cả 3 cấp độ.
+        \textbf{ViHeritage-MMKG tự xây}: toàn bộ 88 ảnh test; giải thích bằng bỏ/che cạnh hoặc bộ ba.
       \end{block}
     \end{column}
   \end{columns}
@@ -281,10 +260,59 @@
     {\scriptsize\color{Slate}\textbf{Toàn vẹn dữ liệu}: chọn checkpoint và $\alpha$ trên validation; khóa cấu hình trước test.}
   \end{center}
 \end{frame}
-% ===========================================================================
-% 05 --- Level 1 methodology
-% ===========================================================================
-\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} Scene Graph + GAT: Xếp hạng lại Top-50}
+
+\begin{frame}{Thước đo và thiết lập đánh giá}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Thước đo truy hồi}\footnotesize
+        \textbf{Recall@K}: tỷ lệ truy vấn có ít nhất một ảnh phù hợp trong top-$K$.\\[0.15cm]
+        \textbf{MRR}: trung bình nghịch đảo thứ hạng của ảnh phù hợp đầu tiên; khi bằng điểm, chỉ đếm điểm thực sự lớn hơn.\\[0.15cm]
+        Với MMKG, báo cáo riêng nhóm \textbf{trực tiếp} và \textbf{gián tiếp}.
+      \end{block}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Seed và lựa chọn mô hình}\footnotesize
+        \begin{itemize}
+          \item Mô hình đầy đủ: \textbf{3 seed}, báo cáo trung bình và độ lệch chuẩn mẫu.
+          \item Ablation: \textbf{1 lần chạy mỗi cấu hình}; cần thêm seed để đánh giá độ ổn định.
+          \item Chọn checkpoint, $\alpha$ và $K^\star$ trên validation; khóa cấu hình trước test.
+        \end{itemize}
+      \end{block}
+      \begin{exampleblock}{Kiểm soát dữ liệu}\footnotesize
+        Khử trùng trước khi chia ảnh. Đặc trưng thị giác của thực thể MMKG chỉ dùng ảnh train. Chi tiết tiền xử lý đặt trước từng phương pháp.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} Dữ liệu và tiền xử lý Visual Genome}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Dữ liệu sử dụng}\footnotesize
+        \textbf{104.426 ảnh}, sử dụng scene graph có sẵn.\\[0.12cm]
+        \begin{tabularx}{\linewidth}{@{}Xr@{}}
+          \toprule Tập & Số ảnh\\ \midrule
+          Train & 83.540\\ Validation & 10.443\\ Test & 10.443\\ \bottomrule
+        \end{tabularx}
+      \end{block}
+      \begin{exampleblock}{Kiểm soát rò rỉ dữ liệu}\footnotesize
+        Gom ảnh trùng theo SHA-256 và gần trùng theo pHash (khoảng cách $\le6$) \textbf{trước khi chia tập}. Các ảnh cùng cụm luôn thuộc cùng một tập.
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Đồ thị và đặc trưng đầu vào}\footnotesize
+        \begin{itemize}
+          \item Mỗi ảnh có một đồ thị riêng: nút ảnh, nút vật thể và quan hệ trong scene graph.
+          \item Nút vật thể dùng tên đã chuẩn hóa như \texttt{child}, \texttt{ball}; tên quan hệ như \texttt{holding}, \texttt{on}.
+          \item Thêm cạnh \texttt{contains}, cạnh đảo và cờ \texttt{edge\_is\_reverse}.
+          \item CLIP ViT-B/32 mã hóa ảnh, tên vật thể và tên quan hệ thành đặc trưng 512 chiều; giữ cố định khi học GAT.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} GAT trên scene graph}
   \begin{columns}[c]
     \begin{column}{0.55\textwidth}
       \centering
@@ -293,7 +321,7 @@
         n/.style={draw=LineGray,fill=SoftBg,rounded corners=3pt,align=center,font=\footnotesize,inner sep=6pt,minimum width=2.65cm,minimum height=0.9cm},
         ar/.style={-{Latex[length=2mm]},Slate,thick}]
         \node[n,fill=HCMUSBlue,text=white] (img) at (0,0) {Nút ảnh\\CLIP ảnh: 512 chiều};
-        \node[n] (obj) at (4.1,0) {Nút thực thể\\CLIP tên: 512 chiều};
+        \node[n] (obj) at (4.1,0) {Nút vật thể\\CLIP mã hóa tên vật thể\\512 chiều};
         \node[n,minimum width=3.9cm] (gat) at (2.05,-1.55) {GAT 2 lớp, có đặc trưng cạnh\\4 đầu chú ý $\times$ 32 chiều};
         \node[n,fill=L1Blue,text=white,minimum width=3.9cm] (out) at (2.05,-2.95) {Biểu diễn nút ảnh sau GAT\\$h_{\rm graph}$: 128 chiều};
         \draw[ar] (img) -- node[above,font=\scriptsize]{\texttt{contains}} (obj);
@@ -303,7 +331,6 @@
       \end{tikzpicture}}
       \vspace{0.12cm}
       \begin{itemize}\scriptsize
-        \item Mỗi ảnh có đồ thị riêng; thêm cạnh đảo và cờ \texttt{edge\_is\_reverse}; đặc trưng cạnh 512 chiều.
         \item Truy vấn chiếu $512\to128$ chiều; $S_{\rm graph}=\tilde e_q^\top h_{\rm graph}(v_i)$.
       \end{itemize}
     \end{column}
@@ -322,138 +349,163 @@
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% 06 --- Level 1 results
-% ===========================================================================
-\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} Rerank Đồ thị Cải thiện Truy hồi trên Visual Genome}
+\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} Kết quả thực nghiệm trên Visual Genome}
   \begin{columns}[c]
     \begin{column}{0.56\textwidth}
       \centering
       \includegraphics[width=\linewidth]{assets/charts/l1_retrieval.png}
     \end{column}
     \begin{column}{0.42\textwidth}
-      \begin{alertblock}{Phát hiện chính}\footnotesize
-        Test MRR \textbf{0.0611 $\rightarrow$ 0.0718 $\pm$ 0.0002} (3 seeds), tăng tương đối \textbf{+17.4\%}; R@1 0.0295 $\rightarrow$ 0.0363.
+      \begin{alertblock}{Kết quả chính}\footnotesize
+        Test MRR \textbf{0.0611 $\rightarrow$ 0.0718 $\pm$ 0.0002} (3 seed), tăng tương đối \textbf{17.4\%}.\\[0.14cm]
+        R@1 \textbf{0.0295 $\rightarrow$ 0.0363}, tăng tương đối \textbf{23.1\%}.
       \end{alertblock}
       \vspace{0.15cm}
       \begin{itemize}\footnotesize
-        \item Cùng phép chia tập, cùng CLIP đóng băng, chỉ khác biệt ở bước xếp hạng lại bằng đồ thị.
-        \item Độ lệch chuẩn (SD) giữa các seed rất nhỏ $=$ ổn định dưới giao thức này (không suy rộng sang cross-domain).
+        \item Độ lệch chuẩn MRR qua các seed là 0.0002; kết quả ổn định trong thiết lập đã xét.
         \item Mức tăng bị chặn trên bởi không gian ứng viên top-50.
       \end{itemize}
       \vspace{0.15cm}
-      {\footnotesize\color{Slate} Bằng chứng: Báo cáo Bảng VII (tập test, Visual Genome, 3 seeds).}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% 07 --- Level 1 interpretation
-% ===========================================================================
-\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} Phần lớn Mức tăng Vẫn Duy trì Dù Thiếu Cạnh Thật}
+\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} Ablation trên cấp độ 1}
   \begin{columns}[t]
     \begin{column}{0.50\textwidth}
       \centering
       \includegraphics[width=0.86\linewidth]{assets/charts/l1_ablation.png}\\[0.02cm]
-      {\footnotesize\color{Slate} Bảng VIII --- 1 lần chạy mỗi cấu hình, cùng khởi tạo.}\\[0.08cm]
-      \begin{alertblock}{Nhận định trung thực}\footnotesize
-        Trên Visual Genome, mức tăng chủ yếu đến từ \textbf{phép biến đổi đặc trưng học được}, không phải cấu trúc quan hệ --- một phần dư \textbf{nhỏ, trên 1 lần chạy}.
+      {\footnotesize\color{Slate} So sánh MRR giữa các cấu hình ablation trên Visual Genome.}\\[0.08cm]
+      \begin{alertblock}{Nhận xét}\footnotesize
+        Trên Visual Genome, mức tăng chủ yếu đến từ \textbf{phép biến đổi đặc trưng học được}, trong khi phần đóng góp riêng của cấu trúc quan hệ chưa lớn.
       \end{alertblock}
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{itemize}\footnotesize
         \item \textbf{No-edge} (phép chiếu học được, không truyền tin) giữ được \textbf{77\%} mức tăng; \textbf{random-edges} giữ \textbf{92\%}.
-        \item Đồ thị đầy đủ chỉ vượt random-edges khoảng ${\approx}0.0009$ MRR (1 lần chạy).
-        \item Phân tích giải thích đồng thuận: \textbf{75\%} phần tử được giải thích là cạnh \texttt{contains}; quan hệ vật thể--vật thể đóng góp rất ít.
-        \item Ca ``peace sign'': hạng CLIP 15 $\rightarrow$ 1; khi loại bỏ tập giải thích thì tụt về hạng 4.
+        \item Đồ thị đầy đủ chỉ vượt random-edges khoảng ${\approx}0.0009$ MRR.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
-% ===========================================================================
-% 08 --- Level 2 methodology
-% ===========================================================================
-\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} MMKG Bổ sung Quan hệ Vượt ra Ngoài Ảnh Cục bộ}
+
+\begin{frame}{\leveltag{L1Blue}{CẤP ĐỘ 1} Giải thích kết quả trên Visual Genome}
+  \begin{columns}[c]
+    \begin{column}{0.53\textwidth}
+      \centering
+      \resizebox{0.97\linewidth}{!}{\input{assets/charts/xai_level1.tex}}
+      \begin{exampleblock}{Kết quả trên 500 truy vấn}\footnotesize
+        $K^\star=12$; sparsity 0.647. Bỏ tập giải thích làm giảm xác suất nhiều hơn bỏ ngẫu nhiên.\\[0.08cm]
+        75\% phần tử được chọn là cạnh \texttt{contains}; ca peace sign tăng từ hạng 15 lên 1, bỏ $S$ thì về hạng 4 (phụ lục B2).
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{block}{Can thiệp bằng GAT gốc}\footnotesize
+        Che quan hệ và tính lại bằng checkpoint gốc. Chọn tối đa $K^\star$ phần tử có đóng góp dương; $K^\star$ chọn trên validation.
+      \end{block}
+      \begin{block}{Cách đọc các thước đo}\footnotesize
+        $\mathrm{Fid}^{+}=(p_0-p_{-S})/p_0$: bỏ $S$.\\[0.04cm]
+        $\mathrm{Fid}^{-}=(p_0-p_S)/p_0$: chỉ giữ $S$.\\[0.04cm]
+        $p$: xác suất softmax từ điểm dung hợp.\\
+        \textbf{PN/PS}: mất / giữ top-1 sau can thiệp.\\
+        \textbf{Sparsity}: tỷ lệ phần tử bị lược bỏ.\\
+        \textbf{Validity cấu trúc}: quan hệ có trong scene graph; chưa bảo đảm đúng ngữ nghĩa.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} Dữ liệu và tiền xử lý MMKG}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{DB15K}\footnotesize
+        \textbf{12.842 thực thể; 279 quan hệ; 25.925 ảnh}.\\[0.10cm]
+        Official validation có 2.423 dòng trùng dư và chồng lấn train/test; nhóm chia lại train 90/10, seed 2027.\\[0.10cm]
+        Bộ ba sạch train/val: \textbf{71.300 / 7.922}; test chính thức \textbf{9.902} bộ ba giữ nguyên. Nhóm cạnh đảo cùng quan hệ không bị tách qua train/val.
+      \end{block}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{block}{FB15K-237-IMG}\footnotesize
+        \textbf{14.541 thực thể; 237 quan hệ; 139.814 ảnh}.\\[0.10cm]
+        Giữ nguyên KG train/val/test. Nối văn bản và ảnh theo ID Freebase; lọc ảnh nhỏ, loại cụm ảnh trùng chéo thực thể.\\[0.10cm]
+        Chia cụm ảnh trùng theo SHA-256, seed 2026. Có 280 thực thể thiếu ảnh: điền vector 0 và dùng modality mask.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \begin{exampleblock}{Đặc trưng và kiểm soát rò rỉ}\footnotesize
+    Ảnh được tách theo cụm trùng, không phải tách thực thể. CLIP tạo vector ảnh 512 chiều; đặc trưng thị giác thực thể chỉ lấy trung bình từ ảnh train. Không dùng test để chọn mô hình hay trọng số kết hợp.
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} AdaMF trên đồ thị tri thức đa phương thức}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
-      \begin{block}{Khái niệm: Truy vấn Gián tiếp (Indirect)}\scriptsize
+      \begin{block}{Truy vấn gián tiếp}\scriptsize
         Không nêu thực thể đích; cho neo và quan hệ để tìm đầu hoặc đuôi bộ ba.\\
-        \textit{Ví dụ: ``Người chịu ảnh hưởng bởi Richard Dawkins'' $\rightarrow$ Hitchens.}\\
-        (CLIP thuần còn hạn chế ở nhóm truy vấn gián tiếp).
+        \textit{Ví dụ: ``Người chịu ảnh hưởng bởi Richard Dawkins'' $\rightarrow$ Hitchens.}
+
       \end{block}
-      \vspace{0.06cm}
-      \begin{itemize}\scriptsize
-        \item Đồ thị Cấp 1 là từng ảnh riêng lẻ --- MMKG kết nối tri thức toàn cục.
-        \item Thực thể $=$ \textbf{cấu trúc + văn bản + thị giác} (AdaMF attention).
-        \item Chấm điểm bộ ba bằng \textbf{RotatE}; tắt MAT đối nghịch ($\mu=0$).
-      \end{itemize}
-      \vspace{0.04cm}
+      \vspace{0.02cm}
+
+      \vspace{0.01cm}
       \begin{center}
-      \resizebox{0.92\linewidth}{!}{%
+      \resizebox{0.94\linewidth}{!}{%
       \begin{tikzpicture}[
-        m/.style={draw=LineGray, fill=SoftBg, rounded corners=2pt, font=\scriptsize,
-                  align=center, inner sep=3pt, minimum height=0.55cm},
-        ar/.style={-{Latex[length=2mm]}, Slate}
-      ]
-        \node[m] (t) {đ.trưng\\text};
-        \node[m, right=0.25cm of t] (v) {đ.trưng\\ảnh};
-        \node[m, right=0.25cm of v] (s) {embedding\\cấu trúc};
-        \node[m, fill=L2Orange, text=white, right=0.45cm of s] (f) {kết hợp\\AdaMF};
-        \node[m, right=0.25cm of f] (r) {điểm số\\RotatE};
-        \draw[ar] (t) -- (f); \draw[ar] (v) -- (f); \draw[ar] (s) -- (f);
-        \draw[ar] (f) -- (r);
+        n/.style={draw=LineGray,fill=SoftBg,rounded corners=2pt,font=\footnotesize,align=center,text width=1.7cm,inner sep=5pt},
+        ar/.style={-{Latex[length=2mm]},Slate,thick}]
+        \node[n] (t) at (0,0) {Đặc trưng\\văn bản};
+        \node[n] (v) at (2.3,0) {Đặc trưng\\ảnh};
+        \node[n] (g) at (4.6,0) {Nhúng\\cấu trúc};
+        \node[n,fill=L2Orange,text=white,text width=2.7cm] (a) at (2.3,-1.25) {Dung hợp AdaMF};
+        \node[n,text width=2.7cm] (r) at (2.3,-2.4) {Điểm bộ ba RotatE};
+        \draw[ar] (t.south)--(a.north west); \draw[ar] (v)--(a);
+        \draw[ar] (g.south)--(a.north east); \draw[ar] (a)--(r);
       \end{tikzpicture}}
       \end{center}
+      {\scriptsize\color{Slate} Thực thể dung hợp ba phương thức; tắt MAT đối nghịch ($\mu=0$).}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Tập dữ liệu (chuẩn đề bài)}\scriptsize
-        \textbf{DB15K}: 12.842 thực thể, 279 quan hệ, 25.925 ảnh.\\[0.04cm]
-        \textbf{FB15K-237-IMG}: 14.541 thực thể, 237 quan hệ, 139.814 ảnh.
+      \begin{block}{Chấm điểm truy vấn}\footnotesize
+        Cho thực thể neo và quan hệ $r$; thử từng thực thể ứng viên làm đầu hoặc đuôi bộ ba.\\[0.10cm]
+        Điểm RotatE phản ánh mức phù hợp của bộ ba; kết hợp với điểm CLIP để xếp hạng lại ảnh.
       \end{block}
-      \vspace{0.06cm}
+      \vspace{0.02cm}
       \begin{block}{Nhóm truy vấn kiểm thử}\scriptsize
         \textbf{Trực tiếp (Direct)}: Cho tên thực thể (CLIP đã rất mạnh).\\
         \textbf{Gián tiếp (Indirect)}: 3.195 (DB15K) và 24.564 (FB15K) truy vấn.
       \end{block}
-      \vspace{0.06cm}
-      {\scriptsize\color{Slate} Cài đặt từ AdaMF-MAT (LREC-COLING 2024), điều chỉnh cho truy hồi ảnh.}
+      \vspace{0.02cm}
     \end{column}
   \end{columns}
 \end{frame}
-% ===========================================================================
-% 09 --- Level 2 results
-% ===========================================================================
-\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} Truy vấn Gián tiếp Dẫn dắt Mức tăng trên Cả Hai MMKG}
+
+\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} Kết quả thực nghiệm trên MMKG}
   \begin{columns}[c]
     \begin{column}{0.56\textwidth}
       \centering
       \includegraphics[width=\linewidth]{assets/charts/l2_direct_indirect.png}
     \end{column}
     \begin{column}{0.42\textwidth}
-      \begin{alertblock}{Điểm nhấn bứt phá}\footnotesize
-        MRR gián tiếp: DB15K \textbf{0.0475 $\rightarrow$ 0.3143} ($6.6\times$); FB15K \textbf{0.0122 $\rightarrow$ 0.1186} ($9.7\times$).
+      \begin{alertblock}{Kết quả chính}\footnotesize
+        MRR gián tiếp: DB15K \textbf{0.0475 $\rightarrow$ 0.3143} (gấp 6.6 lần); FB15K \textbf{0.0122 $\rightarrow$ 0.1186} (gấp 9.7 lần).
       \end{alertblock}
       \vspace{0.06cm}
       \begin{itemize}\footnotesize
-        \item \textbf{Truy vấn gián tiếp}: MRR đạt tới $\mathbf{9.7\times}$ mức CLIP trong giao thức đã xét.
+        \item \textbf{Truy vấn gián tiếp}: MRR đạt tới \textbf{9.7 lần} mức CLIP trong giao thức đã xét.
         \item \textbf{Truy vấn trực tiếp}: Giữ nguyên 0.5520 trên DB15K \textbf{theo thiết kế} (bảo toàn ưu thế CLIP).
-        \item \textbf{GAT vs AdaMF}: Chưa phát hiện khác biệt có ý nghĩa thống kê trên DB15K (0.3110 so với 0.3143; CI chứa 0).
         \item Độ lệch chuẩn $\le 0.003$ qua 3 seeds (rất ổn định).
       \end{itemize}
       \vspace{0.05cm}
-      {\scriptsize\color{Slate} Bảng X. Không so sánh chéo MRR giữa các tập dữ liệu.}
     \end{column}
   \end{columns}
 \end{frame}
-% ===========================================================================
-% 10 --- Level 2 ablation
-% ===========================================================================
-\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} Phá Cạnh Làm Giảm Lợi ích Nhiều hơn trên DB15K}
+
+\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} Ablation trên cấp độ 2}
   \begin{columns}[c]
     \begin{column}{0.54\textwidth}
       \centering
       \includegraphics[width=\linewidth]{assets/charts/gain_kept.png}\\[0.05cm]
-      {\scriptsize\color{Slate} Phần lợi ích MRR gián tiếp vượt CLIP còn giữ lại (1 lần chạy mỗi cấu hình).}
+      {\scriptsize\color{Slate} Phần lợi ích MRR gián tiếp vượt CLIP còn giữ lại.}
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{alertblock}{Diễn giải từ đối chứng}\footnotesize
@@ -461,128 +513,112 @@
         \textbf{FB15K}: Phần lớn lợi ích còn tồn tại sau can thiệp; chưa cô lập được đóng góp riêng của quan hệ.
       \end{alertblock}
       \vspace{0.06cm}
-      \begin{itemize}\scriptsize
-        \item \textbf{DB15K}: No Edges bỏ huấn luyện, đặt $\alpha=1$; Random Graph được validation chọn $\alpha=1$.
-        \item \textbf{FB15K}: No Edges về CLIP (giữ 0\% lợi ích); xáo cạnh và ngẫu nhiên giữ khoảng 93\%.
-        \item Ảnh/thực thể: FB15K $\approx9.62$, DB15K $\approx2.02$ (gấp 4.76 lần); chưa chứng minh mật độ ảnh gây học tắt.
+      \begin{itemize}\footnotesize
+        \item Bỏ cạnh đưa DB15K và FB15K về mức CLIP: giữ 0\% mức tăng.
+        \item Với đồ thị ngẫu nhiên, DB15K giữ 0\%, còn FB15K giữ khoảng 93\% mức tăng.
+        \item Tác động của cấu trúc thay đổi theo tập dữ liệu; kết quả không đồng nhất giữa các MMKG.
       \end{itemize}
       \vspace{0.04cm}
-      {\scriptsize\color{Slate} Báo cáo Bảng XI. Tỷ lệ giữ lại tính trên phần tăng so với CLIP, không phải MRR tổng.}
     \end{column}
   \end{columns}
-\end{frame}
-% ===========================================================================
-% 11 --- Level 3 method
-% ===========================================================================
-\begin{frame}{\leveltag{L3Aqua}{CẤP ĐỘ 3} Giải thích bằng Can thiệp lên Hàm Xếp hạng}
-  \begin{center}
-  \begin{tikzpicture}[
-    n/.style={draw=LineGray,fill=SoftBg,rounded corners=3pt,align=center,font=\footnotesize,minimum width=3.9cm,minimum height=0.85cm},
-    ar/.style={-{Latex[length=2.5mm]},L3Aqua,thick}]
-    \node[n] (a) {Ảnh hạng 1 của mô hình};
-    \node[n,right=0.65cm of a] (b) {Xóa / che / học lại\\để đo ảnh hưởng của bằng chứng};
-    \node[n,right=0.65cm of b] (c) {Chấm lại và so với\\bỏ cùng số phần tử ngẫu nhiên};
-    \draw[ar] (a)--(b); \draw[ar] (b)--(c);
-  \end{tikzpicture}
-  \end{center}
-  \vspace{0.05cm}
-  \begin{columns}[t]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Can thiệp sau huấn luyện (post-hoc)}\footnotesize
-        \begin{itemize}
-          \item \textbf{GAT}: che quan hệ, tính lại bằng checkpoint gốc.
-          \item \textbf{AdaMF}: xấp xỉ bằng học lại nhúng cấu trúc cục bộ; giữ các tham số khác cố định.
-          \item Chọn tối đa $K^\star$ phần tử có đóng góp dương; $K^\star$ chọn trên validation.
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.50\textwidth}
-      \begin{block}{Các thước đo}\footnotesize
-        $\mathrm{Fid}^{+}=(p_0-p_{-S})/p_0$: bỏ tập $S$.\\[0.04cm]
-        $\mathrm{Fid}^{-}=(p_0-p_S)/p_0$: chỉ giữ $S$.\\[0.04cm]
-        $p$: xác suất softmax từ điểm dung hợp.\\[0.04cm]
-        \textbf{PN/PS}: mất / giữ top-1 sau can thiệp.\\
-        \textbf{Sparsity}: tỷ lệ phần tử bị lược bỏ.\\
-        \textbf{Validity cấu trúc}: bằng chứng hợp lệ trong đồ thị.
-      \end{block}
-    \end{column}
-  \end{columns}
-  \vspace{0.08cm}
-  {\scriptsize\color{Slate} Mẫu đánh giá: VG 500 truy vấn; DB15K và FB15K 70 truy vấn mỗi tập; ViHeritage 54 với GAT, 50 với AdaMF (không cộng thành 104 truy vấn duy nhất).}
 \end{frame}
 
-% ===========================================================================
-% 12 --- Level 3 XAI evaluation
-% ===========================================================================
-\begin{frame}{\leveltag{L3Aqua}{CẤP ĐỘ 3} XAI: Tác động vượt Đối chứng Ngẫu nhiên}
+\begin{frame}{\leveltag{L2Orange}{CẤP ĐỘ 2} Giải thích kết quả trên DB15K và FB15K}
   \begin{columns}[c]
-    \begin{column}{0.56\textwidth}
+    \begin{column}{0.53\textwidth}
       \centering
-      \includegraphics[width=\linewidth]{assets/charts/xai_fidelity.png}
+      \resizebox{0.98\linewidth}{!}{\input{assets/charts/xai_level2.tex}}
+      {\scriptsize\color{Slate} 70 truy vấn mỗi tập; trung bình và SD qua 3 seed.}
+      \begin{block}{Tập giải thích}\footnotesize
+        DB15K: $K^\star=2$, sparsity 0.799.\\
+        FB15K: $K^\star=8$, sparsity 0.795.\\[0.08cm]
+        Bằng chứng là bộ ba train, không trùng validation/test: validity cấu trúc 100\% trong mẫu.
+      \end{block}
     \end{column}
-    \begin{column}{0.42\textwidth}
-      \begin{itemize}\footnotesize
-        \item \textbf{Trung bình trên 5 cặp mô hình/dữ liệu}: bỏ $S$ làm giảm xác suất softmax nhiều hơn bỏ ngẫu nhiên cùng số phần tử.
-        \item \textbf{Validity cấu trúc: 100\%} trong mẫu; không đồng nghĩa đúng ngữ nghĩa. Sparsity tại $K^\star$ khoảng 0.65--0.80, tùy tập nền.
-        \item \textbf{Huấn luyện lại AdaMF ViHeritage}: Fid+ 0.327 so với 0.180 ngẫu nhiên ($p=0.0002$).
-      \end{itemize}
-      \begin{alertblock}{Giới hạn của phép xấp xỉ}\footnotesize
-        Spearman(Fid+ xấp xỉ, huấn luyện lại) $=0.32$: mức phù hợp theo từng truy vấn còn hạn chế. Fidelity không xác nhận tính đúng theo kiến thức thực tế.
+    \begin{column}{0.45\textwidth}
+      \begin{block}{Học lại nhúng cục bộ của AdaMF}\footnotesize
+        So sánh bản học lại đủ bộ ba với bản bỏ bớt, chỉ cập nhật nhúng cấu trúc của thực thể; giữ các tham số khác cố định. Chuyển mức chênh lệch sang điểm checkpoint để xếp hạng lại.
+      \end{block}
+      \begin{alertblock}{Giới hạn và đối chiếu}\footnotesize
+        Đây là phép xấp xỉ, chưa tương đương huấn luyện lại toàn bộ mô hình. Pearson điểm học lại--gốc: DB15K 0.957, FB15K 0.527.\\[0.10cm]
+        GAT so với AdaMF trên DB15K: MRR 0.3110 và 0.3143; chưa phát hiện khác biệt có ý nghĩa thống kê (CI chứa 0).
       \end{alertblock}
+      {\scriptsize\color{Slate} Ca thành công Hitchens ở B3; ca thất bại Rock Hudson ở B6.}
     \end{column}
   \end{columns}
 \end{frame}
-% ===========================================================================
-% 13 --- Vietnamese MMKG
-% ===========================================================================
-\begin{frame}{\leveltag{L3Aqua}{CẤP ĐỘ 3} ViHeritage-MMKG: Di sản Việt Nam}
+
+\begin{frame}{\leveltag{L3Aqua}{CẤP ĐỘ 3} ViHeritage-MMKG: di sản Việt Nam}
   \begin{columns}[c]
     \begin{column}{0.39\textwidth}
       \begin{block}{Dữ liệu tự xây}\footnotesize
-        \textbf{Miền}: di sản và danh thắng Việt Nam.\\[0.10cm]
+        \textbf{Miền}: di sản và danh thắng Việt Nam.\\[0.05cm]
         \begin{tabularx}{\linewidth}{@{}L{2.65cm}X@{}}
           Thực thể (có ảnh) & 150 (88)\\[0.04cm]
           Quan hệ / bộ ba & 15 / 427\\[0.04cm]
           Bộ ba train/val/test & 318 / 53 / 56\\[0.04cm]
           Ảnh train/val/test & 264 / 86 / 88\\[0.04cm]
-          Truy vấn test & 88 trực tiếp; 54 gián tiếp\\[0.04cm]
+          Truy vấn test & 88 trực tiếp;\newline54 gián tiếp\\[0.04cm]
           Bộ ba suy ra & Khoảng 35\%\\
         \end{tabularx}
       \end{block}
-      {\scriptsize\color{Slate} Kiểm tra liên kết ảnh: 0.935 trên mẫu 100 ảnh, có hỗ trợ AI; chưa có chấm độc lập nhiều người. Nguồn: Wikidata, Wikipedia, Commons; giấy phép ghi trong Data Card.}
+      {\scriptsize
+      \begin{tabular}{@{}lrr@{}}
+        \toprule MRR gián tiếp & AdaMF & GAT\\ \midrule
+        Che văn bản & 0.230 & ---\\
+        Xáo cạnh & 0.079 & 0.107\\ \bottomrule
+      \end{tabular}\\[0.04cm]
+      Che văn bản chưa làm giảm MRR; xáo cạnh đưa cả hai mô hình xuống dưới CLIP (0.112).}\par
+      {\scriptsize\color{Slate} Nguồn và giấy phép: Data Card ViHeritage (Wikidata, Wikipedia, Commons).}
     \end{column}
     \begin{column}{0.59\textwidth}
       \centering
       \includegraphics[width=0.94\linewidth]{assets/charts/viheritage.png}
       \vspace{-0.08cm}
       \begin{exampleblock}{MRR gián tiếp: $0.112\to0.219$ / $0.258$}\footnotesize
-        AdaMF / GAT, 3 seed; truy vấn tiếng Việt. Ca Huế: Chùa Thiên Mụ được đưa lên hạng 1.
+        AdaMF và GAT đều vượt CLIP; mức tăng rõ hơn ở truy vấn gián tiếp.
       \end{exampleblock}
-      \begin{itemize}\scriptsize
-        \item \textbf{Che văn bản}: MRR 0.230; chưa thấy suy giảm so với bản đầy đủ.
-        \item \textbf{Xáo cạnh}: MRR thấp hơn CLIP ở các lượt chạy đã xét.
-      \end{itemize}
+
+
     \end{column}
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% 14 --- Cross-level findings
-% ===========================================================================
-\begin{frame}{Những Gì Thực nghiệm Hỗ trợ --- và Chưa Thể Khẳng định}
+\begin{frame}{\leveltag{L3Aqua}{CẤP ĐỘ 3} Đánh giá giải thích trên ViHeritage}
+  \begin{columns}[c]
+    \begin{column}{0.54\textwidth}
+      \centering
+      \resizebox{0.98\linewidth}{!}{\input{assets/charts/xai_level3.tex}}
+      {\scriptsize\color{Slate} AdaMF: 50 truy vấn, $K^\star=1$, sparsity 0.786.\\
+      GAT: 54 truy vấn, $K^\star=8$, sparsity 0.762.\\
+      Đây là các mẫu có thể chồng lấn, không cộng thành 104 truy vấn duy nhất.}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{exampleblock}{Kiểm chứng bằng huấn luyện lại}\footnotesize
+        AdaMF được huấn luyện lại từ đầu sau khi bỏ bộ ba giải thích: Fid+ \textbf{0.327}, so với \textbf{0.180} ngẫu nhiên ($p=0.0002$).
+      \end{exampleblock}
+      \begin{alertblock}{Giới hạn diễn giải}\footnotesize
+        Spearman giữa Fid+ xấp xỉ và huấn luyện lại là \textbf{0.32}; mức phù hợp theo từng truy vấn còn hạn chế.\\[0.10cm]
+        Validity cấu trúc 100\% trong mẫu không bảo đảm đúng ngữ nghĩa. Chấm 10 ca mỗi mô hình có AI hỗ trợ cho 4/10 giải thích hợp lý; chưa có đồng thuận nhiều người.
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Kết quả và giới hạn thực nghiệm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \begin{block}{\textcolor{white}{Được hỗ trợ bởi thực nghiệm}}\footnotesize
+      \begin{block}{\textcolor{white}{Kết quả quan sát được}}\footnotesize
         \begin{itemize}
           \item Xếp hạng tăng cường đồ thị vượt CLIP trên mọi tập dữ liệu thử nghiệm (3 seeds cho mô hình đầy đủ).
-          \item Mức tăng lớn nhất, ổn định nhất ở truy vấn \textbf{gián tiếp} ($6.6\times$ / $9.7\times$ / ${\approx}2\times$).
+          \item Mức tăng lớn nhất, ổn định nhất ở truy vấn \textbf{gián tiếp} (6.6 / 9.7 / khoảng 2 lần).
           \item Đối chứng hỗ trợ đóng góp của \textbf{quan hệ đúng} trên \textbf{DB15K} và \textbf{ViHeritage} trong giao thức đã xét.
           \item Bằng chứng \textbf{nhạy với can thiệp}: Fid+ vượt ngẫu nhiên ở mức trung bình; validity cấu trúc 100\% trong mẫu.
         \end{itemize}
       \end{block}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{alertblock}{\textcolor{white}{Không khẳng định / Vấn đề mở}}\footnotesize
+      \begin{alertblock}{\textcolor{white}{Giới hạn thực nghiệm}}\footnotesize
         \begin{itemize}
           \item Trên \textbf{Visual Genome}, phần lớn mức tăng vẫn tồn tại khi xóa cạnh --- cấu trúc quan hệ chỉ là phần dư nhỏ (1 seed).
           \item Trên \textbf{FB15K-237-IMG}, đồ thị nhiễu vẫn giữ ${\approx}93\%$ --- mức tăng không thể quy kết cho quan hệ.
@@ -592,112 +628,58 @@
       \end{alertblock}
     \end{column}
   \end{columns}
-  \vspace{0.1cm}
-  \begin{center}
-    \footnotesize\itshape\color{Slate}
-    ``Đồ thị giúp ích tại những nơi truy vấn đòi hỏi suy luận trên các quan hệ.'' --- Báo cáo Mục VII
-  \end{center}
+
 \end{frame}
-% ===========================================================================
-% 15 --- Conclusions & demo
-% ===========================================================================
-\begin{frame}{Kết luận \& Kế hoạch Live Demo}
+
+\begin{frame}{Kết luận}
   \begin{columns}[t]
     \begin{column}{0.55\textwidth}
-      \begin{block}{3 Thông điệp kết luận cốt lõi}\footnotesize
+      \begin{block}{Kết luận chính}\footnotesize
         \begin{enumerate}
-          \item \textbf{Truy hồi (Retrieval)}: GAT nâng MRR Visual Genome $+17.4\%$ (3 seeds) --- lưu ý: phần lớn đến từ đặc trưng vật thể.
-          \item \textbf{Tri thức (Knowledge)}: MMKG nâng MRR truy vấn gián tiếp lên tới $\mathbf{9.7\times}$ --- đối chứng hỗ trợ đóng góp của quan hệ đúng trên DB15K.
+          \item \textbf{Truy hồi (Retrieval)}: GAT nâng MRR Visual Genome $+17.4\%$ (3 seeds) với phần lớn mức tăng đến từ đặc trưng vật thể.
+          \item \textbf{Tri thức (Knowledge)}: MMKG nâng MRR truy vấn gián tiếp lên tới \textbf{9.7 lần} --- đối chứng hỗ trợ đóng góp của quan hệ đúng trên DB15K.
           \item \textbf{Giải thích (XAI)}: Bằng chứng nhạy với can thiệp; validity cấu trúc 100\% trong mẫu, chưa bảo đảm đúng ngữ nghĩa.
         \end{enumerate}
       \end{block}
       \vspace{0.04cm}
-      \begin{block}{Giới hạn nêu rõ từ đầu}\scriptsize
-        ablation 1 seed $\cdot$ chưa cô lập cấu trúc trên FB15K $\cdot$ fidelity $\ne$ chân lý thực tế $\cdot$ kiểm tra có AI hỗ trợ chưa có đồng thuận đa chuyên gia.
-      \end{block}
+
     \end{column}
     \begin{column}{0.43\textwidth}
-      \begin{block}{\textcolor{white}{Kế hoạch Demo (4--5 phút)}}\footnotesize
-        \begin{enumerate}
-          \item \textbf{L1}: text query $\rightarrow$ CLIP top-5 $\rightarrow$ GAT rerank.
-          \item \textbf{L2}: direct vs indirect query trên DB15K.
-          \item \textbf{L3}: can thiệp xóa-$S$ vs xóa ngẫu nhiên.
-          \item \textbf{ViHeritage}: truy vấn tiếng Việt + Data Card.
-        \end{enumerate}
+      \begin{block}{Hướng cải thiện}\scriptsize
+        ablation 1 seed $\cdot$ chưa cô lập cấu trúc trên FB15K $\cdot$ fidelity $\ne$ chân lý thực tế $\cdot$ kiểm tra có AI hỗ trợ chưa có đồng thuận đa chuyên gia.
       \end{block}
-      \vspace{0.04cm}
-      \begin{exampleblock}{Phương án dự phòng}\scriptsize
-        Video quay sẵn $\le$ 5 phút (quy định Mục 8) + checkpoint nạp sẵn nếu có sự cố.
-      \end{exampleblock}
-      \vspace{0.04cm}
-      \begin{center}
-        \small\bfseries\color{HCMUSBlue} Xin chân thành cảm ơn Quý Thầy Cô!
-      \end{center}
+      \begin{itemize}\footnotesize
+        \item Bổ sung ablation nhiều seed.
+        \item Kiểm chứng XAI sát checkpoint gốc hơn.
+        \item Đánh giá ngữ nghĩa giải thích độc lập.
+      \end{itemize}
+      \vspace{0.25cm}
+      \centering\small\bfseries\color{HCMUSBlue}
+      Xin cảm ơn Quý Thầy Cô!
     \end{column}
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% BACKUP SLIDES (Appendix)
-% ===========================================================================
 \appendix
 \backupslidestrue
 
-% ===========================================================================
-% BACKUP 1 --- metrics & protocol
-% ===========================================================================
 \stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B1: Thước đo và Giao thức Đánh giá}
-  \begin{columns}[t]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Thước đo truy hồi}\footnotesize
-        \textbf{Recall@K}: tỷ lệ truy vấn có ít nhất 1 ảnh phù hợp trong top-$K$.\\[0.1cm]
-        \textbf{MRR}: mean reciprocal rank của ảnh phù hợp tốt nhất; xếp hạng lạc quan (optimistic, chỉ đếm điểm thực sự lớn hơn).\\[0.1cm]
-        \textbf{MRR Trực tiếp / Gián tiếp}: tính riêng cho từng nhóm truy vấn (quy định Mục 7 đề bài).
-      \end{block}
-      \vspace{0.15cm}
-      \begin{block}{Seeds \& Lựa chọn mô hình}\footnotesize
-        3 seeds cho mô hình đầy đủ (trung bình $\pm$ độ lệch chuẩn mẫu, $n{-}1$); ablation chạy 1 lần (nêu rõ). $\alpha$, checkpoint, $K^\star$ --- chỉ chọn trên validation; test chỉ đánh giá đúng 1 lần.
-      \end{block}
-    \end{column}
-    \begin{column}{0.50\textwidth}
-      \begin{block}{Kiểm soát rò rỉ dữ liệu}\footnotesize
-        \begin{itemize}
-          \item VG: gom cụm SHA-256 + pHash \emph{trước khi} phân chia --- các ảnh gần trùng ở cùng một tập.
-          \item DB15K: loại bỏ validation chính thức (2.423 dòng trùng lặp); chia lại sạch 90/10 (seed 2027); test chính thức đồng nhất từng byte.
-          \item FB15K: cụm ảnh được băm trước khi chia (seed 2026); loại bỏ trùng lặp xuyên thực thể.
-          \item Đặc trưng thị giác thực thể chỉ lấy trung bình từ ảnh tập \emph{train}.
-          \item Can thiệp tráo cạnh loại trừ va chạm val/test (công bố rõ, không mù hoàn toàn).
-          \item ViHeritage: kiểm tra che văn bản chống rò rỉ tên (38.9\% truy vấn gián tiếp chứa tên thực thể neo).
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ===========================================================================
-% BACKUP 2 --- 20-query set
-% ===========================================================================
-\stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B2: Bộ 20 Truy vấn Đánh giá}
+\begin{frame}[noframenumbering]{B1: Bộ 20 truy vấn đánh giá}
   \begin{columns}[t]
     \begin{column}{0.50\textwidth}
-      \begin{block}{Thiết kế (cố định trước khi xem kết quả)}\footnotesize
+      \begin{block}{Cách chọn truy vấn}\footnotesize
         Mỗi tập: 10 trực tiếp + 10 gián tiếp (5 head, 5 tail) từ tập test; loại bỏ truy vấn có thực thể đích không xuất hiện trong train; mỗi thực thể đích tối đa 1 truy vấn; seed cố định.
       \end{block}
       \vspace{0.15cm}
-      \begin{block}{Mục đích sử dụng}\footnotesize
-        Chỉ phục vụ đánh giá và minh họa giải thích --- \textbf{tuyệt đối không} dùng để tinh chỉnh mô hình (quy định Mục 6 đề bài).
-      \end{block}
+
       \vspace{0.15cm}
-      {\footnotesize Ví dụ truy vấn gián tiếp: ``an image of the entity that is related to Angelina Jolie by spouse''.}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Kết quả (Bảng XII)}\footnotesize
+      \begin{block}{MRR trên 20 truy vấn mỗi tập}\footnotesize
         \centering
         \begin{tabular}{@{}lcc@{}}
           \toprule
-          Nhóm ($n$) & CLIP & CLIP+AdaMF\\
+          Nhóm truy vấn ($n$) & CLIP & CLIP+AdaMF\\
           \midrule
           DB15K trực tiếp (10) & 0.306 & 0.306\\
           DB15K gián tiếp (10) & 0.003 & \textbf{0.296}\\
@@ -710,45 +692,39 @@
         \end{tabular}
       \end{block}
       \vspace{0.1cm}
-      {\footnotesize\color{Slate} Mẫu 10 truy vấn gián tiếp có độ đại diện hạn chế; Bảng X trên toàn bộ test là bằng chứng hiệu năng chính.}
+      {\footnotesize Bảng gồm cả trực tiếp, gián tiếp và kết quả gộp; chỉ số là MRR.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% BACKUP 3 --- Case Study 1: Visual Genome
-% ===========================================================================
 \stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B3: Visual Genome --- Ca ``peace sign''}
+\begin{frame}[noframenumbering]{B2: Phân tích truy hồi peace sign trên Visual Genome}
   \begin{columns}[c]
     \begin{column}{0.65\textwidth}
       \centering
       \includegraphics[width=\linewidth]{assets/examples/case_vg_success_peacesign.png}\\[0.05cm]
-      {\scriptsize\color{Slate} Cam = nút ảnh; lam = nút vật thể; nhãn cạnh = quan hệ + ($\Delta \times 10^{-2}$).}
+      {\footnotesize\color{Slate} Cam: nút ảnh; lam: nút vật thể. Nhãn hình là tổng mức giảm điểm của cạnh gộp, đơn vị $10^{-2}$.}
     \end{column}
     \begin{column}{0.33\textwidth}
-      \begin{block}{\scriptsize Diễn tiến Truy vấn \& Thứ hạng}\scriptsize
+      \begin{block}{\footnotesize Ca thành công}\footnotesize
         \textbf{Truy vấn}: ``Guy holding up peace sign''\\
         \textbf{Hạng CLIP}: 15\\
         \textbf{Hạng CLIP + GAT}: 1\\
         \textbf{Ablation (xóa $S$)}: tụt về hạng 4\\
         \textbf{No-edge}: 4 \quad \textbf{Random-edges}: 2
       \end{block}
-      \vspace{0.1cm}
-      \begin{alertblock}{\scriptsize Bóc tách Đóng góp}\scriptsize
-        \textbf{Hiện diện vật thể}: \texttt{contains} tới \textit{peace sign} ($\times 5$): $\Delta = 5.5 \times 10^{-2}$ mỗi cạnh.\\
-        \textbf{Ràng buộc quan hệ}: \textit{holding up peace sign}: $\Delta = 0.2 \times 10^{-2}$ (nhỏ hơn $27\times$).\\
-        $\rightarrow$ Mức tăng rerank đến từ việc khớp vật thể được phát hiện hơn là cạnh quan hệ.
+      \vspace{0.02cm}
+      \begin{alertblock}{\footnotesize Đóng góp của các cạnh}\footnotesize
+        \textbf{Hiện diện vật thể}: \texttt{contains} tới \textit{peace sign} (5 cạnh): $\Delta = 5.5 \times 10^{-3}$ mỗi cạnh.\\
+        \textbf{Ràng buộc quan hệ}: \textit{holding up peace sign}: $\Delta = 0.2 \times 10^{-3}$ (nhỏ hơn 27 lần).\\
+        $\rightarrow$ Ca này chủ yếu được cải thiện nhờ khớp vật thể.
       \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% BACKUP 4 --- Case Study 2: DB15K Indirect Query
-% ===========================================================================
 \stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B4: DB15K --- Ca Hitchens và Dawkins}
+\begin{frame}[noframenumbering]{B3: Truy hồi Hitchens từ truy vấn về Dawkins trên DB15K}
   \begin{columns}[c]
     \begin{column}{0.65\textwidth}
       \centering
@@ -756,8 +732,8 @@
       {\scriptsize\color{Slate} Xanh cyan = neo (Dawkins); cam = đích (Hitchens); nét liền = giải thích; nét đứt = truy vấn.}
     \end{column}
     \begin{column}{0.33\textwidth}
-      \begin{block}{\scriptsize Diễn tiến Truy vấn \& Thứ hạng}\scriptsize
-        \textbf{Truy vấn}: Thực thể chịu ảnh hưởng bởi Dawkins\\
+      \begin{block}{\scriptsize Ca thành công}\scriptsize
+        \textbf{Truy vấn}: Thực thể chịu ảnh hưởng bởi Dawkins (DB15K)\\
         \textbf{Thực thể đích}: Christopher Hitchens\\
         \textbf{Hạng CLIP}: 55 $\rightarrow$ \textbf{CLIP + AdaMF}: 1 ($K^\star = 2$)
       \end{block}
@@ -768,26 +744,23 @@
         $\rightarrow$ Case này nhạy với che cấu trúc hơn che văn bản hoặc ảnh.
       \end{block}
       \vspace{0.05cm}
-      \begin{exampleblock}{\scriptsize Bộ ba Cốt lõi}\scriptsize
-        (Hitchens, \textit{influenced}, Dawkins): $\Delta = 0.198$, trực tiếp bắc cầu từ neo sang đích.
+      \begin{exampleblock}{\scriptsize Bộ ba được chọn}\scriptsize
+        (Hitchens, \textit{influenced}, Dawkins): $\Delta = 0.198$, nối hai thực thể; đọc theo chiều quan hệ trong dữ liệu.
       \end{exampleblock}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% BACKUP 5 --- Case Study 3: ViHeritage Vietnamese MMKG
-% ===========================================================================
 \stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B5: ViHeritage --- Ca Huế và Chùa Thiên Mụ}
+\begin{frame}[noframenumbering]{B4: Truy hồi Chùa Thiên Mụ từ Huế trên ViHeritage}
   \begin{columns}[c]
     \begin{column}{0.63\textwidth}
       \centering
       \includegraphics[width=\linewidth]{assets/examples/case_viheritage_gat_hue.png}\\[0.04cm]
-      {\scriptsize\color{Slate} Hình 8 báo cáo. Xanh ngọc: Huế; cam: Chùa Thiên Mụ; nét đậm: bằng chứng; nét đứt: quan hệ hỏi.}
+      {\scriptsize\color{Slate} Xanh ngọc: Huế; cam: Chùa Thiên Mụ; nét đậm: bằng chứng; nét đứt: quan hệ hỏi.}
     \end{column}
     \begin{column}{0.35\textwidth}
-      \begin{block}{\footnotesize Truy vấn và thứ hạng}\scriptsize
+      \begin{block}{\footnotesize Ca thành công}\scriptsize
         ``Thành phố Huế có những di tích nào?''\\[0.04cm]
         \textbf{Đích}: Chùa Thiên Mụ.\\
         \textbf{CLIP}: 3 $\to$ \textbf{GAT / AdaMF}: 1.
@@ -811,35 +784,110 @@
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% BACKUP 6 --- failure cases
-% ===========================================================================
 \stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B6: Phân tích các Ca Thất bại}
-  \begin{columns}[t]
-    \begin{column}{0.50\textwidth}
-      \begin{block}{Cấp độ 1 --- Visual Genome (Bảng IX)}\footnotesize
-        \textbf{Thành công (5/5)}: đóng góp hàng đầu luôn là cạnh \texttt{contains} tới vật thể được hỏi; xóa $S$ làm ảnh tụt xuống hạng 2--4.\\[0.08cm]
-        \textbf{Thất bại (5)}: 3 ca mà đồ thị \emph{làm giảm hiệu năng} (ảnh sai ở hạng 1 cũng chứa vật thể tương tự --- mô hình tưởng thưởng sự hiện diện thay vì thuộc tính/quan hệ, ví dụ ``black'', ``on the road''); 2 ca không cứu được (hạng 2--5). Trong 3/5 ca, No-edge vẫn xếp ảnh đúng ở hạng 1 --- lỗi xuất hiện khi bổ sung truyền tin (message passing).
+\begin{frame}[noframenumbering]{B5: Ca thất bại trên Visual Genome}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \begin{block}{Thứ hạng ảnh đúng: ``large black train''}\footnotesize
+        \begin{tabularx}{\linewidth}{@{}Xr@{}}
+          \toprule Cấu hình & Hạng\\ \midrule
+          CLIP & 1\\ CLIP + GAT & 3\\ No-edge & 1\\ Random-edges & 2\\ Bỏ tập giải thích $S$ & 3\\ \bottomrule
+        \end{tabularx}
       \end{block}
+      \resizebox{0.94\linewidth}{!}{%
+      \begin{tikzpicture}[
+        n/.style={draw=LineGray,fill=SoftBg,rounded corners=3pt,align=center,font=\small,text width=2.3cm,inner sep=5pt},
+        ar/.style={-{Latex[length=2mm]},Slate,thick}]
+        \node[n,fill=HCMUSBlue,text=white] (q) at (0,0) {large \textbf{black} train};
+        \node[n] (obj) at (3.5,0.55) {Khớp vật thể\\train};
+        \node[n,draw=WarnRed] (att) at (3.5,-0.60) {Chưa phân biệt\\thuộc tính black};
+        \draw[ar] (q)--(obj); \draw[ar,WarnRed] (q)--(att);
+      \end{tikzpicture}}
+      \\[0.08cm]{\scriptsize\color{Slate} Sơ đồ diễn giải cơ chế lỗi theo báo cáo.}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Cấp độ 2 --- DB15K / FB15K}\footnotesize
-        \textbf{DB15K thành công}: ảnh đúng tăng từ hạng CLIP 55--624 lên hạng 1; đường đi 1 bước từ neo (ví dụ \texttt{influenced} $\Delta{=}0.198$).\\[0.08cm]
-        \textbf{DB15K dạng lỗi}: (i) hai ứng viên cùng chia sẻ quan hệ cận nghĩa với neo; (ii) bộ ba nhiễu làm bằng chứng; (iii) mô hình trả về chính \emph{thực thể neo}.\\[0.08cm]
-        \textbf{FB15K thất bại}: thực thể quyết định là nút trung tâm (hub) với hàng nghìn bộ ba; mỗi bộ ba chỉ đóng góp ${\sim}10^{-4}$; che văn bản đôi khi làm tụt điểm nhiều hơn che cấu trúc.
+    \begin{column}{0.42\textwidth}
+      \begin{alertblock}{Đồ thị làm giảm thứ hạng}\footnotesize
+        CLIP đã đặt ảnh đúng ở hạng 1; GAT đưa xuống hạng 3. Ảnh sai cũng chứa vật thể khớp truy vấn, nhưng mô hình chưa phân biệt tốt thuộc tính \textit{black}.
+      \end{alertblock}
+      \begin{block}{Các ca có cùng cơ chế}\footnotesize
+        ``A man on the road'' và ``a slice of spinach and cheese pizza'' đều từ hạng 1 xuống 3. Lỗi liên quan tới thuộc tính hoặc quan hệ. Trong 5 ca thất bại, 3 ca No-edge vẫn đặt ảnh đúng ở hạng 1.
       \end{block}
-      \vspace{0.06cm}
-      {\footnotesize\color{Slate} Cấp độ 3 (ViHeritage): trả về thực thể neo cho truy vấn dạng ``gần X'' (6/10); bộ ba đúng nhưng không liên quan; lỗi đường dẫn trong Wikidata.}
+      {\scriptsize\color{Slate} Báo cáo: bảng năm ca thành công và năm ca thất bại Visual Genome.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ===========================================================================
-% BACKUP 7 --- hyperparameters
-% ===========================================================================
 \stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B7: Cấu hình Huấn luyện}
+\begin{frame}[noframenumbering]{B6: Ca thất bại: truy vấn starring trên DB15K}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \begin{minipage}[b]{0.48\linewidth}\centering\scriptsize
+        Ảnh đúng: Pillow Talk\\[0.05cm]
+        \includegraphics[width=\linewidth,height=1.9cm,keepaspectratio,trim=11.08bp 70.34bp 949.29bp 108bp,clip]{assets/examples/case_db15k_failure_rock_hudson.png}
+      \end{minipage}\hfill
+      \begin{minipage}[b]{0.48\linewidth}\centering\scriptsize
+        Ảnh sai hạng 1: Dynasty\\[0.05cm]
+        \includegraphics[width=\linewidth,height=1.9cm,keepaspectratio,trim=369.42bp 24.92bp 683.45bp 63.69bp,clip]{assets/examples/case_db15k_failure_rock_hudson.png}
+      \end{minipage}
+      \\[0.16cm]
+      \resizebox{0.94\linewidth}{!}{%
+      \begin{tikzpicture}[
+        n/.style={draw=LineGray,fill=SoftBg,rounded corners=3pt,align=center,font=\small,text width=2.5cm,inner sep=5pt},
+        ar/.style={-{Latex[length=2mm]},HCMUSBlue,thick}]
+        \node[n,fill=L3Aqua,text=white] (a) at (0,1.0) {Rock Hudson};
+        \node[n] (ok) at (-1.9,-0.3) {Pillow Talk\\ảnh đúng: hạng 4};
+        \node[n,draw=WarnRed] (bad) at (1.9,-0.3) {Dynasty\\ảnh sai: hạng 1};
+        \draw[ar] (a)--node[left,font=\scriptsize]{known for}(ok);
+        \draw[ar] (a)--node[right,font=\scriptsize]{known for}(bad);
+      \end{tikzpicture}}
+      \\[0.08cm]{\scriptsize\color{Slate} FB15K: nút trung tâm có hàng nghìn bộ ba, mỗi bộ ba đóng góp khoảng $10^{-4}$. Che văn bản đôi khi tác động mạnh hơn che cấu trúc.}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{Truy vấn và thứ hạng}\footnotesize
+        Tìm ảnh của thực thể có quan hệ \textit{starring} với Rock Hudson.\\[0.10cm]
+        Ảnh Pillow Talk: \textbf{CLIP hạng 1 $\to$ AdaMF hạng 4}. Mô hình đưa Dynasty lên hạng 1.
+      \end{block}
+      \begin{alertblock}{Nhầm hai loại quan hệ}\footnotesize
+        Cả hai ứng viên có bộ ba \textit{known for} với Rock Hudson. Quan hệ này không phân biệt đúng yêu cầu \textit{starring} trong truy vấn. Bộ ba thuộc train chưa đủ để xác nhận giải thích phù hợp. Các lỗi DB15K khác gồm bằng chứng nhiễu và trả về chính thực thể neo.
+      \end{alertblock}
+      {\scriptsize\color{Slate} Ảnh và số liệu: C8, ca Rock Hudson.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\stepcounter{backupslide}
+\begin{frame}[noframenumbering]{B7: Ca thất bại: tìm chùa nhưng trả về lăng}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=0.72\linewidth,height=2.6cm,keepaspectratio]{assets/examples/viheritage_minh_mang_example.jpg}
+      \\[0.04cm]{\scriptsize Lăng Minh Mạng --- ảnh minh họa thực thể trả về.\\
+      Chainwit., Wikimedia Commons, CC BY 4.0 (img0397).}\\[0.16cm]
+      \resizebox{0.94\linewidth}{!}{%
+      \begin{tikzpicture}[
+        n/.style={draw=LineGray,fill=SoftBg,rounded corners=3pt,align=center,font=\small,text width=2.5cm,inner sep=6pt},
+        ar/.style={-{Latex[length=2mm]},HCMUSBlue,thick}]
+        \node[n,draw=WarnRed] (r) at (0,0) {Lăng Minh Mạng};
+        \node[n,fill=L3Aqua,text=white] (a) at (4.5,0) {Huế};
+        \draw[ar] (r)--node[above,font=\scriptsize]{nằm ở tỉnh}(a);
+      \end{tikzpicture}}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{Ca thất bại trên ViHeritage}\footnotesize
+        Với truy vấn tìm \textbf{chùa} ở Huế, mô hình trả về \textbf{Lăng Minh Mạng}. Bộ ba giải thích \textit{Lăng Minh Mạng -- nằm ở tỉnh -- Huế} khớp địa điểm nhưng không đáp ứng loại công trình được hỏi.
+      \end{block}
+      \begin{alertblock}{Giới hạn của giải thích}\footnotesize
+        Giải thích có thể phản ánh cách mô hình xếp hạng nhưng thiếu tính phù hợp ngữ nghĩa. Các lỗi khác gồm trả về chính thực thể neo (6/10 ca thất bại), đường đi chứa dữ liệu nhiễu và nhầm danh hiệu di sản.
+      \end{alertblock}
+      {\scriptsize\color{Slate} Nguồn: báo cáo, phân tích ca ViHeritage. Ảnh minh họa: img0397.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\stepcounter{backupslide}
+\begin{frame}[noframenumbering]{B8: Cấu hình huấn luyện}
   \centering\footnotesize
   \resizebox{\textwidth}{!}{%
   \begin{tabular}{@{}l l l l l@{}}
@@ -864,39 +912,6 @@
     \end{column}
     \begin{column}{0.48\textwidth}
       {\footnotesize\color{Slate} Thứ tự chạy lại (Phụ lục B báo cáo): Cấp 1 \texttt{run\_gat.py} + ablations + notebook 11; Cấp 2 AdaMF notebooks 07/07b/07c/10a; Cấp 3 notebooks 08a--10d.}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ===========================================================================
-% BACKUP 8 --- contributions
-% ===========================================================================
-\stepcounter{backupslide}
-\begin{frame}[noframenumbering]{B8: Đóng góp Thành viên và Công bố Công cụ}
-  \centering\scriptsize
-  \begin{tabularx}{\textwidth}{@{}C{0.6cm}L{4.2cm}Y@{}}
-    \toprule
-    \textbf{\#} & \textbf{Thành viên} & \textbf{Trách nhiệm chính} \\
-    \midrule
-    1 & Chung Gia Khánh (23120282) & Thiết kế kiến trúc tổng thể, kiểm định kỹ thuật (audit), ablation, biên tập báo cáo \\
-    2 & Lê Hoàng Mỹ Hạ (23120038) & Tiền xử lý dữ liệu, kiểm soát rò rỉ (leakage), trích xuất đặc trưng CLIP \\
-    3 & Hàn Vũ Phương Uyên (23120106) & Xây dựng scene graph, cài đặt GAT, phân tích thực nghiệm Cấp độ 1 \\
-    4 & Trần Gia Hiển (23120123) & Cài đặt AdaMF trên DB15K \& FB15K-237-IMG, các kiểm soát Cấp độ 2 \\
-    5 & Nguyễn An Nghiệp (23127234) & Cơ chế giải thích đồ thị, đánh giá định lượng XAI, xây dựng tập dữ liệu MMKG \\
-    \bottomrule
-  \end{tabularx}
-  \vspace{0.05cm}
-
-  \begin{columns}[t]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Danh mục nộp bài}\scriptsize
-        Code + môi trường + hướng dẫn $\cdot$ phân chia / seed cố định $\cdot$ báo cáo 18 trang + slide + bảng phân công $\cdot$ notebook truy vấn $\rightarrow$ top-$k$ kèm giải thích $\cdot$ phân tích 5 thành công + 5 thất bại $\cdot$ bộ 20 truy vấn $\cdot$ Data Card ViHeritage $\cdot$ live demo + video $\le$5 phút.
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Khai báo công cụ (Mục 9 đề bài)}\scriptsize
-        Mã nguồn mở: AdaMF-MAT (tinh chỉnh), PyTorch Geometric, OpenCLIP, sentence-transformers. Trợ lý AI khai báo trong Phụ lục C của báo cáo (soạn thảo notebook, câu hỏi tiếng Việt, kiểm tra liên kết, rà soát tính hợp lệ, hiệu đính báo cáo) --- nhóm tự kiểm chứng và bảo vệ.
-      \end{block}
     \end{column}
   \end{columns}
 \end{frame}
